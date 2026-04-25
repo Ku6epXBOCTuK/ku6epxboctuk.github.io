@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { onMount } from "svelte";
 	import { ASCII_ART } from "$lib/ascii";
+	import { onMount } from "svelte";
 
-	const TYPING_BASE_DELAY = 30;
-	const TYPING_SPREAD_DELAY = 50;
 	const FOCUS_DELAY = 2000;
+	const TYPING_BASE = 30;
+	const TYPING_SPREAD = 50;
 
 	interface Props {
 		commandInput?: string;
@@ -20,28 +20,33 @@
 		onFocus,
 	}: Props = $props();
 
-	let asciiText = $state("");
-	let asciiFinished = $state(false);
+	let typedText = $state("");
+	let typedIndex = $state(0);
 	let localInputRef: HTMLInputElement | undefined = $state();
 
 	function typeAscii() {
-		let i = 0;
+		if (typedIndex < ASCII_ART.length) {
+			typedText = ASCII_ART.substring(0, typedIndex + 1);
+			typedIndex++;
+		}
+	}
+
+	function startTyping() {
+		typeAscii();
 		const interval = setInterval(
 			() => {
-				if (i < ASCII_ART.length) {
-					asciiText = ASCII_ART.substring(0, i + 1);
-					i++;
+				if (typedIndex < ASCII_ART.length) {
+					typeAscii();
 				} else {
-					asciiFinished = true;
 					clearInterval(interval);
 				}
 			},
-			TYPING_BASE_DELAY + Math.random() * TYPING_SPREAD_DELAY,
+			TYPING_BASE + Math.random() * TYPING_SPREAD,
 		);
 	}
 
 	onMount(() => {
-		typeAscii();
+		startTyping();
 		setTimeout(() => {
 			localInputRef?.focus();
 			onFocus?.();
@@ -50,10 +55,10 @@
 </script>
 
 <div class="home-ascii">
-	<span class="ascii-text">{asciiText}</span>
-	{#if !asciiFinished}
-		<span class="cursor">█</span>
-	{/if}
+	<pre class="placeholder">{ASCII_ART}</pre>
+	<pre class="typed"><span class="text">{typedText}</span><span class="cursor"
+			>█</span
+		></pre>
 </div>
 
 <div class="home-intro">
@@ -122,13 +127,34 @@
 
 <style>
 	.home-ascii {
-		color: var(--dim);
+		background: var(--bg-ascii);
+		padding: 8px 12px 40px;
+		border-radius: 4px;
 		font-size: 10px;
 		line-height: 1.2;
 		margin: 30px 0;
-		white-space: pre;
-		overflow-x: auto;
 		font-family: var(--ascii-font);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.home-ascii .placeholder {
+		color: var(--dim);
+		opacity: 0.1;
+		margin: 0;
+		pointer-events: none;
+		white-space: pre;
+	}
+
+	.home-ascii .typed {
+		color: var(--dim-light);
+		margin: 0;
+		position: absolute;
+		top: 8px;
+		left: 12px;
+		right: 12px;
+		bottom: 8px;
+		white-space: pre;
 	}
 
 	.home-ascii .cursor {
