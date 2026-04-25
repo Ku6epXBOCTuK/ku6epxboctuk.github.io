@@ -1,10 +1,11 @@
 # Ku6epXBOCTuK Portfolio
 
-Personal portfolio website built with vanilla HTML, CSS, and JavaScript.
+Personal portfolio website built with SvelteKit.
 
 ## Overview
 
 Terminal-inspired portfolio with:
+
 - Single-page navigation (home, about, projects, writings)
 - Command line interface
 - ASCII art header
@@ -12,22 +13,17 @@ Terminal-inspired portfolio with:
 
 ## Tech Stack
 
-- HTML/CSS/JS (static site)
+- SvelteKit
 - JetBrains Mono font
-- No build required
+- TypeScript
 
 ## Development
 
-Open `index.html` in a browser or serve locally:
-
 ```bash
-npx serve .
-# or
-python -m http.server 8000
+npm install
+npm run dev
 ```
 
 ## Deployment
 
 Deploys automatically to GitHub Pages on push to main via GitHub Actions.
-
-Workflow runs when `index.html` changes.
