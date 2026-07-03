@@ -11,6 +11,7 @@
 			"options": {
 				"parser": "svelte"
 			}
-		}
+		},
+		{ "files": "*.md", "options": { "proseWrap": "always" } }
 	]
 }

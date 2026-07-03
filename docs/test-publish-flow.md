@@ -105,7 +105,8 @@ Discord: edited message <id>
 Done.
 ```
 
-Если Telegram пишет "already up to date" — значит контент не изменился, это нормально.
+Если Telegram пишет "already up to date" — значит контент не изменился, это
+нормально.
 
 ### Шаг 5. Проверь что сообщения обновились
 

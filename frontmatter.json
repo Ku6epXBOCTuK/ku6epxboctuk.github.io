@@ -1,0 +1,150 @@
+{
+	"$schema": "https://frontmatter.codes/frontmatter.schema.json",
+	"frontMatter.taxonomy.contentTypes": [
+		{
+			"name": "post",
+			"pageBundle": false,
+			"previewPath": null,
+			"fields": [
+				{
+					"title": "Title",
+					"name": "title",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Date",
+					"name": "date",
+					"type": "string",
+					"default": "{{now}}",
+					"required": true
+				},
+				{
+					"title": "Excerpt",
+					"name": "excerpt",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Tag",
+					"name": "tag",
+					"type": "string"
+				},
+				{
+					"title": "Draft",
+					"name": "draft",
+					"type": "draft"
+				}
+			]
+		},
+		{
+			"name": "project",
+			"pageBundle": false,
+			"previewPath": null,
+			"fields": [
+				{
+					"title": "Title",
+					"name": "title",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Type",
+					"name": "type",
+					"type": "string",
+					"default": "experiment",
+					"choices": [
+						"extension",
+						"tool",
+						"template",
+						"widget",
+						"game",
+						"experiment"
+					],
+					"required": true
+				},
+				{
+					"title": "Subtitle",
+					"name": "subtitle",
+					"type": "string"
+				},
+				{
+					"title": "Description",
+					"name": "description",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Tags",
+					"name": "tags",
+					"type": "tags"
+				},
+				{
+					"title": "Image",
+					"name": "image",
+					"type": "image"
+				},
+				{
+					"title": "URL",
+					"name": "url",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Draft",
+					"name": "draft",
+					"type": "draft"
+				}
+			]
+		},
+		{
+			"name": "weekly",
+			"pageBundle": false,
+			"previewPath": null,
+			"fields": [
+				{
+					"title": "Title",
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"title": "Date",
+					"name": "date",
+					"type": "string",
+					"default": "{{now}}",
+					"required": true
+				},
+				{
+					"title": "Excerpt",
+					"name": "excerpt",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Draft",
+					"name": "draft",
+					"type": "draft"
+				}
+			]
+		}
+	],
+	"frontMatter.framework.id": "other",
+	"frontMatter.content.publicFolder": "",
+	"frontMatter.content.pageFolders": [
+		{
+			"title": "Projects",
+			"path": "[[workspace]]/src/projects",
+			"contentTypes": ["project"]
+		},
+		{
+			"title": "Posts",
+			"path": "[[workspace]]/src/posts",
+			"contentTypes": ["post"]
+		},
+		{
+			"title": "Weekly",
+			"path": "[[workspace]]/src/weekly",
+			"contentTypes": ["weekly"]
+		}
+	]
+}

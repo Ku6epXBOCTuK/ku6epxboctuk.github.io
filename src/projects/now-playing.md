@@ -2,8 +2,13 @@
 title: now_playing
 type: widget
 subtitle: obs browser source
-description: obs browser source widget that displays the currently playing track. reads from a simple text file updated by your music player.
-tags: html css javascript
+description:
+  obs browser source widget that displays the currently playing track. reads
+  from a simple text file updated by your music player.
+tags:
+  - html
+  - css
+  - javascript
 image: images/now-playing.jpg
 url: https://github.com/Ku6epXBOCTuK/now_playing
 ---
