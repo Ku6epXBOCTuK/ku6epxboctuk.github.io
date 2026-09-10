@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>xboct.dev — превью: 4 темы (kawaii.os / personal-blog × light / dark)</title>
+    <!-- шрифты: в превью системные; в боевой сборке — @fontsource (Comfortaa+Nunito для kawaii, Arial для soft) -->
+    <script>
+      // скин и тема до отрисовки — без FOUC
+      (function () {
+        var root = document.documentElement;
+        try {
+          var t = localStorage.getItem("theme");
+          if (!t)
+            t = matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          if (t === "dark") root.classList.add("dark");
+          root.setAttribute("data-skin", localStorage.getItem("skin") || "kawaii");
+        } catch (e) {
+          root.setAttribute("data-skin", "kawaii");
+        }
+      })();
+    </script>
+    <style>
+      /* ===== токены: скин kawaii ===== */
+      [data-skin="kawaii"] {
+        --background: oklch(0.95 0.035 60);
+        --foreground: oklch(0.42 0.08 35);
+        --outline: oklch(0.52 0.09 35);
+        --shadow: oklch(0.52 0.09 35);
+        --window: oklch(0.99 0.012 80);
+        --titlebar: oklch(0.82 0.08 280);
+        --primary: oklch(0.78 0.12 35);
+        --primary-foreground: oklch(0.32 0.08 35);
+        --muted-foreground: oklch(0.52 0.06 35);
+        --coral: oklch(0.78 0.13 30);
+        --peach: oklch(0.86 0.09 50);
+        --periwinkle: oklch(0.78 0.08 270);
+        --sky: oklch(0.88 0.06 240);
+        --radius: 12px;
+        --font-display: "Comfortaa", system-ui, sans-serif;
+        --font-body: "Nunito", system-ui, sans-serif;
+        /* алиасы для layout'а */
+        --line: oklch(0.85 0.04 60);
+        --accent-soft: oklch(0.93 0.05 45);
+        --periwinkle-soft: oklch(0.9 0.05 270);
+        --sky-soft: oklch(0.91 0.045 240);
+        --tag-foreground: oklch(0.42 0.08 35);
+        --link: var(--coral);
+        --hard-shadow: 3px 3px 0 0 var(--shadow);
+      }
+      [data-skin="kawaii"].dark {
+        --background: oklch(0.28 0.04 305);
+        --foreground: oklch(0.95 0.025 70);
+        --outline: oklch(0.68 0.06 300);
+        --shadow: oklch(0.5 0.06 300);
+        --window: oklch(0.32 0.04 305);
+        --titlebar: oklch(0.46 0.06 290);
+        --primary: oklch(0.74 0.1 35);
+        --primary-foreground: oklch(0.22 0.035 305);
+        --muted-foreground: oklch(0.82 0.03 70);
+        --coral: oklch(0.7 0.12 28);
+        --peach: oklch(0.74 0.1 35);
+        --periwinkle: oklch(0.72 0.07 275);
+        --sky: oklch(0.55 0.06 270);
+        --line: oklch(0.42 0.04 300);
+        --accent-soft: oklch(0.38 0.05 310);
+        --periwinkle-soft: oklch(0.4 0.06 280);
+        --sky-soft: oklch(0.4 0.05 265);
+        --tag-foreground: oklch(0.85 0.04 45);
+        --link: var(--coral);
+      }
+      /* ===== база ===== */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--foreground);
+        font-family: var(--font-body);
+        line-height: 1.55;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      img {
+        max-width: 100%;
+      }
+      .shell {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      :focus-visible {
+        outline: 2px solid var(--coral);
+        outline-offset: 2px;
+      }
+            /* ===== topbar ===== */
+      .topbar {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 20px;
+        color: var(--outline);
+      }
+      .brand-mark {
+        color: var(--coral);
+      }
+      .nav-links {
+        display: flex;
+        gap: 22px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--muted-foreground);
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--foreground);
+      }
+      .nav-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      /* ===== чип и кнопки ===== */
+      .chip {
+        border: 2px solid var(--outline);
+        border-radius: 8px;
+        background: var(--window);
+        color: var(--outline);
+        font-family: var(--font-display);
+        font-size: 13px;
+        padding: 7px 12px;
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+      }
+      .chip:hover {
+        transform: translateY(-1px);
+      }
+      .btn {
+        border-radius: 10px;
+        padding: 11px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: var(--font-display);
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+        box-shadow: var(--hard-shadow);
+      }
+      .btn-ghost {
+        border-color: var(--outline);
+        color: var(--outline);
+        background: var(--window);
+      }
+      /* ===== окно (kawaii) ===== */
+      .window {
+        position: relative;
+        border: 2px solid transparent;
+        border-radius: 14px;
+        box-shadow: var(--hard-shadow);
+        overflow: hidden;
+        background:
+          linear-gradient(var(--window), var(--window)) padding-box,
+          linear-gradient(to bottom right, var(--outline), var(--periwinkle))
+            border-box;
+      }
+      .window::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        pointer-events: none;
+        background: radial-gradient(
+          circle at top left,
+          rgba(255, 183, 178, 0.15) 0%,
+          transparent 60%
+        );
+      }
+      .titlebar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 6px 12px;
+        background: var(--titlebar);
+        border-bottom: 2px solid var(--outline);
+        color: var(--outline);
+        font-family: var(--font-display);
+        font-size: 13px;
+      }
+      .dots {
+        display: flex;
+        gap: 8px;
+      }
+      .dots i {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        border: 1.5px solid var(--outline);
+      }
+      .titlebar-controls {
+        font-size: 11px;
+      }
+      .icon-toggle {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        justify-content: center;
+        font-size: 15px;
+        font-family: ui-monospace, Consolas, monospace;
+        font-weight: 700;
+      }
+      .icon-toggle.active {
+        background: var(--accent-soft);
+        color: var(--outline);
+      }
+            /* ===== hero ===== */
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 64px;
+        align-items: center;
+        padding: 88px 0 96px;
+      }
+      .eyebrow {
+        color: var(--coral);
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: var(--font-display);
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(36px, 5vw, 58px);
+        line-height: 1.12;
+        letter-spacing: -0.03em;
+        margin: 18px 0;
+        font-weight: 700;
+      }
+      .hero-title em {
+        color: var(--coral);
+        font-style: normal;
+      }
+      .hero-copy > p {
+        max-width: 500px;
+        font-size: 17px;
+        color: var(--muted-foreground);
+      }
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 26px;
+        flex-wrap: wrap;
+      }
+      .chips-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .terminal-body {
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        min-height: 250px;
+      }
+      .t-prompt {
+        color: var(--periwinkle);
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+      }
+      .t-value {
+        font-family: var(--font-display);
+        font-size: 17px;
+      }
+      .t-mood {
+        color: var(--coral);
+      }
+      .t-status {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+        color: var(--periwinkle);
+      }
+      .t-status i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--coral);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.4;
+        }
+      }
+      /* ===== секции ===== */
+      .section {
+        padding: 56px 0;
+      }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 20px;
+        margin-bottom: 22px;
+      }
+      .section-head h2 {
+        font-family: var(--font-display);
+        font-size: 30px;
+        letter-spacing: -0.03em;
+        margin: 8px 0 0;
+      }
+      .text-link {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        color: var(--link);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .grid-2 {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+            /* ===== карточки: анатомия personal-blog, кожа kawaii ===== */
+      .card {
+        border: 2px solid transparent;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--hard-shadow);
+        background:
+          linear-gradient(var(--window), var(--window)) padding-box,
+          linear-gradient(to bottom right, var(--outline), var(--periwinkle))
+            border-box;
+        transition: transform 0.18s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+      }
+      .card-img {
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+        display: block;
+        border-bottom: 2px solid var(--outline);
+      }
+      div.card-img {
+        display: grid;
+        place-items: center;
+        font-size: 56px;
+      }
+      .card-body {
+        padding: 23px;
+      }
+      .meta-row {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+      .card h3 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        letter-spacing: -0.04em;
+        margin: 17px 0 8px;
+      }
+      .card p {
+        color: var(--muted-foreground);
+        margin: 0;
+        font-size: 15px;
+      }
+      .card-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 12px;
+        margin-top: 20px;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tag {
+        background: var(--accent-soft);
+        color: var(--tag-foreground);
+        padding: 4px 8px;
+        border-radius: 7px;
+        font-size: 11px;
+      }
+      .icon-link {
+        background: var(--coral);
+        color: var(--primary-foreground);
+        border-radius: 10px;
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+        box-shadow: 2px 2px 0 0 var(--shadow);
+        flex-shrink: 0;
+      }
+            /* ===== проекты ===== */
+      .project-head {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .project-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        border: 2px solid var(--outline);
+        background: var(--window);
+        flex-shrink: 0;
+      }
+      .project-coral .project-icon {
+        background: var(--accent-soft);
+      }
+      .project-periwinkle .project-icon {
+        background: var(--periwinkle-soft);
+      }
+      .project-sky .project-icon {
+        background: var(--sky-soft);
+      }
+      .eyebrow-sub {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted-foreground);
+        font-family: var(--font-display);
+      }
+      .project-head h3 {
+        margin: 2px 0 0;
+      }
+      .project-links {
+        display: flex;
+        gap: 14px;
+        margin-top: 21px;
+        font-size: 12px;
+        color: var(--link);
+      }
+      .project-links a {
+        display: inline-flex;
+        gap: 5px;
+        align-items: center;
+      }
+            /* ===== weekly: карточка как в прототипе ===== */
+      .report-card {
+        padding: 25px;
+      }
+      .report-date {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--link);
+        font-size: 13px;
+        margin-bottom: 19px;
+      }
+      .report-items {
+        display: flex;
+        flex-direction: column;
+      }
+      .report-row {
+        display: flex;
+        gap: 22px;
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+      }
+      .report-project {
+        font-size: 13px;
+        font-weight: 700;
+        min-width: 110px;
+        color: var(--foreground);
+      }
+      .report-changes {
+        font-size: 14px;
+        color: var(--muted-foreground);
+      }
+      .report-card > .text-link {
+        margin-top: 17px;
+      }
+      /* ===== футер ===== */
+      footer {
+        padding: 30px 0 45px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: var(--muted-foreground);
+        font-size: 12px;
+        flex-wrap: wrap;
+      }
+      .footer-code {
+        font-family: ui-monospace, Consolas, monospace;
+      }
+      /* ===== мобильная версия ===== */
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 34px;
+          padding: 56px 0 64px;
+        }
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+        .nav-links {
+          display: none;
+        }
+        .report-project {
+          min-width: 0;
+        }
+        .report-row {
+          flex-direction: column;
+          gap: 4px;
+          align-items: flex-start;
+        }
+      }
+      /* ===== скин soft (personal-blog): переменные + техника ===== */
+      [data-skin="soft"] {
+        --background: #fff9fc;
+        --foreground: #292337;
+        --outline: #eadfea;
+        --shadow: #2a1555;
+        --window: #ffffff;
+        --titlebar: #211c2b;
+        --primary: #292337;
+        --primary-foreground: #fff9fc;
+        --muted-foreground: #756d84;
+        --coral: #d875a4;
+        --peach: #ffe6f0;
+        --periwinkle: #c7d8ff;
+        --sky: #b9eee3;
+        --line: #eadfea;
+        --accent-soft: #ffe6f0;
+        --periwinkle-soft: #e2ebff;
+        --sky-soft: #dff8f1;
+        --tag-foreground: #a45d83;
+        --link: #b46b94;
+        --hard-shadow: 0 18px 50px rgba(66, 42, 85, 0.08);
+        --font-display: Arial, sans-serif;
+        --font-body: Arial, sans-serif;
+        --radius: 18px;
+      }
+      [data-skin="soft"].dark {
+        --background: #17131f;
+        --foreground: #f8eff8;
+        --outline: #393044;
+        --shadow: #000000;
+        --window: #211b2a;
+        --titlebar: #211c2b;
+        --primary: #f8eff8;
+        --primary-foreground: #17131f;
+        --muted-foreground: #b3a9bb;
+        --coral: #d875a4;
+        --peach: #3a2436;
+        --periwinkle: #c7d8ff;
+        --sky: #b9eee3;
+        --line: #393044;
+        --accent-soft: #3a2436;
+        --periwinkle-soft: #2b3350;
+        --sky-soft: #1f3a34;
+        --tag-foreground: #c9a0b8;
+        --link: #d8a3c0;
+        --hard-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+      }
+      /* техника soft: тонкие рамки, мягкие тени, свои радиусы и шрифты */
+      [data-skin="soft"] .window,
+      [data-skin="soft"] .card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+      }
+      [data-skin="soft"] .card-img {
+        border-bottom: 1px solid var(--line);
+      }
+      [data-skin="soft"] .window::before {
+        content: none;
+      }
+      [data-skin="soft"] .btn {
+        border-radius: 12px;
+      }
+      [data-skin="soft"] .btn-ghost {
+        border: 1px solid var(--line);
+        color: var(--foreground);
+        background: transparent;
+      }
+      [data-skin="soft"] .chip {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--foreground);
+        font-family: Arial, sans-serif;
+        background: var(--window);
+      }
+      [data-skin="soft"] .tag {
+        color: var(--tag-foreground);
+        border-radius: 7px;
+      }
+      [data-skin="soft"] .icon-link {
+        background: var(--foreground);
+        color: var(--background);
+        box-shadow: none;
+      }
+      [data-skin="soft"] .dots i {
+        border: none;
+        background: var(--periwinkle);
+      }
+      [data-skin="soft"] .dots i:nth-child(2) {
+        background: var(--sky);
+      }
+      [data-skin="soft"] .dots i:nth-child(3) {
+        background: var(--peach);
+      }
+      [data-skin="soft"] .hero-title {
+        letter-spacing: -0.065em;
+      }
+      [data-skin="soft"] .t-prompt,
+      [data-skin="soft"] .t-value {
+        font-family: ui-monospace, Consolas, monospace;
+      }
+      [data-skin="soft"] .terminal-body {
+        background: #211c2b;
+        color: #eee5f2;
+      }
+      [data-skin="soft"] .t-status {
+        color: #b9eee3;
+      }
+      [data-skin="soft"] .t-mood {
+        color: #f4a8c8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <nav class="topbar">
+        <a class="brand" href="#"><span class="brand-mark">✦</span> xboct<span>.</span>dev</a>
+        <div class="nav-links">
+          <a href="#" class="active">лента</a>
+          <a href="#">статьи</a>
+          <a href="#">проекты</a>
+          <a href="#">weekly</a>
+        </div>
+        <div class="nav-actions">
+          <button class="chip icon-toggle" id="skin-toggle" type="button" title="скин">🎀</button>
+          <button class="chip icon-toggle" id="theme-toggle" type="button" title="тема">☀</button>
+        </div>
+      </nav>
+
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">✦ personal devlog · 2026</span>
+            <h1 class="hero-title">Привет, я Ксю.<br />Делаю игры, инструменты<br />и <em>милые</em> интерфейсы.</h1>
+            <p>Пишу код, стримлю процесс, веду open source. Место, где я складываю результаты и мысли — без спешки и дедлайнов.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#">читать статьи →</a>
+              <a class="btn btn-ghost" href="#">смотреть проекты</a>
+            </div>
+            <div class="chips-row">
+              <a class="chip" href="#">✉ telegram</a>
+              <a class="chip" href="#">◈ discord</a>
+            </div>
+          </div>
+          <div class="window">
+            <div class="titlebar">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span>now.shell</span>
+              <span class="titlebar-controls">v2026</span>
+            </div>
+            <div class="terminal-body">
+              <span class="t-prompt">&gt; whoami</span>
+              <strong class="t-value">creative developer</strong>
+              <span class="t-prompt">&gt; current_mood</span>
+              <strong class="t-value t-mood">soft focus ✦</strong>
+              <span class="t-prompt">&gt; status</span>
+              <strong class="t-value t-status"><i></i>сейчас: собираю новый сайт</strong>
+              <span class="t-prompt">&gt; now_playing</span>
+              <strong class="t-value">.___ lolitech — glow in the dark.</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">короткие мысли</span>
+              <h2>Лента</h2>
+            </div>
+            <a class="text-link" href="#">вся лента →</a>
+          </div>
+          <div class="grid-2">
+            <article class="card">
+              <img class="card-img" src="images/cat-signal.png" alt="обложка поста: кот ловит сигнал" />
+              <div class="card-body">
+                <div class="meta-row"><span>2026-09-06</span><span>♥ 12</span></div>
+                <h3>победила z-index баг</h3>
+                <p>два часа отладки, а спас один трюк со стековым контекстом</p>
+                <div class="card-bottom">
+                  <div class="tags"><span class="tag">#css</span><span class="tag">#будни</span></div>
+                  <a class="icon-link" href="#" aria-label="открыть пост">↗</a>
+                </div>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <div class="meta-row"><span>2026-09-04</span><span>♥ 8</span></div>
+                <h3>добавила тёмную тему в проект</h3>
+                <p>ночное кодирование требует бережного отношения к глазам</p>
+                <div class="card-bottom">
+                  <div class="tags"><span class="tag">#дизайн</span><span class="tag">#код</span></div>
+                  <a class="icon-link" href="#" aria-label="открыть пост">↗</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">длинный формат</span>
+              <h2>Статьи</h2>
+            </div>
+            <a class="text-link" href="#">все статьи →</a>
+          </div>
+          <div class="grid-2">
+            <article class="card">
+              <img class="card-img" src="images/focus-garden.png" alt="обложка статьи: фокус-сад" />
+              <div class="card-body">
+                <div class="meta-row"><span>2026-08-30</span><span>12 мин чтения</span></div>
+                <h3>The Entity Component System</h3>
+                <p>разбор архитектуры ecs на примере браузерной игры — с картинками и выводами</p>
+                <div class="card-bottom">
+                  <div class="tags"><span class="tag">#gamedev</span><span class="tag">#engineering</span></div>
+                  <a class="icon-link" href="#" aria-label="читать статью">↗</a>
+                </div>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <div class="meta-row"><span>2026-08-14</span><span>7 мин чтения</span></div>
+                <h3>Зачем личному сайту weekly-отчёты</h3>
+                <p>как автогенерация отчётов из git-логов делает сайт живым без усилий</p>
+                <div class="card-bottom">
+                  <div class="tags"><span class="tag">#мета</span></div>
+                  <a class="icon-link" href="#" aria-label="читать статью">↗</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">open source corner</span>
+              <h2>Проекты</h2>
+            </div>
+            <a class="text-link" href="#">все проекты →</a>
+          </div>
+          <div class="grid-2">
+            <article class="card project-coral">
+              <img class="card-img" src="images/mochi-ui.png" alt="превью проекта: интерфейс mochi" />
+              <div class="card-body">
+                <div class="project-head">
+                  <span class="project-icon">◈</span>
+                  <div>
+                    <span class="eyebrow-sub">активный проект</span>
+                    <h3>now-playing</h3>
+                  </div>
+                </div>
+                <p>obs browser source виджет: показывает трек, который играет прямо сейчас</p>
+                <div class="card-bottom">
+                  <div class="tags"><span class="tag">html</span><span class="tag">css</span></div>
+                </div>
+                <div class="project-links">
+                  <a href="#">исходники ↗</a>
+                  <a href="#">demo ↗</a>
+                </div>
+              </div>
+            </article>
+            <article class="card project-periwinkle">
+              <div class="card-body">
+                <div class="project-head">
+                  <span class="project-icon">▦</span>
+                  <div>
+                    <span class="eyebrow-sub">на поддержке</span>
+                    <h3>git-overhooks</h3>
+                  </div>
+                </div>
+                <p>набор git-хуков, которые ловят проблемы до пуша, а не после ревью</p>
+                <div class="card-bottom">
+                  <div class="tags"><span class="tag">shell</span><span class="tag">git</span></div>
+                </div>
+                <div class="project-links">
+                  <a href="#">исходники ↗</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">weekly logs</span>
+              <h2>Недельные отчёты</h2>
+            </div>
+            <a class="text-link" href="#">все отчёты →</a>
+          </div>
+          <div class="card report-card">
+            <div class="report-date">📅 <span>2026-09-01 — 2026-09-07</span></div>
+            <div class="report-items">
+              <div class="report-row">
+                <strong class="report-project">now-playing</strong>
+                <span class="report-changes">feat(overlay): blur за панелью · fix(timer): дрейф таймзоны</span>
+              </div>
+              <div class="report-row">
+                <strong class="report-project">git-overhooks</strong>
+                <span class="report-changes">feat: hooks api v2 · docs: примеры в readme</span>
+              </div>
+              <div class="report-row">
+                <strong class="report-project">web-site</strong>
+                <span class="report-changes">редизайн · новая контент-модель · визард</span>
+              </div>
+            </div>
+            <a class="text-link" href="#">открыть отчёт ↗</a>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <a class="brand" href="#"><span class="brand-mark">✦</span> xboct<span>.</span>dev</a>
+        <span>сделано с вниманием к деталям <span style="color: var(--coral)">✦</span></span>
+        <span class="footer-code">© 2026 / system.online</span>
+      </footer>
+    </div>
+
+    <script>
+      var root = document.documentElement;
+      var btn = document.getElementById("theme-toggle");
+      var skinBtn = document.getElementById("skin-toggle");
+      function currentSkin() {
+        return root.getAttribute("data-skin") || "kawaii";
+      }
+      function refreshSkinButton() {
+        var skin = currentSkin();
+        skinBtn.textContent = skin === "kawaii" ? "🎀" : "</>";
+        skinBtn.title = skin === "kawaii" ? "переключить на personal-blog" : "переключить на kawaii.os";
+      }
+      function currentDark() {
+        return root.classList.contains("dark");
+      }
+      function refreshThemeButton() {
+        btn.textContent = currentDark() ? "☾" : "☀";
+        btn.title = currentDark() ? "светлая тема" : "тёмная тема";
+      }
+      btn.addEventListener("click", function () {
+        var isDark = !currentDark();
+        root.classList.toggle("dark", isDark);
+        try {
+          localStorage.setItem("theme", isDark ? "dark" : "light");
+        } catch (e) {}
+        refreshThemeButton();
+      });
+      skinBtn.addEventListener("click", function () {
+        var skin = currentSkin() === "kawaii" ? "soft" : "kawaii";
+        root.setAttribute("data-skin", skin);
+        try {
+          localStorage.setItem("skin", skin);
+        } catch (e) {}
+        refreshSkinButton();
+      });
+      refreshSkinButton();
+      refreshThemeButton();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
