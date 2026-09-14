@@ -13,9 +13,9 @@
 
 ## 1. Фаза content-model
 
-- [ ] `src/articles/` — пустая папка
-- [ ] Очистить `src/posts/` и `src/projects/` (старые файлы удалить; нужное
-      скопировать руками)
+- [x] `src/content/articles/` — пустая папка
+- [x] Очистить `src/content/posts/` и `src/content/projects/` (старые файлы
+      удалить; нужное скопировать руками)
 - [ ] `lib/`: `content.ts`, `articles.ts` (ru/en), `posts.ts`, `projects.ts`
       (`repo`/`demo`, без `type`), `weekly.ts`
 - [ ] Роуты `/articles`, `/posts`, `/projects`, `/weekly` + навигация
