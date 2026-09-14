@@ -68,7 +68,7 @@ projects:
 
 ## Скрипт синхронизации проектов (`sync-projects.ts`, `npm run sync:projects`)
 
-### Алгоритм
+### Алгоритм генерации описания проекта
 
 1. Читает `projects.yaml`.
 2. Для каждого проекта:
@@ -152,7 +152,7 @@ obs browser source widget that displays the currently playing track. ...
 
 ## Скрипт weekly-отчётов (`gen-weekly.ts`, `npm run gen:weekly`)
 
-### Алгоритм
+### Алгоритм weekly-отчетов
 
 1. Читает `projects.yaml` — список проектов с путями (любые пути, абсолютные или
    относительные).
