@@ -15,25 +15,76 @@
 				{
 					"title": "Date",
 					"name": "date",
-					"type": "string",
+					"type": "datetime",
 					"default": "{{now}}",
 					"required": true
 				},
 				{
-					"title": "Excerpt",
-					"name": "excerpt",
-					"type": "string",
-					"required": true
+					"title": "Tags",
+					"name": "tags",
+					"type": "tags"
 				},
 				{
-					"title": "Tag",
-					"name": "tag",
+					"title": "Image",
+					"name": "image",
+					"type": "image"
+				},
+				{
+					"title": "Link",
+					"name": "link",
 					"type": "string"
+				},
+				{
+					"title": "Needs translation",
+					"name": "needs_translation",
+					"type": "boolean",
+					"default": false
 				},
 				{
 					"title": "Draft",
 					"name": "draft",
-					"type": "draft"
+					"type": "boolean"
+				}
+			]
+		},
+		{
+			"name": "article",
+			"pageBundle": false,
+			"previewPath": null,
+			"fields": [
+				{
+					"title": "Title",
+					"name": "title",
+					"type": "string",
+					"required": true
+				},
+				{
+					"title": "Date",
+					"name": "date",
+					"type": "datetime",
+					"default": "{{now}}",
+					"required": true
+				},
+				{
+					"title": "Tags",
+					"name": "tags",
+					"type": "tags"
+				},
+				{
+					"title": "Image",
+					"name": "image",
+					"type": "image"
+				},
+				{
+					"title": "Needs translation",
+					"name": "needs_translation",
+					"type": "boolean",
+					"default": false
+				},
+				{
+					"title": "Draft",
+					"name": "draft",
+					"type": "boolean"
 				}
 			]
 		},
@@ -46,21 +97,6 @@
 					"title": "Title",
 					"name": "title",
 					"type": "string",
-					"required": true
-				},
-				{
-					"title": "Type",
-					"name": "type",
-					"type": "string",
-					"default": "experiment",
-					"choices": [
-						"extension",
-						"tool",
-						"template",
-						"widget",
-						"game",
-						"experiment"
-					],
 					"required": true
 				},
 				{
@@ -85,15 +121,20 @@
 					"type": "image"
 				},
 				{
-					"title": "URL",
-					"name": "url",
+					"title": "Repo",
+					"name": "repo",
 					"type": "string",
 					"required": true
 				},
 				{
+					"title": "Demo",
+					"name": "demo",
+					"type": "string"
+				},
+				{
 					"title": "Draft",
 					"name": "draft",
-					"type": "draft"
+					"type": "boolean"
 				}
 			]
 		},
@@ -110,7 +151,7 @@
 				{
 					"title": "Date",
 					"name": "date",
-					"type": "string",
+					"type": "datetime",
 					"default": "{{now}}",
 					"required": true
 				},
@@ -123,7 +164,7 @@
 				{
 					"title": "Draft",
 					"name": "draft",
-					"type": "draft"
+					"type": "boolean"
 				}
 			]
 		}
@@ -132,18 +173,23 @@
 	"frontMatter.content.publicFolder": "",
 	"frontMatter.content.pageFolders": [
 		{
-			"title": "Projects",
-			"path": "[[workspace]]/src/projects",
-			"contentTypes": ["project"]
+			"title": "Articles",
+			"path": "[[workspace]]/src/content/articles",
+			"contentTypes": ["article"]
 		},
 		{
 			"title": "Posts",
-			"path": "[[workspace]]/src/posts",
+			"path": "[[workspace]]/src/content/posts",
 			"contentTypes": ["post"]
 		},
 		{
+			"title": "Projects",
+			"path": "[[workspace]]/src/content/projects",
+			"contentTypes": ["project"]
+		},
+		{
 			"title": "Weekly",
-			"path": "[[workspace]]/src/weekly",
+			"path": "[[workspace]]/src/content/weekly",
 			"contentTypes": ["weekly"]
 		}
 	]

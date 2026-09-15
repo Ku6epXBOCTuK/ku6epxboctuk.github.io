@@ -19,7 +19,7 @@
 - [x] `lib/`: `content.ts`, `articles.ts` (ru/en), `posts.ts`, `projects.ts`
       (`repo`/`demo`, без `type`), `weekly.ts`
 - [x] Роуты `/articles`, `/posts`, `/projects`, `/weekly` + навигация
-- [ ] `frontmatter.json`: 4 схемы, убрать `Type` и `lang`, добавить
+- [x] `frontmatter.json`: 4 схемы, убрать `Type` и `lang`, добавить
       `needs_translation` (post/article), pageFolders `src/content/articles`,
       `src/content/posts`
 - [ ] `lint-content.ts`: 4 типа, ISO, `tags[]`, `<!--more-->`, `generated`,
