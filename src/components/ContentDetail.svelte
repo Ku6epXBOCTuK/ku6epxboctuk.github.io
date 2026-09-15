@@ -1,91 +1,89 @@
 <script lang="ts">
 	import type { Component } from "svelte";
 
-	interface Props {
-		data: {
-			meta: {
-				title: string;
-				date: string;
-				tags: string[];
-			};
-			content: Component;
-		};
+	interface DetailMeta {
+		title: string;
+		date: string;
+		tags: string[];
 	}
-	let { data }: Props = $props();
 
-	let meta = $derived(data.meta);
-	let Content = $derived(data.content);
+	interface Props {
+		meta: DetailMeta;
+		content: Component;
+	}
+
+	let { meta, content: Content }: Props = $props();
 </script>
 
-<article class="writing-post">
-	<h1 class="post-title">{meta.title}</h1>
-	<div class="post-meta">
-		<span class="post-date">{meta.date}</span>
+<article class="content-detail">
+	<h1 class="detail-title">{meta.title}</h1>
+	<div class="detail-meta">
+		<span class="detail-date">{meta.date}</span>
 		{#each meta.tags as tag (tag)}
-			<span class="post-tag">#{tag}</span>
+			<span class="detail-tag">#{tag}</span>
 		{/each}
 	</div>
-	<div class="post-content">
+	<div class="detail-body">
 		<Content />
 	</div>
 </article>
 
 <style>
-	.writing-post {
+	.content-detail {
 		max-width: 100%;
 	}
 
-	.post-title {
+	.detail-title {
 		color: var(--fg);
 		font-size: 24px;
 		font-weight: 600;
 		margin-bottom: 8px;
 	}
 
-	.post-meta {
+	.detail-meta {
 		color: var(--dim);
 		font-size: 12px;
 		margin-bottom: 32px;
 	}
 
-	.post-tag {
+	.detail-tag {
 		color: var(--accent3);
 		margin-left: 12px;
 	}
 
-	.post-content {
+	.detail-body {
 		color: var(--fg);
 		line-height: 1.8;
 	}
 
-	.post-content :global(h2) {
+	.detail-body :global(h2) {
 		color: var(--accent);
 		font-size: 18px;
 		margin: 32px 0 16px;
 	}
 
-	.post-content :global(p) {
+	.detail-body :global(p) {
 		margin-bottom: 16px;
 	}
 
-	.post-content :global(ul),
-	.post-content :global(ol) {
+	.detail-body :global(ul),
+	.detail-body :global(ol) {
 		margin: 16px 0;
 		padding-left: 24px;
 	}
 
-	.post-content :global(li) {
+	.detail-body :global(li) {
 		margin: 8px 0;
 	}
 
-	.post-content :global(code) {
+	.detail-body :global(code) {
 		background: var(--bg-light);
 		padding: 2px 6px;
 		border-radius: 4px;
 		font-size: 13px;
 	}
 
-	.post-content :global(pre) {
+	.detail-body :global(pre) {
 		background: var(--bg-light);
 		padding: 16px;
 		border-radius: 4px;

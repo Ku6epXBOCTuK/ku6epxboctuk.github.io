@@ -1,13 +1,10 @@
-import { getPost, getPosts } from "$lib/posts";
+import { getPost, getPostSlugs } from "$lib/posts";
 import { error } from "@sveltejs/kit";
 
 const NOT_FOUND = 404;
 
 export function entries() {
-	const posts = getPosts();
-	return posts.map((post) => ({
-		slug: post.slug,
-	}));
+	return getPostSlugs().map((slug) => ({ slug }));
 }
 
 export function load({ params }: { params: { slug: string } }) {

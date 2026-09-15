@@ -3,9 +3,10 @@
 
 	const navItems = [
 		{ href: "/", label: "home" },
-		{ href: "/about", label: "about" },
+		{ href: "/posts", label: "posts" },
+		{ href: "/articles", label: "articles" },
 		{ href: "/projects", label: "projects" },
-		{ href: "/writings", label: "writings" },
+		{ href: "/weekly", label: "weekly" },
 	];
 
 	function getActivePage(pathname: string): string {

@@ -18,7 +18,7 @@
       удалить; нужное скопировать руками)
 - [x] `lib/`: `content.ts`, `articles.ts` (ru/en), `posts.ts`, `projects.ts`
       (`repo`/`demo`, без `type`), `weekly.ts`
-- [ ] Роуты `/articles`, `/posts`, `/projects`, `/weekly` + навигация
+- [x] Роуты `/articles`, `/posts`, `/projects`, `/weekly` + навигация
 - [ ] `frontmatter.json`: 4 схемы, убрать `Type` и `lang`, добавить
       `needs_translation` (post/article), pageFolders `src/content/articles`,
       `src/content/posts`

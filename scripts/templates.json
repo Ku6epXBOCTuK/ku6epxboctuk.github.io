@@ -1,7 +1,7 @@
 {
 	"posts": {
 		"template": "Выложен новый пост: {title}\n\n{excerpt}\n\n🔗 читать полностью: {url}",
-		"url": "https://ku6epxboctuk.github.io/writings/{slug}"
+		"url": "https://ku6epxboctuk.github.io/posts/{slug}"
 	},
 	"projects": {
 		"template": "Добавлен проект: {title}\n\n{description}\n\n🔗 {url}",

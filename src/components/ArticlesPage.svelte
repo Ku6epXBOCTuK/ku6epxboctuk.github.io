@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { getPosts } from "$lib/posts";
+	import { getArticles } from "$lib/articles";
 
-	const posts = getPosts();
+	const articles = getArticles();
 </script>
 
-<div class="section-title">writings</div>
+<div class="section-title">articles</div>
 
-{#each posts as post (post.slug)}
-	<a href="/writings/{post.slug}" class="writing-item">
-		<div class="writing-header">
-			<span class="writing-title">{post.title}</span>
-			<span class="writing-date">{post.date}</span>
+{#each articles as article (article.slug)}
+	<a href="/articles/{article.urlSlug}" class="content-item">
+		<div class="item-header">
+			<span class="item-title">{article.title}</span>
+			<span class="item-date">{article.date}</span>
 		</div>
-		<div class="writing-tag">
-			{#each post.tags as tag (tag)}
+		<div class="item-tags">
+			{#each article.tags as tag (tag)}
 				#{tag}
 			{/each}
 		</div>
@@ -36,7 +36,7 @@
 		color: var(--dim);
 	}
 
-	.writing-item {
+	.content-item {
 		display: block;
 		margin: 24px 0;
 		padding-bottom: 24px;
@@ -44,11 +44,11 @@
 		text-decoration: none;
 	}
 
-	.writing-item:last-child {
+	.content-item:last-child {
 		border-bottom: none;
 	}
 
-	.writing-header {
+	.item-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
@@ -57,23 +57,23 @@
 		flex-wrap: wrap;
 	}
 
-	.writing-title {
+	.item-title {
 		color: var(--fg);
 		font-weight: 500;
 		font-size: 14px;
 	}
 
-	.writing-title:hover {
+	.item-title:hover {
 		color: var(--accent);
 	}
 
-	.writing-date {
+	.item-date {
 		color: var(--dim);
 		font-size: 12px;
 		white-space: nowrap;
 	}
 
-	.writing-tag {
+	.item-tags {
 		color: var(--accent3);
 		font-size: 11px;
 		margin-top: 8px;
