@@ -28,7 +28,7 @@
       тизер), excerpt по типам, url-шаблоны
 - [x] `publish.yml`: триггер на `src/content/articles/**` и
       `src/content/posts/**`
-- [ ] `new-content.ts` + `npm run new` (создаёт пару `index.ru.md` +
+- [x] `new-content.ts` + `npm run new` (создаёт пару `index.ru.md` +
       `index.en.md` с `needs_translation: true`; `--sync` досоздаёт копию для
       существующей)
 - [ ] `docs/writing.md` — как писать пост/статью

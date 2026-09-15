@@ -31,6 +31,8 @@
 		"lint:css": "stylelint '**/*.{css,svelte}",
 		"lint:css-vars": "node scripts/css-vars.js",
 		"lint:content": "tsx scripts/lint-content.ts",
+		"new": "tsx scripts/new-content.ts",
+		"sync": "tsx scripts/new-content.ts --sync",
 		"publish": "tsx --env-file .env.publish scripts/publish.ts",
 		"prepare": "svelte-kit sync || echo ''",
 		"preview": "vite preview",
