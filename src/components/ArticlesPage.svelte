@@ -2,6 +2,7 @@
 	import { getArticles } from "$lib/articles";
 	import ArticleCard from "$cmp/ArticleCard.svelte";
 	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
+	import { ui } from "$lib/i18n";
 
 	interface Props {
 		lang?: ContentLang;
@@ -9,10 +10,11 @@
 
 	let { lang = DEFAULT_LANG }: Props = $props();
 
+	const t = $derived(ui(lang));
 	const articles = $derived(getArticles(lang));
 </script>
 
-<div class="section-title">articles</div>
+<div class="section-title">{t.nav.articles}</div>
 
 <div class="list">
 	{#each articles as article (article.slug)}

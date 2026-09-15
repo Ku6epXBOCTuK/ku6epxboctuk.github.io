@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { page } from "$app/state";
+	import { pageLang } from "$lib/content";
+	import { ui } from "$lib/i18n";
 	import type { Snippet } from "svelte";
 
 	interface Props {
@@ -8,20 +11,22 @@
 	}
 
 	let { href, draft = false, children }: Props = $props();
+
+	const t = $derived(ui(pageLang(page.data.lang)));
 </script>
 
 {#if href}
 	<a {href} class="card">
 		{@render children()}
 		{#if draft}
-			<span class="draft-badge">draft</span>
+			<span class="draft-badge">{t.draft}</span>
 		{/if}
 	</a>
 {:else}
 	<div class="card">
 		{@render children()}
 		{#if draft}
-			<span class="draft-badge">draft</span>
+			<span class="draft-badge">{t.draft}</span>
 		{/if}
 	</div>
 {/if}

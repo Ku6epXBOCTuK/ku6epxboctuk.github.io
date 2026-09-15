@@ -2,16 +2,18 @@
 	import { page } from "$app/state";
 	import ThemeToggle from "$cmp/ThemeToggle.svelte";
 	import { langUrl, pageLang } from "$lib/content";
+	import { ui } from "$lib/i18n";
 
 	const navItems = [
-		{ path: "/", label: "home" },
-		{ path: "/posts", label: "posts" },
-		{ path: "/articles", label: "articles" },
-		{ path: "/projects", label: "projects" },
-		{ path: "/weekly", label: "weekly" },
-	];
+		{ path: "/", key: "home" },
+		{ path: "/posts", key: "posts" },
+		{ path: "/articles", key: "articles" },
+		{ path: "/projects", key: "projects" },
+		{ path: "/weekly", key: "weekly" },
+	] as const;
 
 	const lang = $derived(pageLang(page.data.lang));
+	const t = $derived(ui(lang));
 	const pathname = $derived(page.url.pathname.replace(/^\/(ru|en)(\/|$)/, "/"));
 
 	function isActive(path: string): boolean {
@@ -29,7 +31,7 @@
 	<div class="nav-links">
 		{#each navItems as item (item.path)}
 			<a href={langUrl(lang, item.path)} class:active={isActive(item.path)}>
-				{item.label}
+				{t.nav[item.key]}
 			</a>
 		{/each}
 	</div>

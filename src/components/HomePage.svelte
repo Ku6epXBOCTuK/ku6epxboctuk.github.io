@@ -4,6 +4,7 @@
 	import TerminalWindow from "$cmp/TerminalWindow.svelte";
 	import { HOME_RECENT_POSTS } from "$lib/config";
 	import { DEFAULT_LANG, langUrl, type ContentLang } from "$lib/content";
+	import { ui } from "$lib/i18n";
 	import { getPosts } from "$lib/posts";
 
 	interface Props {
@@ -12,32 +13,31 @@
 
 	let { lang = DEFAULT_LANG }: Props = $props();
 
-	const nowRows: Row[] = [
-		{ cmd: "whoami", value: "creative developer" },
-		{ cmd: "current_mood", value: "soft focus", tone: "mood" },
-		{ cmd: "now_playing", value: "building in public", tone: "status" },
-	];
+	const t = $derived(ui(lang));
+
+	const nowRows: Row[] = $derived([
+		{ cmd: "whoami", value: t.home.terminal.whoami },
+		{ cmd: "current_mood", value: t.home.terminal.mood, tone: "mood" },
+		{ cmd: "now_playing", value: t.home.terminal.playing, tone: "status" },
+	]);
 
 	const recentPosts = $derived(getPosts(lang).slice(0, HOME_RECENT_POSTS));
 </script>
 
 <section class="hero">
 	<div class="hero-copy">
-		<span class="eyebrow">✦ personal dev log · 2026</span>
+		<span class="eyebrow">{t.home.eyebrow}</span>
 		<h1>
-			Hi, I'm Ku6epXBOCTuK.<br /><em>Writing code</em> and growing<br />small
-			digital gardens.
+			{t.home.titleTop}<br /><em>{t.home.titleEm}</em>{t.home.titleMid}<br />{t
+				.home.titleBottom}
 		</h1>
-		<p>
-			Personal blog about development, interface design, open source, and
-			attempts to make the internet a little kinder.
-		</p>
+		<p>{t.home.intro}</p>
 		<div class="hero-actions">
 			<a class="btn btn-primary" href={langUrl(lang, "/posts")}>
-				read the feed
+				{t.home.primary}
 			</a>
 			<a class="btn btn-ghost" href={langUrl(lang, "/projects")}>
-				view projects
+				{t.home.ghost}
 			</a>
 		</div>
 	</div>
@@ -48,10 +48,12 @@
 	<section class="section">
 		<div class="section-head">
 			<div>
-				<span class="eyebrow">short thoughts</span>
-				<h2>Recent posts</h2>
+				<span class="eyebrow">{t.home.sectionEyebrow}</span>
+				<h2>{t.home.sectionTitle}</h2>
 			</div>
-			<a class="text-link" href={langUrl(lang, "/posts")}>all posts →</a>
+			<a class="text-link" href={langUrl(lang, "/posts")}>
+				{t.home.sectionLink}
+			</a>
 		</div>
 		<div class="grid-2">
 			{#each recentPosts as post (post.slug)}

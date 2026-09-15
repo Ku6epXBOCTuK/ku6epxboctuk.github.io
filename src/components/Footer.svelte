@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from "$app/state";
 	import { langUrl, pageLang } from "$lib/content";
+	import { ui } from "$lib/i18n";
 
 	const lang = $derived(pageLang(page.data.lang));
+	const t = $derived(ui(lang));
 </script>
 
 <footer class="footer">
@@ -10,8 +12,8 @@
 		<span class="brand-mark" aria-hidden="true">✦</span>
 		<span>xboct<span class="brand-dot">.</span>dev</span>
 	</a>
-	<p class="footer-note">built with attention to detail</p>
-	<span class="footer-code">© 2026 / system.online</span>
+	<p class="footer-note">{t.footer.note}</p>
+	<span class="footer-code">{t.footer.code}</span>
 </footer>
 
 <style>

@@ -62,8 +62,8 @@
       или `/en/` по языку браузера (`Redirect.svelte` + `goto`;
       `prerender.entries: ["*"]`)
 - [x] i18n: ссылки с префиксом языка: Topbar, Footer, карточки, HomePage
-- [ ] Локализация сайта: словарь `src/lib/i18n.ts`, UI-строки по
-      `$page.params.lang`, топбарный переключатель RU/EN
+- [x] Локализация сайта: словарь `src/lib/i18n.ts`, UI-строки по
+      `$page.params.lang`
 - [ ] Переключатель ru/en в топбаре
 - [ ] Кнопка смены языка контента на детальных: «read in english» / «читать на
       русском»
