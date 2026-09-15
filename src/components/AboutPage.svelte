@@ -94,23 +94,23 @@
 
 <style>
 	.section-title {
-		color: var(--accent);
+		color: var(--coral);
 		font-size: 12px;
 		text-transform: uppercase;
 		letter-spacing: 2px;
 		margin-bottom: 24px;
 		padding-bottom: 8px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 	}
 
 	.section-title::before {
 		content: "# ";
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	.about-text {
 		margin: 20px 0;
-		color: var(--fg);
+		color: var(--foreground);
 	}
 
 	.about-text p {
@@ -125,23 +125,23 @@
 
 	.skills-table td {
 		padding: 8px 12px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 		font-size: 13px;
 	}
 
 	.skills-table td:first-child {
-		color: var(--accent3);
+		color: var(--sky);
 		width: 40%;
 	}
 
 	.skills-table td:last-child {
-		color: var(--fg);
+		color: var(--foreground);
 	}
 
 	.exp-item {
 		margin: 24px 0;
 		padding-left: 16px;
-		border-left: 1px solid var(--border);
+		border-left: 1px solid var(--outline);
 	}
 
 	.exp-header {
@@ -154,23 +154,23 @@
 	}
 
 	.exp-role {
-		color: var(--fg);
+		color: var(--foreground);
 		font-weight: 500;
 	}
 
 	.exp-date {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 	}
 
 	.exp-company {
-		color: var(--accent2);
+		color: var(--periwinkle);
 		font-size: 13px;
 		margin-bottom: 6px;
 	}
 
 	.exp-desc {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 13px;
 	}
 

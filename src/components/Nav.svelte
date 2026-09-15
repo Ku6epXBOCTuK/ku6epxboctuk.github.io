@@ -39,17 +39,17 @@
 	}
 
 	.nav-prompt {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 		margin-bottom: 20px;
 	}
 
 	.nav-prompt .prompt-char {
-		color: var(--accent);
+		color: var(--coral);
 	}
 
 	.nav-prompt .cmd {
-		color: var(--accent3);
+		color: var(--sky);
 	}
 
 	.nav-tabs {
@@ -60,10 +60,10 @@
 
 	.nav-tab {
 		padding: 6px 16px;
-		color: var(--dim);
+		color: var(--muted-foreground);
 		text-decoration: none;
 		font-size: 13px;
-		font-family: var(--mono);
+		font-family: var(--font-body);
 		cursor: pointer;
 		transition: color 0.2s;
 		background: none;
@@ -72,11 +72,11 @@
 	}
 
 	.nav-tab:hover {
-		color: var(--fg);
+		color: var(--foreground);
 	}
 
 	.nav-tab.active {
-		color: var(--accent);
+		color: var(--coral);
 	}
 
 	.nav-tab.active::after {
@@ -86,6 +86,6 @@
 		left: 16px;
 		right: 16px;
 		height: 1px;
-		background: var(--accent);
+		background: var(--coral);
 	}
 </style>

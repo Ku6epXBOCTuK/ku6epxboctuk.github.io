@@ -16,7 +16,7 @@
 <style>
 	.terminal-header {
 		padding: 12px 24px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -44,7 +44,7 @@
 
 	.terminal-title {
 		margin-left: 12px;
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 	}
 </style>

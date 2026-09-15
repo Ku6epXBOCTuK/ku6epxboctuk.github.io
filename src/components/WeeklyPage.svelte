@@ -20,25 +20,25 @@
 
 <style>
 	.section-title {
-		color: var(--accent);
+		color: var(--coral);
 		font-size: 12px;
 		text-transform: uppercase;
 		letter-spacing: 2px;
 		margin-bottom: 24px;
 		padding-bottom: 8px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 	}
 
 	.section-title::before {
 		content: "# ";
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	.content-item {
 		display: block;
 		margin: 24px 0;
 		padding-bottom: 24px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 		text-decoration: none;
 	}
 
@@ -56,23 +56,23 @@
 	}
 
 	.item-title {
-		color: var(--fg);
+		color: var(--foreground);
 		font-weight: 500;
 		font-size: 14px;
 	}
 
 	.item-title:hover {
-		color: var(--accent);
+		color: var(--coral);
 	}
 
 	.item-date {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 		white-space: nowrap;
 	}
 
 	.item-excerpt {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 		margin-top: 8px;
 		line-height: 1.6;

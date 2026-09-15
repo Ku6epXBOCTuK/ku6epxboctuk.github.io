@@ -17,14 +17,14 @@
 	.footer {
 		margin-top: 80px;
 		padding: 20px 0 40px;
-		border-top: 1px solid var(--border);
+		border-top: 1px solid var(--outline);
 		text-align: center;
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 	}
 
 	.footer a {
-		color: var(--accent2);
+		color: var(--periwinkle);
 		text-decoration: none;
 	}
 
@@ -34,7 +34,7 @@
 
 	.blink {
 		animation: blink 1s step-end infinite;
-		color: var(--accent);
+		color: var(--coral);
 	}
 
 	@keyframes blink {
@@ -49,18 +49,18 @@
 		left: 0;
 		right: 0;
 		padding: 4px 24px;
-		border-top: 1px solid var(--border);
-		background: var(--bg);
+		border-top: 1px solid var(--outline);
+		background: var(--background);
 		display: flex;
 		justify-content: space-between;
 		font-size: 11px;
-		color: var(--dim);
+		color: var(--muted-foreground);
 		z-index: 100;
 	}
 
 	.status-bar .mode {
-		color: var(--bg);
-		background: var(--accent);
+		color: var(--background);
+		background: var(--coral);
 		padding: 1px 8px;
 	}
 </style>

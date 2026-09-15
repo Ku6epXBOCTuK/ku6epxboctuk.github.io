@@ -139,7 +139,7 @@
 	}
 
 	.home-ascii .placeholder {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		opacity: 0.1;
 		margin: 0;
 		pointer-events: none;
@@ -147,7 +147,7 @@
 	}
 
 	.home-ascii .typed {
-		color: var(--dim-light);
+		color: var(--muted-foreground);
 		margin: 0;
 		position: absolute;
 		top: 8px;
@@ -158,7 +158,7 @@
 	}
 
 	.home-ascii .cursor {
-		color: var(--accent);
+		color: var(--coral);
 		animation: blink 0.5s step-end infinite;
 		font-weight: bold;
 		font-size: 12px;
@@ -169,17 +169,17 @@
 	}
 
 	.home-intro .cmd {
-		color: var(--accent);
+		color: var(--coral);
 		font-weight: 500;
 	}
 
 	.home-intro .output {
-		color: var(--fg);
+		color: var(--foreground);
 		margin: 8px 0 20px;
 	}
 
 	.home-intro .comment {
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	.home-links {
@@ -193,7 +193,7 @@
 	}
 
 	.home-links a {
-		color: var(--accent2);
+		color: var(--periwinkle);
 		text-decoration: none;
 	}
 
@@ -202,7 +202,7 @@
 	}
 
 	.home-links .desc {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		margin-left: 8px;
 	}
 
@@ -214,7 +214,7 @@
 	}
 
 	.command-line .prompt {
-		color: var(--accent);
+		color: var(--coral);
 		white-space: nowrap;
 	}
 
@@ -222,17 +222,17 @@
 		background: transparent;
 		border: none;
 		outline: none;
-		color: var(--fg);
-		font-family: var(--mono);
+		color: var(--foreground);
+		font-family: var(--font-body);
 		font-size: 14px;
 		flex: 1;
-		caret-color: var(--accent);
+		caret-color: var(--coral);
 	}
 
 	.command-output {
 		margin: 10px 0 20px;
 		padding-left: 20px;
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 13px;
 		display: none;
 	}
@@ -242,15 +242,15 @@
 	}
 
 	.command-output .prompt {
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	.command-output .cmd {
-		color: var(--accent);
+		color: var(--coral);
 	}
 
 	.command-output .result {
-		color: var(--fg);
+		color: var(--foreground);
 	}
 
 	.command-output .error {

@@ -34,30 +34,30 @@
 	}
 
 	.detail-title {
-		color: var(--fg);
+		color: var(--foreground);
 		font-size: 24px;
 		font-weight: 600;
 		margin-bottom: 8px;
 	}
 
 	.detail-meta {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 		margin-bottom: 32px;
 	}
 
 	.detail-tag {
-		color: var(--accent3);
+		color: var(--sky);
 		margin-left: 12px;
 	}
 
 	.detail-body {
-		color: var(--fg);
+		color: var(--foreground);
 		line-height: 1.8;
 	}
 
 	.detail-body :global(h2) {
-		color: var(--accent);
+		color: var(--coral);
 		font-size: 18px;
 		margin: 32px 0 16px;
 	}
@@ -77,14 +77,14 @@
 	}
 
 	.detail-body :global(code) {
-		background: var(--bg-light);
+		background: var(--window);
 		padding: 2px 6px;
 		border-radius: 4px;
 		font-size: 13px;
 	}
 
 	.detail-body :global(pre) {
-		background: var(--bg-light);
+		background: var(--window);
 		padding: 16px;
 		border-radius: 4px;
 		overflow-x: auto;

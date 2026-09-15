@@ -38,24 +38,24 @@
 
 <style>
 	.section-title {
-		color: var(--accent);
+		color: var(--coral);
 		font-size: 12px;
 		text-transform: uppercase;
 		letter-spacing: 2px;
 		margin-bottom: 24px;
 		padding-bottom: 8px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 	}
 
 	.section-title::before {
 		content: "# ";
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	.project-item {
 		margin: 40px 0;
 		padding-bottom: 40px;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--outline);
 	}
 
 	.project-item:last-child {
@@ -64,12 +64,12 @@
 
 	.project-screenshot {
 		width: 100%;
-		border: 1px solid var(--border);
+		border: 1px solid var(--outline);
 		border-radius: 4px;
 		margin-bottom: 16px;
 		overflow: hidden;
 		position: relative;
-		background: var(--bg-light);
+		background: var(--window);
 	}
 
 	.project-screenshot::before {
@@ -109,8 +109,8 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		border-bottom: 1px solid var(--border);
-		background: var(--bg);
+		border-bottom: 1px solid var(--outline);
+		background: var(--background);
 	}
 
 	.screenshot-bar .dot-sm {
@@ -124,21 +124,21 @@
 	}
 
 	.screenshot-bar .dot-sm.y {
-		background: var(--accent3);
+		background: var(--sky);
 	}
 
 	.screenshot-bar .dot-sm.g {
-		background: var(--accent);
+		background: var(--coral);
 	}
 
 	.screenshot-bar .url {
 		margin-left: 10px;
 		font-size: 11px;
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	.project-name {
-		color: var(--accent);
+		color: var(--coral);
 		font-weight: 600;
 		font-size: 15px;
 		margin-bottom: 4px;
@@ -154,13 +154,13 @@
 	}
 
 	.project-meta {
-		color: var(--dim);
+		color: var(--muted-foreground);
 		font-size: 12px;
 		margin-bottom: 8px;
 	}
 
 	.project-desc {
-		color: var(--fg);
+		color: var(--foreground);
 		font-size: 13px;
 		margin-bottom: 10px;
 	}
@@ -174,9 +174,9 @@
 	.project-tech span {
 		font-size: 11px;
 		padding: 2px 8px;
-		border: 1px solid var(--border);
+		border: 1px solid var(--outline);
 		border-radius: 3px;
-		color: var(--dim);
+		color: var(--muted-foreground);
 	}
 
 	@media (max-width: 600px) {
