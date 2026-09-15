@@ -24,5 +24,9 @@ export function load({
 	return {
 		meta: post.meta,
 		content: post.PostComponent,
+		alt: {
+			meta: post.altMeta,
+			content: post.altMeta.module.default,
+		},
 	};
 }

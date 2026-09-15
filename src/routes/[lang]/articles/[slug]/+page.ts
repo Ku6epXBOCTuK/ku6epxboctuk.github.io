@@ -1,4 +1,4 @@
-import { getArticle, getArticleBaseSlugs } from "$lib/articles";
+import { getArticleBaseSlugs, getArticleDetail } from "$lib/articles";
 import { LANGS, type ContentLang } from "$lib/content";
 import { error } from "@sveltejs/kit";
 
@@ -15,14 +15,18 @@ export function load({
 }: {
 	params: { lang: ContentLang; slug: string };
 }) {
-	const article = getArticle(params.slug, params.lang);
+	const article = getArticleDetail(params.slug, params.lang);
 
 	if (!article) {
 		error(NOT_FOUND, "Article not found");
 	}
 
 	return {
-		meta: article,
-		content: article.module.default,
+		meta: article.meta,
+		content: article.meta.module.default,
+		alt: {
+			meta: article.altMeta,
+			content: article.altMeta.module.default,
+		},
 	};
 }

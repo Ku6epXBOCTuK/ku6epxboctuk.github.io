@@ -24,5 +24,9 @@ export function load({
 	return {
 		meta: report.meta,
 		content: report.ReportComponent,
+		alt: {
+			meta: report.altMeta,
+			content: report.altMeta.module.default,
+		},
 	};
 }

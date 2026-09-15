@@ -1,5 +1,6 @@
 import {
 	DEFAULT_LANG,
+	otherLang,
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
@@ -24,11 +25,13 @@ export function getArticles(lang: ContentLang = DEFAULT_LANG): Article[] {
 	return loader.getItems(lang);
 }
 
-export function getArticle(
+export function getArticleDetail(
 	slug: string,
 	lang: ContentLang = DEFAULT_LANG,
-): Article | undefined {
-	return loader.getItem(slug, lang);
+) {
+	const meta = loader.getItem(slug, lang);
+	if (!meta) return undefined;
+	return { meta, altMeta: loader.getItem(slug, otherLang(lang)) ?? meta };
 }
 
 export function getArticleBaseSlugs(): string[] {

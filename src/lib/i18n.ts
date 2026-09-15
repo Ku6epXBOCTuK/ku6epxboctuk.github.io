@@ -13,6 +13,7 @@ const en = {
 		code: "© 2026 / system.online",
 	},
 	draft: "draft",
+	readIn: "read in english",
 	home: {
 		eyebrow: "✦ personal dev log · 2026",
 		titleTop: "Hi, I'm Ku6epXBOCTuK.",
@@ -49,6 +50,7 @@ const ru: UI = {
 		code: "© 2026 / system.online",
 	},
 	draft: "черновик",
+	readIn: "читать на русском",
 	home: {
 		eyebrow: "✦ личный девлог · 2026",
 		titleTop: "Привет, я Ku6epXBOCTuK.",

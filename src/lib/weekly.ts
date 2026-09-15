@@ -1,14 +1,15 @@
 import {
 	DEFAULT_LANG,
+	otherLang,
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
 import {
 	createPairLoader,
-	type LocalizedItem,
 	optionalBool,
 	optionalString,
+	type LocalizedItem,
 } from "$lib/loaders";
 
 const modules = import.meta.glob<MarkdownModule>(
@@ -48,7 +49,11 @@ export function getWeeklyReport(
 ) {
 	const report = loader.getItem(slug, lang);
 	if (!report) return undefined;
-	return { meta: report, ReportComponent: report.module.default };
+	return {
+		meta: report,
+		ReportComponent: report.module.default,
+		altMeta: loader.getItem(slug, otherLang(lang)) ?? report,
+	};
 }
 
 export function getWeeklyReportSlugs(): string[] {

@@ -1,5 +1,6 @@
 import {
 	DEFAULT_LANG,
+	otherLang,
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
@@ -34,7 +35,11 @@ export function getPosts(lang: ContentLang = DEFAULT_LANG): Post[] {
 export function getPost(slug: string, lang: ContentLang = DEFAULT_LANG) {
 	const meta = loader.getItem(slug, lang);
 	if (!meta) return undefined;
-	return { meta, PostComponent: meta.module.default };
+	return {
+		meta,
+		PostComponent: meta.module.default,
+		altMeta: loader.getItem(slug, otherLang(lang)) ?? meta,
+	};
 }
 
 export function getPostBaseSlugs(): string[] {
