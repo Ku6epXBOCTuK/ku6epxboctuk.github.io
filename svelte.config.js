@@ -9,6 +9,7 @@ const config = {
 			$cmp: "src/components",
 		},
 		prerender: {
+			entries: ["*"],
 			handleUnseenRoutes: "ignore",
 		},
 	},

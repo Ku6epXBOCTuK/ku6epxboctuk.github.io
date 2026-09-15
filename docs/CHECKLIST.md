@@ -57,9 +57,10 @@
       геттеры базовых слагов для `entries()`
 - [x] i18n: префикс `/ru/…` `/en/…` — маршруты в `src/routes/[lang]/…`, у
       каждого `+page.ts` `entries()` по ru/en и `load()` с `lang` в `data`
-- [ ] i18n: корневые редиректы старых URL на дефолтную локаль: `/`, `/about`,
-      `/posts[/slug]`, `/articles[/slug]`, `/projects`, `/weekly[/slug]` (302;
-      для GitHub Pages пререндер отдаёт meta-refresh)
+- [x] i18n: корневые редиректы старых URL: `/`, `/about`, `/posts[/slug]`,
+      `/articles[/slug]`, `/projects`, `/weekly[/slug]` → тот же путь под `/ru/`
+      или `/en/` по языку браузера (`Redirect.svelte` + `goto`;
+      `prerender.entries: ["*"]`)
 - [ ] i18n: ссылки с префиксом языка: Topbar, Footer, карточки, HomePage
 - [ ] Локализация сайта: словарь `src/lib/i18n.ts`, UI-строки по
       `$page.params.lang`, топбарный переключатель RU/EN

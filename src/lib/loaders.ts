@@ -105,7 +105,6 @@ export interface PairLoader<T> {
 	getItems(_lang?: ContentLang): T[];
 	getItem(_slug: string, _lang?: ContentLang): T | undefined;
 	getSlugs(): string[];
-	getLangs(_slug: string): ContentLang[];
 }
 
 interface PairFile<T extends ContentEntry> {
@@ -174,8 +173,5 @@ export function createPairLoader<T extends ContentEntry>(options: {
 			};
 		},
 		getSlugs: () => [...byBase.keys()],
-		getLangs(slug) {
-			return byBase.get(slug)?.map((file) => file.lang) ?? [];
-		},
 	};
 }

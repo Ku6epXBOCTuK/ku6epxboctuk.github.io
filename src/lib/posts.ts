@@ -40,12 +40,3 @@ export function getPost(slug: string, lang: ContentLang = DEFAULT_LANG) {
 export function getPostBaseSlugs(): string[] {
 	return loader.getSlugs();
 }
-
-export function getPostSlugs(): string[] {
-	const slugs: string[] = [];
-	for (const base of loader.getSlugs()) {
-		slugs.push(base);
-		if (loader.getLangs(base).includes("en")) slugs.push(`${base}.en`);
-	}
-	return slugs;
-}

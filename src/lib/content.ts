@@ -22,14 +22,12 @@ export const DEFAULT_LANG = "ru";
 export type ContentLang = "ru" | "en";
 export const LANGS: readonly ContentLang[] = ["ru", "en"];
 
-export function oldContentSlug(value: string): {
-	lang: ContentLang;
-	base: string;
-} {
-	const match = /^(.+)\.(ru|en)$/.exec(value);
-	return match
-		? { lang: match[2] as ContentLang, base: match[1] }
-		: { lang: DEFAULT_LANG, base: value };
+export function browserLang(): ContentLang {
+	for (const candidate of navigator.languages) {
+		const lang = LANGS.find((item) => candidate.toLowerCase().startsWith(item));
+		if (lang) return lang;
+	}
+	return DEFAULT_LANG;
 }
 
 const LANG_FILE = /^index\.(ru|en)\.md$/;

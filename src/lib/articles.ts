@@ -34,12 +34,3 @@ export function getArticle(
 export function getArticleBaseSlugs(): string[] {
 	return loader.getSlugs();
 }
-
-export function getArticleSlugs(): string[] {
-	const slugs: string[] = [];
-	for (const base of loader.getSlugs()) {
-		slugs.push(base);
-		if (loader.getLangs(base).includes("en")) slugs.push(`${base}.en`);
-	}
-	return slugs;
-}
