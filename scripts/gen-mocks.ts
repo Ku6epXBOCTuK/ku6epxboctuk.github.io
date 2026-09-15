@@ -361,12 +361,14 @@ function writeArticle(a: ArticleMock, lang: "ru" | "en"): void {
 	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n${body}`);
 }
 
-function writeProject(p: ProjectMock): void {
+const TRANSLATION_PENDING = "translation in progress.";
+
+function writeProject(p: ProjectMock, lang: "ru" | "en"): void {
 	const dir = path.join("src/content/projects", p.slug);
 	const fields: Array<[string, unknown]> = [
 		["title", p.title],
-		["subtitle", p.subtitle],
-		["description", p.description],
+		["subtitle", lang === "en" ? TRANSLATION_PENDING : p.subtitle],
+		["description", lang === "en" ? TRANSLATION_PENDING : p.description],
 		["tags", p.tags],
 		["repo", p.repo],
 	];
@@ -377,23 +379,26 @@ function writeProject(p: ProjectMock): void {
 		["status", p.status],
 		["draft", true],
 	);
-	write(dir, "index.ru.md", `${frontmatter(fields)}\n`);
+	if (lang === "en") fields.push(["needs_translation", true]);
+	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n`);
 }
 
-function writeWeekly(w: WeeklyMock): void {
+function writeWeekly(w: WeeklyMock, lang: "ru" | "en"): void {
 	const dir = path.join("src/content/weekly", w.slug);
 	const fields: Array<[string, unknown]> = [
 		["title", w.title],
 		["date", w.date],
-		["excerpt", w.excerpt],
+		["excerpt", lang === "en" ? TRANSLATION_PENDING : w.excerpt],
 		["generated", true],
 		["generated_at", `${w.date}T10:00:00Z`],
 		["draft", true],
 	];
+	if (lang === "en") fields.push(["needs_translation", true]);
 	const rows = w.changes
 		.map(([project, changes]) => `- **${project}** — ${changes}`)
 		.join("\n");
-	write(dir, "index.ru.md", `${frontmatter(fields)}\n${rows}`);
+	const body = lang === "en" ? TRANSLATION_PENDING : rows;
+	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n${body}`);
 }
 
 for (const p of posts) {
@@ -404,11 +409,20 @@ for (const a of articles) {
 	writeArticle(a, "ru");
 	writeArticle(a, "en");
 }
-for (const p of projects) writeProject(p);
-for (const w of weekly) writeWeekly(w);
+for (const p of projects) {
+	writeProject(p, "ru");
+	writeProject(p, "en");
+}
+for (const w of weekly) {
+	writeWeekly(w, "ru");
+	writeWeekly(w, "en");
+}
 
 console.log(
 	"mocks:",
-	posts.length * 2 + articles.length * 2 + projects.length + weekly.length,
+	posts.length * 2 +
+		articles.length * 2 +
+		projects.length * 2 +
+		weekly.length * 2,
 	"files",
 );
