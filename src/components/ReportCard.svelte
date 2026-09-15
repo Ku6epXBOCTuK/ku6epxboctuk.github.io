@@ -9,7 +9,7 @@
 	let { report }: Props = $props();
 </script>
 
-<Card href="/weekly/{report.slug}">
+<Card href="/weekly/{report.slug}" draft={report.draft}>
 	<div class="report-card">
 		<div class="report-header">
 			<span class="report-title">{report.title}</span>

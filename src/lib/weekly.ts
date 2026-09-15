@@ -4,6 +4,7 @@ import {
 	type ContentEntry,
 	type MarkdownModule,
 } from "$lib/content";
+import { dev } from "$app/environment";
 import type { Component } from "svelte";
 
 const modules = import.meta.glob<MarkdownModule>(
@@ -19,8 +20,8 @@ export interface WeeklyReport extends ContentEntry {
 	generatedAt?: string;
 }
 
-const allReports: WeeklyReport[] = Object.entries(modules).map(
-	([path, module]) => {
+const allReports: WeeklyReport[] = (() => {
+	const reports = Object.entries(modules).map(([path, module]) => {
 		const entry = toEntry(path, module);
 		const fm = entry.module.frontmatter;
 		return {
@@ -30,8 +31,9 @@ const allReports: WeeklyReport[] = Object.entries(modules).map(
 			generatedAt:
 				typeof fm.generated_at === "string" ? fm.generated_at : undefined,
 		};
-	},
-);
+	});
+	return dev ? reports : reports.filter((report) => !report.draft);
+})();
 
 export function getWeeklyReports(): WeeklyReport[] {
 	return published(allReports);

@@ -7,6 +7,7 @@ import {
 	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
+import { dev } from "$app/environment";
 import type { Component } from "svelte";
 
 const modules = import.meta.glob<MarkdownModule>(
@@ -29,13 +30,23 @@ interface RawPost {
 
 const URL_LANG = /^(.+)\.(ru|en)$/;
 
-const byBase = collectByFolder(
+const grouped = collectByFolder(
 	Object.entries(modules).map(([path, module]) => ({
 		lang: fileLang(path),
 		entry: toEntry(path, module),
 	})),
 	(item) => item.entry.slug,
 );
+
+const byBase = (() => {
+	if (dev) return grouped;
+	const visible = new Map<string, RawPost[]>();
+	for (const [base, group] of grouped) {
+		const kept = group.filter((item) => !item.entry.draft);
+		if (kept.length > 0) visible.set(base, kept);
+	}
+	return visible;
+})();
 
 function toPost(raw: RawPost): Post {
 	return {

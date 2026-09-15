@@ -48,7 +48,7 @@
 - [x] Карточки `Card` + `PostCard`/`ArticleCard`/`ProjectCard`/`ReportCard`,
       списки и детальные
 - [x] Главная: «последние N постов» (`HOME_RECENT_POSTS`)
-- [ ] Бейдж «draft» в dev
+- [x] Бейдж «draft» в dev
 - [ ] Переключатель ru/en
 - [ ] Мелочи: focus-visible, чипы TG/Discord, спонсоры, `readingTime`, мобайл
 - [ ] Обновить `README.md` под новый сайт

@@ -13,7 +13,7 @@
 	);
 </script>
 
-<Card href={project.repo ?? project.demo ?? "#"}>
+<Card href={project.repo ?? project.demo ?? "#"} draft={project.draft}>
 	<div class="project-card">
 		{#if project.image}
 			<div class="project-screenshot">

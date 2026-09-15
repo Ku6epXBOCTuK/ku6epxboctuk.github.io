@@ -7,6 +7,7 @@ import {
 	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
+import { dev } from "$app/environment";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/articles/*/index.{ru,en}.md",
@@ -36,13 +37,23 @@ interface RawArticle {
 const ALL_LANGS: ContentLang[] = ["ru", "en"];
 const URL_LANG = /^(.+)\.(ru|en)$/;
 
-const byBase = collectByFolder(
+const grouped = collectByFolder(
 	Object.entries(modules).map(([path, module]) => ({
 		lang: fileLang(path),
 		entry: toEntry(path, module),
 	})),
 	(item) => item.entry.slug,
 );
+
+const byBase = (() => {
+	if (dev) return grouped;
+	const visible = new Map<string, RawArticle[]>();
+	for (const [base, group] of grouped) {
+		const kept = group.filter((item) => !item.entry.draft);
+		if (kept.length > 0) visible.set(base, kept);
+	}
+	return visible;
+})();
 
 function availableLangs(base: string): ContentLang[] {
 	const group = byBase.get(base);
