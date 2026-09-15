@@ -4,7 +4,12 @@ import {
 	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
-import { createFlatLoader, optionalBool, optionalString } from "$lib/loaders";
+import {
+	createPairLoader,
+	type LocalizedItem,
+	optionalBool,
+	optionalString,
+} from "$lib/loaders";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/weekly/*/index.{ru,en}.md",
@@ -13,13 +18,15 @@ const modules = import.meta.glob<MarkdownModule>(
 	},
 );
 
-export interface WeeklyReport extends ContentEntry {
+export interface WeeklyReportBase extends ContentEntry {
 	excerpt?: string;
 	generated?: boolean;
 	generatedAt?: string;
 }
 
-const loader = createFlatLoader<WeeklyReport>({
+export interface WeeklyReport extends WeeklyReportBase, LocalizedItem {}
+
+const loader = createPairLoader<WeeklyReportBase>({
 	modules,
 	toItem: (entry, fm) => ({
 		...entry,

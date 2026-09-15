@@ -116,6 +116,7 @@ interface PairFile<T extends ContentEntry> {
 export function createPairLoader<T extends ContentEntry>(options: {
 	modules: ModuleMap;
 	toItem: (_entry: ContentEntry, _fm: Frontmatter) => T;
+	sortByDate?: boolean;
 }): PairLoader<T & LocalizedItem> {
 	const grouped = collectByFolder<PairFile<T>>(
 		Object.entries(options.modules).map(([path, module]) => {
@@ -146,6 +147,9 @@ export function createPairLoader<T extends ContentEntry>(options: {
 		);
 	}
 
+	const sort = (items: Array<T & LocalizedItem>) =>
+		options.sortByDate === false ? items : published(items);
+
 	return {
 		getItems(lang = DEFAULT_LANG) {
 			const items: Array<T & LocalizedItem> = [];
@@ -159,7 +163,7 @@ export function createPairLoader<T extends ContentEntry>(options: {
 					});
 				}
 			}
-			return published(items);
+			return sort(items);
 		},
 		getItem(slug, lang = DEFAULT_LANG) {
 			const group = byBase.get(slug);

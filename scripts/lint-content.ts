@@ -27,7 +27,7 @@ const CONTENT_SCHEMAS: Record<string, string> = {
 	weekly: "weekly",
 };
 
-const MANUAL_TYPES = new Set(["articles", "posts"]);
+const TEASER_FROM_BODY = new Set(["articles", "posts"]);
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const LANG_FILE = /^index\.(ru|en)\.md$/;
@@ -169,7 +169,7 @@ function lintFile(
 		}
 	}
 
-	if (MANUAL_TYPES.has(type) && "excerpt" in data) {
+	if (TEASER_FROM_BODY.has(type) && "excerpt" in data) {
 		fail(
 			`${filePath}: field "excerpt" is not used for ${type.slice(0, -1)} (teaser is taken from body)`,
 		);
@@ -213,7 +213,7 @@ function main(): void {
 				fail(`[${type}] ${unit}: missing index.ru.md`);
 			}
 
-			if (MANUAL_TYPES.has(type) && !files.includes("index.en.md")) {
+			if (!files.includes("index.en.md")) {
 				warn(`[${type}] ${unit}: missing index.en.md`);
 			}
 

@@ -132,6 +132,12 @@
 					"type": "string"
 				},
 				{
+					"title": "Needs translation",
+					"name": "needs_translation",
+					"type": "boolean",
+					"default": false
+				},
+				{
 					"title": "Draft",
 					"name": "draft",
 					"type": "boolean"
@@ -160,6 +166,12 @@
 					"name": "excerpt",
 					"type": "string",
 					"required": true
+				},
+				{
+					"title": "Needs translation",
+					"name": "needs_translation",
+					"type": "boolean",
+					"default": false
 				},
 				{
 					"title": "Draft",

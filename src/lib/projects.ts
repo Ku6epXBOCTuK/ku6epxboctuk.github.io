@@ -4,7 +4,11 @@ import {
 	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
-import { createFlatLoader, optionalString } from "$lib/loaders";
+import {
+	createPairLoader,
+	type LocalizedItem,
+	optionalString,
+} from "$lib/loaders";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/projects/*/index.{ru,en}.md",
@@ -13,7 +17,7 @@ const modules = import.meta.glob<MarkdownModule>(
 	},
 );
 
-export interface Project extends ContentEntry {
+export interface ProjectBase extends ContentEntry {
 	subtitle?: string;
 	description?: string;
 	icon?: string;
@@ -24,9 +28,10 @@ export interface Project extends ContentEntry {
 	syncedAt?: string;
 }
 
-const loader = createFlatLoader<Project>({
+export interface Project extends ProjectBase, LocalizedItem {}
+
+const loader = createPairLoader<ProjectBase>({
 	modules,
-	sortByDate: false,
 	toItem: (entry, fm) => ({
 		...entry,
 		subtitle: optionalString(fm, "subtitle"),
@@ -38,8 +43,13 @@ const loader = createFlatLoader<Project>({
 		status: optionalString(fm, "status"),
 		syncedAt: optionalString(fm, "synced_at"),
 	}),
+	sortByDate: false,
 });
 
 export function getProjects(lang: ContentLang = DEFAULT_LANG): Project[] {
 	return loader.getItems(lang);
+}
+
+export function getProjectBaseSlugs(): string[] {
+	return loader.getSlugs();
 }
