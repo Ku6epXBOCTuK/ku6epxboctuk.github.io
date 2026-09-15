@@ -36,7 +36,11 @@
 
 ## 2. Фаза design
 
-- [ ] Токены `app.css` (4 набора), `@fontsource`, инлайн-скрипт, `ThemeToggle`
+- [x] `@fontsource/comfortaa` + `@fontsource/nunito` установить
+- [ ] Токены в `app.css`: 4 набора (kawaii/soft × light/dark) + композитные
+- [ ] Переименовать CSS-переменные во всех компонентах (старые → новые имена)
+- [ ] Инлайн-скрипт в `app.html` (`data-skin` + `dark`, без FOUC)
+- [ ] `ThemeToggle.svelte` (две кнопки: скин 🎀/`</>` + режим ☀/☾)
 - [ ] Каркас `Topbar`/`Footer`/hero-окно, контейнер 1120px
 - [ ] Карточки `Card` + `PostCard`/`ArticleCard`/`ProjectCard`/`ReportCard`,
       списки и детальные
