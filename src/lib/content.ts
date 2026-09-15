@@ -18,15 +18,26 @@ export interface ContentEntry {
 	module: MarkdownModule;
 }
 
+export const DEFAULT_LANG = "ru";
 export type ContentLang = "ru" | "en";
+
+export function oldContentSlug(value: string): {
+	lang: ContentLang;
+	base: string;
+} {
+	const match = /^(.+)\.(ru|en)$/.exec(value);
+	return match
+		? { lang: match[2] as ContentLang, base: match[1] }
+		: { lang: DEFAULT_LANG, base: value };
+}
 
 const LANG_FILE = /^index\.(ru|en)\.md$/;
 
-interface Draftable {
+export interface Draftable {
 	draft: boolean;
 }
 
-interface DatedContent {
+export interface DatedContent {
 	date: string;
 }
 

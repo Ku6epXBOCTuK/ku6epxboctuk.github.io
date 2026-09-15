@@ -1,11 +1,5 @@
-import {
-	published,
-	toEntry,
-	type ContentEntry,
-	type MarkdownModule,
-} from "$lib/content";
-import { dev } from "$app/environment";
-import type { Component } from "svelte";
+import { createFlatLoader, optionalBool, optionalString } from "$lib/loaders";
+import type { ContentEntry, MarkdownModule } from "$lib/content";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/weekly/*/index.{ru,en}.md",
@@ -20,29 +14,22 @@ export interface WeeklyReport extends ContentEntry {
 	generatedAt?: string;
 }
 
-const allReports: WeeklyReport[] = (() => {
-	const reports = Object.entries(modules).map(([path, module]) => {
-		const entry = toEntry(path, module);
-		const fm = entry.module.frontmatter;
-		return {
-			...entry,
-			excerpt: typeof fm.excerpt === "string" ? fm.excerpt : undefined,
-			generated: fm.generated === true,
-			generatedAt:
-				typeof fm.generated_at === "string" ? fm.generated_at : undefined,
-		};
-	});
-	return dev ? reports : reports.filter((report) => !report.draft);
-})();
+const loader = createFlatLoader<WeeklyReport>({
+	modules,
+	toItem: (entry, fm) => ({
+		...entry,
+		excerpt: optionalString(fm, "excerpt"),
+		generated: optionalBool(fm, "generated") ?? false,
+		generatedAt: optionalString(fm, "generated_at"),
+	}),
+});
 
 export function getWeeklyReports(): WeeklyReport[] {
-	return published(allReports);
+	return loader.getItems();
 }
 
-export function getWeeklyReport(
-	slug: string,
-): { meta: WeeklyReport; ReportComponent: Component } | undefined {
-	const report = allReports.find((item) => item.slug === slug);
+export function getWeeklyReport(slug: string) {
+	const report = loader.getItem(slug);
 	if (!report) return undefined;
 	return { meta: report, ReportComponent: report.module.default };
 }

@@ -49,8 +49,15 @@
       списки и детальные
 - [x] Главная: «последние N постов» (`HOME_RECENT_POSTS`)
 - [x] Бейдж «draft» в dev
-- [ ] i18n: префикс `/ru/…` `/en/…` на все маршруты (`src/routes/[lang]/…`) +
-      редиректы дефолтной локали
+- [x] i18n: рефактор загрузчиков контента — `src/lib/loaders.ts`
+      (`createFlatLoader` + `createPairLoader`), статьи/посты/projects/weekly
+      тонкими обёртками, публичный API прежний
+- [ ] i18n: префикс `/ru/…` `/en/…` — маршруты в `src/routes/[lang]/…`, у
+      каждого `+page.ts` `entries()` по ru/en и `load()` с `lang` в `data`
+- [ ] i18n: корневые редиректы старых URL на дефолтную локаль: `/`, `/about`,
+      `/posts[/slug]`, `/articles[/slug]`, `/projects`, `/weekly[/slug]` (302;
+      для GitHub Pages пререндер отдаёт meta-refresh)
+- [ ] i18n: ссылки с префиксом языка: Topbar, Footer, карточки, HomePage
 - [ ] Локализация сайта: словарь `src/lib/i18n.ts`, UI-строки по
       `$page.params.lang`, топбарный переключатель RU/EN
 - [ ] Переключатель ru/en в топбаре
