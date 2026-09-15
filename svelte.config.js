@@ -8,6 +8,9 @@ const config = {
 		alias: {
 			$cmp: "src/components",
 		},
+		prerender: {
+			handleUnseenRoutes: "ignore",
+		},
 	},
 	compilerOptions: { runes: true },
 };

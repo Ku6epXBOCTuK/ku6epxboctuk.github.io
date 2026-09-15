@@ -3,5 +3,5 @@ import svelteMd from "vite-plugin-svelte-md";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-	plugins: [svelteMd(), sveltekit()],
+	plugins: [svelteMd({ headEnabled: false }), sveltekit()],
 });
