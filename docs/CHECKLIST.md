@@ -31,7 +31,7 @@
 - [x] `new-content.ts` + `npm run new` (создаёт пару `index.ru.md` +
       `index.en.md` с `needs_translation: true`; `--sync` досоздаёт копию для
       существующей)
-- [ ] `docs/writing.md` — как писать пост/статью
+- [x] `docs/writing.md` — как писать пост/статью
 - [ ] Переписать `docs/publish.md` и `docs/test-publish-flow.md` под новую схему
 - [ ] Проверить флоу выкладывания (перенос одного поста/статьи вручную)
 
