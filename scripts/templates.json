@@ -1,11 +1,15 @@
 {
+	"articles": {
+		"template": "Выложена новая статья: {title}\n\n{excerpt}\n\n🔗 читать полностью: {url}",
+		"url": "https://ku6epxboctuk.github.io/articles/{slug}"
+	},
 	"posts": {
 		"template": "Выложен новый пост: {title}\n\n{excerpt}\n\n🔗 читать полностью: {url}",
 		"url": "https://ku6epxboctuk.github.io/posts/{slug}"
 	},
 	"projects": {
 		"template": "Добавлен проект: {title}\n\n{description}\n\n🔗 {url}",
-		"url": null
+		"url": "https://ku6epxboctuk.github.io/projects/{slug}"
 	},
 	"weekly": {
 		"template": "Итоги недели\n\n{excerpt}\n\n🔗 читать полностью: {url}",

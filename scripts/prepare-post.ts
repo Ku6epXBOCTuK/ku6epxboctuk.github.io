@@ -1,16 +1,19 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
+import * as yaml from "js-yaml";
 
 const TEMPLATES_PATH = "scripts/templates.json";
 
 const CONTENT_DIRS: Record<string, string> = {
-	posts: "src/posts",
-	projects: "src/projects",
-	weekly: "src/weekly",
+	articles: "src/content/articles",
+	posts: "src/content/posts",
+	projects: "src/content/projects",
+	weekly: "src/content/weekly",
 };
 
+const RUSSIAN_INDEX = /^index\.ru\.md$/;
+
 interface Frontmatter {
-	[key: string]: string;
+	[key: string]: unknown;
 }
 
 interface PostMeta {
@@ -34,6 +37,11 @@ function detectType(filePath: string): string | null {
 	return null;
 }
 
+function slugFromPath(filePath: string): string {
+	const parent = filePath.slice(0, filePath.lastIndexOf("/"));
+	return parent.slice(parent.lastIndexOf("/") + 1);
+}
+
 function parseFrontmatter(content: string): {
 	data: Frontmatter;
 	body: string;
@@ -41,25 +49,45 @@ function parseFrontmatter(content: string): {
 	const match = content.match(/^---\n([\s\S]*?)\n---/);
 	if (!match) return { data: {}, body: content };
 
-	const raw = match[1];
-	const data: Frontmatter = {};
-	for (const line of raw.split("\n")) {
-		const idx = line.indexOf(":");
-		if (idx === -1) continue;
-		const key = line.slice(0, idx).trim();
-		const val = line.slice(idx + 1).trim();
-		data[key] = val;
+	try {
+		const data = (yaml.load(match[1]) as Frontmatter) || {};
+		return { data, body: content.slice(match[0].length).trim() };
+	} catch {
+		return { data: {}, body: content.slice(match[0].length).trim() };
 	}
-	return { data, body: content.slice(match[0].length).trim() };
 }
 
-function extractTrimmed(body: string): {
-	trimmed: string | null;
-	hasMore: boolean;
-} {
+function teaserFromBody(body: string): string {
 	const moreIdx = body.indexOf("<!--more-->");
-	if (moreIdx === -1) return { trimmed: null, hasMore: false };
-	return { trimmed: body.slice(0, moreIdx).trim(), hasMore: true };
+	return (moreIdx === -1 ? body : body.slice(0, moreIdx)).trim();
+}
+
+function resolveExcerpt(type: string, data: Frontmatter, body: string): string {
+	if (type === "projects") {
+		return typeof data.description === "string" && data.description
+			? data.description
+			: teaserFromBody(body);
+	}
+	if (type === "weekly") {
+		return typeof data.excerpt === "string" && data.excerpt
+			? data.excerpt
+			: teaserFromBody(body);
+	}
+	return teaserFromBody(body);
+}
+
+function stringifyValues(data: Frontmatter): Record<string, string> {
+	const out: Record<string, string> = {};
+	for (const [key, val] of Object.entries(data)) {
+		if (val == null) continue;
+		if (typeof val === "string") out[key] = val;
+		else if (typeof val === "boolean" || typeof val === "number") {
+			out[key] = String(val);
+		} else if (Array.isArray(val)) {
+			out[key] = val.map(String).join(", ");
+		}
+	}
+	return out;
 }
 
 function applyTemplate(template: string, vars: Record<string, string>): string {
@@ -70,20 +98,37 @@ function applyTemplate(template: string, vars: Record<string, string>): string {
 	return result;
 }
 
+function resolveUrl(
+	type: string,
+	data: Frontmatter,
+	slug: string,
+	template: Template,
+): string {
+	const vars = { slug, ...stringifyValues(data) };
+
+	if (type === "projects") {
+		if (typeof data.demo === "string" && data.demo) return data.demo;
+		if (typeof data.repo === "string" && data.repo) return data.repo;
+	}
+
+	return template.url ? applyTemplate(template.url, vars) : "";
+}
+
 function main(): void {
 	// Input: space-separated file paths from FILES env var
 	// Note: paths with spaces will break — currently none exist in content dirs
 	const filesRaw = process.env.FILES || "";
-	const allMd = filesRaw
+	const mdFiles = filesRaw
 		.split(" ")
 		.map((s) => s.trim())
-		.filter((s) => s.length > 0 && s !== "null");
+		.filter((s) => s.length > 0 && s !== "null" && s.endsWith(".md"));
 
-	const allFiles = [...new Set(allMd.filter((f) => f.endsWith(".md")))].filter(
-		(f) => detectType(f) !== null,
+	const ruFiles = [...new Set(mdFiles)].filter(
+		(f) =>
+			detectType(f) !== null && RUSSIAN_INDEX.test(f.split("/").pop() ?? ""),
 	);
 
-	if (allFiles.length === 0) {
+	if (ruFiles.length === 0) {
 		console.log("No content files changed, nothing to do.");
 		process.exit(0);
 	}
@@ -98,10 +143,10 @@ function main(): void {
 
 	const results: PostMeta[] = [];
 
-	for (const filePath of allFiles) {
-		const type = detectType(filePath);
-		const slug = path.basename(filePath, ".md");
-		const tpl = templates[type!];
+	for (const filePath of ruFiles) {
+		const type = detectType(filePath)!;
+		const slug = slugFromPath(filePath);
+		const tpl = templates[type];
 
 		if (!tpl) {
 			console.warn(`No template for type "${type}", skipping ${filePath}`);
@@ -112,31 +157,30 @@ function main(): void {
 
 		const raw = fs.readFileSync(filePath, "utf8");
 		const { data, body } = parseFrontmatter(raw);
-		const { trimmed, hasMore } = extractTrimmed(body);
 
-		if (!hasMore && type === "posts") {
-			console.warn(
-				`Warning: no <!--more--> tag found in ${filePath}. Using excerpt from frontmatter.`,
-			);
+		if (data.draft === true) {
+			console.log(`Skipping draft [${type}]: ${slug}`);
+			continue;
 		}
 
-		const excerpt = trimmed || data.excerpt || data.description || "";
-		const url = tpl.url
-			? applyTemplate(tpl.url, { slug, ...data })
-			: data.url || "";
-
+		const title =
+			typeof data.title === "string" && data.title ? data.title : slug;
+		const date = typeof data.date === "string" ? data.date : "";
+		const excerpt = resolveExcerpt(type, data, body);
+		const url = resolveUrl(type, data, slug, tpl);
 		const socialText = applyTemplate(tpl.template, {
-			...data,
+			title,
 			slug,
 			excerpt,
 			url,
+			...stringifyValues(data),
 		});
 
 		results.push({
-			type: type!,
+			type,
 			slug,
-			title: data.title || slug,
-			date: data.date || "",
+			title,
+			date,
 			filePath,
 			socialText,
 		});

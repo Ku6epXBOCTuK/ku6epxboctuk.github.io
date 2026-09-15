@@ -24,7 +24,7 @@
       `src/content/posts`
 - [x] `lint-content.ts`: 4 типа, ISO, `tags[]`, `<!--more-->`, `generated`,
       `needs_translation` только в `index.en.md`
-- [ ] `prepare-post.ts` + `templates.json`: `articles` (пути `src/content/*`,
+- [x] `prepare-post.ts` + `templates.json`: `articles` (пути `src/content/*`,
       тизер), excerpt по типам, url-шаблоны
 - [ ] `publish.yml`: триггер на `src/content/articles/**` и
       `src/content/posts/**`
