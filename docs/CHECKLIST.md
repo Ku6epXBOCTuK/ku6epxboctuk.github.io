@@ -40,7 +40,8 @@
 - [x] Токены в `app.css`: 4 набора (kawaii/soft × light/dark) + композитные
 - [x] Переименовать и добавить CSS-переменные во всех компонентах (старые →
       новые имена)
-- [ ] Инлайн-скрипт в `app.html` (`data-skin` + `dark`, без FOUC)
+- [x] Инлайн-скрипт в `app.html` (`data-skin` + `dark`, без FOUC), Google Fonts
+      CDN убран
 - [ ] `ThemeToggle.svelte` (две кнопки: скин 🎀/`</>` + режим ☀/☾)
 - [ ] Каркас `Topbar`/`Footer`/hero-окно, контейнер 1120px
 - [ ] Карточки `Card` + `PostCard`/`ArticleCard`/`ProjectCard`/`ReportCard`,
