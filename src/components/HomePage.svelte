@@ -1,12 +1,17 @@
 <script lang="ts">
 	import type { Row } from "$cmp/TerminalWindow.svelte";
 	import TerminalWindow from "$cmp/TerminalWindow.svelte";
+	import PostCard from "$cmp/PostCard.svelte";
+	import { HOME_RECENT_POSTS } from "$lib/config";
+	import { getPosts } from "$lib/posts";
 
 	const nowRows: Row[] = [
 		{ cmd: "whoami", value: "creative developer" },
 		{ cmd: "current_mood", value: "soft focus", tone: "mood" },
 		{ cmd: "now_playing", value: "building in public", tone: "status" },
 	];
+
+	const recentPosts = getPosts().slice(0, HOME_RECENT_POSTS);
 </script>
 
 <section class="hero">
@@ -27,6 +32,23 @@
 	</div>
 	<TerminalWindow title="xboct.dev / now" rows={nowRows} />
 </section>
+
+{#if recentPosts.length}
+	<section class="section">
+		<div class="section-head">
+			<div>
+				<span class="eyebrow">short thoughts</span>
+				<h2>Recent posts</h2>
+			</div>
+			<a class="text-link" href="/posts">all posts →</a>
+		</div>
+		<div class="grid-2">
+			{#each recentPosts as post (post.slug)}
+				<PostCard {post} />
+			{/each}
+		</div>
+	</section>
+{/if}
 
 <style>
 	.hero {
@@ -65,6 +87,44 @@
 		max-width: 510px;
 		font-size: 18px;
 		color: var(--muted-foreground);
+	}
+
+	.section {
+		padding: 10px 0 96px;
+	}
+
+	.section-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+		gap: 20px;
+		margin-bottom: 22px;
+	}
+
+	.section-head h2 {
+		font-family: var(--font-display);
+		font-size: 30px;
+		letter-spacing: -0.03em;
+		margin: 8px 0 0;
+		color: var(--foreground);
+	}
+
+	.text-link {
+		color: var(--coral);
+		font-size: 13px;
+		font-weight: 700;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.text-link:hover {
+		text-decoration: underline;
+	}
+
+	.grid-2 {
+		display: grid;
+		gap: 18px;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.hero-actions {
@@ -134,6 +194,14 @@
 		.hero-actions {
 			flex-direction: column;
 			align-items: flex-start;
+		}
+
+		.grid-2 {
+			grid-template-columns: 1fr;
+		}
+
+		.section {
+			padding: 10px 0 70px;
 		}
 	}
 </style>

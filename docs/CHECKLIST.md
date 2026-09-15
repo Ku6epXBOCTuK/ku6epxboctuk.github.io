@@ -47,7 +47,7 @@
 - [x] Каркас `Topbar`/`Footer`/hero-окно, контейнер 1120px
 - [x] Карточки `Card` + `PostCard`/`ArticleCard`/`ProjectCard`/`ReportCard`,
       списки и детальные
-- [ ] Главная: «последние N постов» (`HOME_RECENT_POSTS`)
+- [x] Главная: «последние N постов» (`HOME_RECENT_POSTS`)
 - [ ] Бейдж «draft» в dev
 - [ ] Переключатель ru/en
 - [ ] Мелочи: focus-visible, чипы TG/Discord, спонсоры, `readingTime`, мобайл
