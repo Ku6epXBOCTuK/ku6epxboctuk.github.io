@@ -1,38 +1,82 @@
 import {
+	collectByFolder,
+	fileLang,
 	published,
 	toEntry,
 	type ContentEntry,
+	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
 import type { Component } from "svelte";
 
-const modules = import.meta.glob<MarkdownModule>("/src/content/posts/*.md", {
-	eager: true,
-});
+const modules = import.meta.glob<MarkdownModule>(
+	"/src/content/posts/*/index.{ru,en}.md",
+	{
+		eager: true,
+	},
+);
 
 export interface Post extends ContentEntry {
+	lang: ContentLang;
+	urlSlug: string;
 	link?: string;
 }
 
-const allPosts: Post[] = Object.entries(modules).map(([path, module]) => {
-	const entry = toEntry(path, module);
+interface RawPost {
+	lang: ContentLang;
+	entry: ContentEntry;
+}
+
+const URL_LANG = /^(.+)\.(ru|en)$/;
+
+const byBase = collectByFolder(
+	Object.entries(modules).map(([path, module]) => ({
+		lang: fileLang(path),
+		entry: toEntry(path, module),
+	})),
+	(item) => item.entry.slug,
+);
+
+function toPost(raw: RawPost): Post {
 	return {
-		...entry,
+		...raw.entry,
+		lang: raw.lang,
+		urlSlug:
+			raw.lang === "ru" ? raw.entry.slug : `${raw.entry.slug}.${raw.lang}`,
 		link:
-			typeof entry.module.frontmatter.link === "string"
-				? entry.module.frontmatter.link
+			typeof raw.entry.module.frontmatter.link === "string"
+				? raw.entry.module.frontmatter.link
 				: undefined,
 	};
-});
+}
 
 export function getPosts(): Post[] {
-	return published(allPosts);
+	const posts = [...byBase.values()].map((group) => {
+		const main = group.find((item) => item.lang === "ru") ?? group[0]!;
+		return toPost(main);
+	});
+	return published(posts);
 }
 
 export function getPost(
 	slug: string,
 ): { meta: Post; PostComponent: Component } | undefined {
-	const post = allPosts.find((item) => item.slug === slug);
-	if (!post) return undefined;
-	return { meta: post, PostComponent: post.module.default };
+	const match = URL_LANG.exec(slug);
+	const base = match ? match[1] : slug;
+	const lang = match ? (match[2] as ContentLang) : "ru";
+	const raw = byBase.get(base)?.find((item) => item.lang === lang);
+	if (!raw) return undefined;
+	const meta = toPost(raw);
+	return { meta, PostComponent: meta.module.default };
+}
+
+export function getPostSlugs(): string[] {
+	const slugs: string[] = [];
+	for (const [base, group] of byBase) {
+		slugs.push(base);
+		for (const item of group) {
+			if (item.lang === "en") slugs.push(`${base}.en`);
+		}
+	}
+	return slugs;
 }

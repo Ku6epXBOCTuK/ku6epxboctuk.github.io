@@ -6,9 +6,12 @@ import {
 } from "$lib/content";
 import type { Component } from "svelte";
 
-const modules = import.meta.glob<MarkdownModule>("/src/content/weekly/*.md", {
-	eager: true,
-});
+const modules = import.meta.glob<MarkdownModule>(
+	"/src/content/weekly/*/index.{ru,en}.md",
+	{
+		eager: true,
+	},
+);
 
 export interface WeeklyReport extends ContentEntry {
 	excerpt?: string;

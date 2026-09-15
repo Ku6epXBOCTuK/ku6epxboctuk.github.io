@@ -18,6 +18,10 @@ export interface ContentEntry {
 	module: MarkdownModule;
 }
 
+export type ContentLang = "ru" | "en";
+
+const LANG_FILE = /^index\.(ru|en)\.md$/;
+
 interface Draftable {
 	draft: boolean;
 }
@@ -39,9 +43,15 @@ export function tagsValue(value: unknown): string[] {
 	return value.filter((tag): tag is string => typeof tag === "string");
 }
 
-export function toEntry(path: string, module: MarkdownModule): ContentEntry {
+export function fileLang(path: string): ContentLang {
 	const file = path.split("/").pop() ?? "";
-	const slug = file.replace(/\.md$/, "");
+	const match = LANG_FILE.exec(file);
+	return match?.[1] === "en" ? "en" : "ru";
+}
+
+export function toEntry(path: string, module: MarkdownModule): ContentEntry {
+	const segments = path.split("/");
+	const slug = segments[segments.length - 2] ?? "";
 	const fm = module.frontmatter;
 	return {
 		slug,
@@ -52,6 +62,20 @@ export function toEntry(path: string, module: MarkdownModule): ContentEntry {
 		image: optionalValue(fm.image),
 		module,
 	};
+}
+
+export function collectByFolder<T>(
+	items: T[],
+	key: (_item: T) => string,
+): Map<string, T[]> {
+	const byFolder = new Map<string, T[]>();
+	for (const item of items) {
+		const folder = key(item);
+		const group = byFolder.get(folder);
+		if (group) group.push(item);
+		else byFolder.set(folder, [item]);
+	}
+	return byFolder;
 }
 
 export function filterDrafts<T extends Draftable>(items: T[]): T[] {

@@ -5,9 +5,12 @@ import {
 	type MarkdownModule,
 } from "$lib/content";
 
-const modules = import.meta.glob<MarkdownModule>("/src/content/projects/*.md", {
-	eager: true,
-});
+const modules = import.meta.glob<MarkdownModule>(
+	"/src/content/projects/*/index.{ru,en}.md",
+	{
+		eager: true,
+	},
+);
 
 export interface Project extends ContentEntry {
 	subtitle?: string;
