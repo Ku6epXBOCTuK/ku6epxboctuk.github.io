@@ -1,52 +1,38 @@
+import {
+	published,
+	toEntry,
+	type ContentEntry,
+	type MarkdownModule,
+} from "$lib/content";
 import type { Component } from "svelte";
 
-export interface PostModule {
-	default: Component;
-	frontmatter: {
-		title: string;
-		date: string;
-		excerpt: string;
-		tag: string;
-	};
-}
-
-export interface Post {
-	slug: string;
-	title: string;
-	date: string;
-	excerpt: string;
-	tags: string[];
-}
-
-const modules = import.meta.glob<PostModule>("/src/posts/*.md", {
+const modules = import.meta.glob<MarkdownModule>("/src/content/posts/*.md", {
 	eager: true,
 });
 
-export function getPosts(): Post[] {
-	return Object.entries(modules).map(([path, module]) => {
-		const slug = path.split("/").pop()?.replace(".md", "") ?? "";
-		return {
-			slug,
-			title: module.frontmatter.title?.replace(/_/g, "-"),
-			date: module.frontmatter.date,
-			excerpt: module.frontmatter.excerpt,
-			tags: module.frontmatter.tag.split(" ") ?? [],
-		};
-	});
+export interface Post extends ContentEntry {
+	link?: string;
 }
 
-export function getPost(slug: string) {
-	const posts = Object.entries(modules);
-	const postEntry = posts.find(([path]) => {
-		return path.split("/").pop()?.replace(".md", "") === slug;
-	});
-
-	if (!postEntry) return undefined;
-
-	const module = postEntry[1];
-
+const allPosts: Post[] = Object.entries(modules).map(([path, module]) => {
+	const entry = toEntry(path, module);
 	return {
-		PostComponent: module.default,
-		meta: module.frontmatter,
+		...entry,
+		link:
+			typeof entry.module.frontmatter.link === "string"
+				? entry.module.frontmatter.link
+				: undefined,
 	};
+});
+
+export function getPosts(): Post[] {
+	return published(allPosts);
+}
+
+export function getPost(
+	slug: string,
+): { meta: Post; PostComponent: Component } | undefined {
+	const post = allPosts.find((item) => item.slug === slug);
+	if (!post) return undefined;
+	return { meta: post, PostComponent: post.module.default };
 }

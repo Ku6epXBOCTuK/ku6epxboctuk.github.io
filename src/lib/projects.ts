@@ -1,43 +1,45 @@
-interface ProjectModule {
-	frontmatter: {
-		title: string;
-		type: string;
-		subtitle: string;
-		description: string;
-		tags: string;
-		image: string;
-		url: string;
-	};
-}
+import {
+	filterDrafts,
+	toEntry,
+	type ContentEntry,
+	type MarkdownModule,
+} from "$lib/content";
 
-interface Project {
-	slug: string;
-	name: string;
-	url: string;
-	type: string;
-	subtitle: string;
-	description: string;
-	tags: string[];
-	image: string;
-}
-
-const modules = import.meta.glob<ProjectModule>("/src/projects/*.md", {
+const modules = import.meta.glob<MarkdownModule>("/src/content/projects/*.md", {
 	eager: true,
 });
 
+export interface Project extends ContentEntry {
+	subtitle?: string;
+	description?: string;
+	icon?: string;
+	color?: string;
+	repo?: string;
+	demo?: string;
+	status?: string;
+	syncedAt?: string;
+}
+
+const allProjects: Project[] = Object.entries(modules).map(([path, module]) => {
+	const entry = toEntry(path, module);
+	const fm = entry.module.frontmatter;
+	return {
+		...entry,
+		subtitle: optionalString(fm.subtitle),
+		description: optionalString(fm.description),
+		icon: optionalString(fm.icon),
+		color: optionalString(fm.color),
+		repo: optionalString(fm.repo),
+		demo: optionalString(fm.demo),
+		status: optionalString(fm.status),
+		syncedAt: optionalString(fm.synced_at),
+	};
+});
+
+function optionalString(value: unknown): string | undefined {
+	return typeof value === "string" && value ? value : undefined;
+}
+
 export function getProjects(): Project[] {
-	const projects: Project[] = Object.entries(modules).map(([path, module]) => {
-		const slug = path.split("/").pop()?.replace(".md", "") ?? "";
-		return {
-			slug,
-			name: module.frontmatter.title?.replace(/_/g, "-"),
-			url: module.frontmatter.url,
-			type: module.frontmatter.type,
-			subtitle: module.frontmatter.subtitle,
-			description: module.frontmatter.description,
-			tags: module.frontmatter.tags.split(" ") ?? [],
-			image: module.frontmatter.image,
-		};
-	});
-	return projects;
+	return filterDrafts(allProjects);
 }

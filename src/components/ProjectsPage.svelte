@@ -13,19 +13,20 @@
 				<div class="dot-sm r"></div>
 				<div class="dot-sm y"></div>
 				<div class="dot-sm g"></div>
-				<span class="url">{project.url.replace("https://github.com/", "")}</span
-				>
+				<span class="url">
+					{project.repo?.replace("https://github.com/", "") ??
+						project.demo ??
+						""}
+				</span>
 			</div>
 			{#if project.image}
-				<img src={project.image} alt={project.name} />
+				<img src={project.image} alt={project.title} />
 			{/if}
 		</div>
 		<div class="project-name">
-			<a href={project.url} target="_blank">{project.name}</a>
+			<a href={project.repo ?? project.demo} target="_blank">{project.title}</a>
 		</div>
-		<div class="project-meta">
-			<span>{project.type}</span> · {project.subtitle}
-		</div>
+		<div class="project-meta">{project.subtitle}</div>
 		<div class="project-desc">{project.description}</div>
 		<div class="project-tech">
 			{#each project.tags as t (t)}
@@ -156,10 +157,6 @@
 		color: var(--dim);
 		font-size: 12px;
 		margin-bottom: 8px;
-	}
-
-	.project-meta span {
-		color: var(--accent2);
 	}
 
 	.project-desc {

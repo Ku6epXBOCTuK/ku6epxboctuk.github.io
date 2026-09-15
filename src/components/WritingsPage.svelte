@@ -12,7 +12,6 @@
 			<span class="writing-title">{post.title}</span>
 			<span class="writing-date">{post.date}</span>
 		</div>
-		<div class="writing-excerpt">{post.excerpt}</div>
 		<div class="writing-tag">
 			{#each post.tags as tag (tag)}
 				#{tag}
@@ -72,12 +71,6 @@
 		color: var(--dim);
 		font-size: 12px;
 		white-space: nowrap;
-	}
-
-	.writing-excerpt {
-		color: var(--dim);
-		font-size: 13px;
-		line-height: 1.6;
 	}
 
 	.writing-tag {

@@ -6,7 +6,7 @@
 			meta: {
 				title: string;
 				date: string;
-				tags: string;
+				tags: string[];
 			};
 			content: Component;
 		};
@@ -21,7 +21,9 @@
 	<h1 class="post-title">{meta.title}</h1>
 	<div class="post-meta">
 		<span class="post-date">{meta.date}</span>
-		<span class="post-tag">#{meta.tags}</span>
+		{#each meta.tags as tag (tag)}
+			<span class="post-tag">#{tag}</span>
+		{/each}
 	</div>
 	<div class="post-content">
 		<Content />
