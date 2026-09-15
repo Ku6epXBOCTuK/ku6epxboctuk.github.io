@@ -22,7 +22,7 @@
 - [x] `frontmatter.json`: 4 схемы, убрать `Type` и `lang`, добавить
       `needs_translation` (post/article), pageFolders `src/content/articles`,
       `src/content/posts`
-- [ ] `lint-content.ts`: 4 типа, ISO, `tags[]`, `<!--more-->`, `generated`,
+- [x] `lint-content.ts`: 4 типа, ISO, `tags[]`, `<!--more-->`, `generated`,
       `needs_translation` только в `index.en.md`
 - [ ] `prepare-post.ts` + `templates.json`: `articles` (пути `src/content/*`,
       тизер), excerpt по типам, url-шаблоны
