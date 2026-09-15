@@ -1,5 +1,10 @@
+import {
+	DEFAULT_LANG,
+	type ContentEntry,
+	type ContentLang,
+	type MarkdownModule,
+} from "$lib/content";
 import { createFlatLoader, optionalString } from "$lib/loaders";
-import type { ContentEntry, MarkdownModule } from "$lib/content";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/projects/*/index.{ru,en}.md",
@@ -35,6 +40,6 @@ const loader = createFlatLoader<Project>({
 	}),
 });
 
-export function getProjects(): Project[] {
-	return loader.getItems();
+export function getProjects(lang: ContentLang = DEFAULT_LANG): Project[] {
+	return loader.getItems(lang);
 }

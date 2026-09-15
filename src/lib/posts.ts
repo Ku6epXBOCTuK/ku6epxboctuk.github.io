@@ -1,10 +1,10 @@
-import { createPairLoader, type LocalizedItem } from "$lib/loaders";
 import {
-	oldContentSlug,
+	DEFAULT_LANG,
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
 } from "$lib/content";
+import { createPairLoader, type LocalizedItem } from "$lib/loaders";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/posts/*/index.{ru,en}.md",
@@ -17,9 +17,7 @@ interface PostBase extends ContentEntry {
 	link?: string;
 }
 
-export interface Post extends PostBase, LocalizedItem {
-	urlSlug: string;
-}
+export interface Post extends PostBase, LocalizedItem {}
 
 const loader = createPairLoader<PostBase>({
 	modules,
@@ -29,25 +27,18 @@ const loader = createPairLoader<PostBase>({
 	}),
 });
 
-function urlSlugFor(lang: ContentLang, slug: string): string {
-	return lang === "ru" ? slug : `${slug}.${lang}`;
+export function getPosts(lang: ContentLang = DEFAULT_LANG): Post[] {
+	return loader.getItems(lang);
 }
 
-export function getPosts(): Post[] {
-	return loader.getItems().map((item) => ({
-		...item,
-		urlSlug: urlSlugFor(item.lang, item.slug),
-	}));
-}
-
-export function getPost(slug: string) {
-	const { lang, base } = oldContentSlug(slug);
-	const item = loader.getLangs(base).includes(lang)
-		? loader.getItem(base, lang)
-		: undefined;
-	if (!item) return undefined;
-	const meta = { ...item, urlSlug: urlSlugFor(item.lang, item.slug) };
+export function getPost(slug: string, lang: ContentLang = DEFAULT_LANG) {
+	const meta = loader.getItem(slug, lang);
+	if (!meta) return undefined;
 	return { meta, PostComponent: meta.module.default };
+}
+
+export function getPostBaseSlugs(): string[] {
+	return loader.getSlugs();
 }
 
 export function getPostSlugs(): string[] {

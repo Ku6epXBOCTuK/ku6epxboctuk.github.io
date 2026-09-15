@@ -9,7 +9,7 @@
 	let { article }: Props = $props();
 </script>
 
-<Card href="/articles/{article.urlSlug}" draft={article.draft}>
+<Card href="/articles/{article.slug}" draft={article.draft}>
 	<div class="article-card">
 		<div class="article-header">
 			<span class="article-title">{article.title}</span>

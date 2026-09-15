@@ -1,5 +1,10 @@
+import {
+	DEFAULT_LANG,
+	type ContentEntry,
+	type ContentLang,
+	type MarkdownModule,
+} from "$lib/content";
 import { createFlatLoader, optionalBool, optionalString } from "$lib/loaders";
-import type { ContentEntry, MarkdownModule } from "$lib/content";
 
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/weekly/*/index.{ru,en}.md",
@@ -24,12 +29,21 @@ const loader = createFlatLoader<WeeklyReport>({
 	}),
 });
 
-export function getWeeklyReports(): WeeklyReport[] {
-	return loader.getItems();
+export function getWeeklyReports(
+	lang: ContentLang = DEFAULT_LANG,
+): WeeklyReport[] {
+	return loader.getItems(lang);
 }
 
-export function getWeeklyReport(slug: string) {
-	const report = loader.getItem(slug);
+export function getWeeklyReport(
+	slug: string,
+	lang: ContentLang = DEFAULT_LANG,
+) {
+	const report = loader.getItem(slug, lang);
 	if (!report) return undefined;
 	return { meta: report, ReportComponent: report.module.default };
+}
+
+export function getWeeklyReportSlugs(): string[] {
+	return loader.getSlugs();
 }

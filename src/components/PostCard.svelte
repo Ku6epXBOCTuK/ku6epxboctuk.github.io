@@ -9,7 +9,7 @@
 	let { post }: Props = $props();
 </script>
 
-<Card href="/posts/{post.urlSlug}" draft={post.draft}>
+<Card href="/posts/{post.slug}" draft={post.draft}>
 	<div class="post-card">
 		<div class="post-header">
 			<span class="post-title">{post.title}</span>

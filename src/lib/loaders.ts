@@ -36,9 +36,14 @@ export interface LocalizedItem {
 }
 
 export interface FlatLoader<T> {
-	getItems(): T[];
-	getItem(_slug: string): T | undefined;
+	getItems(_lang?: ContentLang): T[];
+	getItem(_slug: string, _lang?: ContentLang): T | undefined;
 	getSlugs(): string[];
+}
+
+interface FlatFile<T extends ContentEntry> {
+	lang: ContentLang;
+	item: T;
 }
 
 export function createFlatLoader<T extends ContentEntry>(options: {
@@ -46,16 +51,53 @@ export function createFlatLoader<T extends ContentEntry>(options: {
 	toItem: (_entry: ContentEntry, _fm: Frontmatter) => T;
 	sortByDate?: boolean;
 }): FlatLoader<T> {
-	const items = Object.entries(options.modules).map(([path, module]) =>
-		options.toItem(toEntry(path, module), module.frontmatter),
+	const grouped = collectByFolder<FlatFile<T>>(
+		Object.entries(options.modules).map(([path, module]) => {
+			const entry = toEntry(path, module);
+			return {
+				lang: fileLang(path),
+				item: options.toItem(entry, module.frontmatter),
+			};
+		}),
+		(file) => file.item.slug,
 	);
-	const visible = dev ? items : items.filter((item) => !item.draft);
-	const getItems = () =>
-		options.sortByDate === false ? visible : published(visible);
+
+	for (const [slug, group] of grouped) {
+		const visible = dev ? group : group.filter((file) => !file.item.draft);
+		if (visible.length > 0) grouped.set(slug, visible);
+		else grouped.delete(slug);
+	}
+
+	function pick(
+		group: FlatFile<T>[],
+		lang?: ContentLang,
+	): FlatFile<T> | undefined {
+		if (!lang) return group[0];
+		return (
+			group.find((file) => file.lang === lang) ??
+			group.find((file) => file.lang === DEFAULT_LANG) ??
+			group[0]
+		);
+	}
+
+	const sort = (items: T[]) =>
+		options.sortByDate === false ? items : published(items);
+
 	return {
-		getItems,
-		getItem: (slug) => visible.find((item) => item.slug === slug),
-		getSlugs: () => visible.map((item) => item.slug),
+		getItems(lang) {
+			const items: T[] = [];
+			for (const [, group] of grouped) {
+				const picked = pick(group, lang);
+				if (picked) items.push(picked.item);
+			}
+			return sort(items);
+		},
+		getItem(slug, lang) {
+			const group = grouped.get(slug);
+			if (!group) return undefined;
+			return pick(group, lang)?.item;
+		},
+		getSlugs: () => [...grouped.keys()],
 	};
 }
 
