@@ -44,7 +44,7 @@
       CDN убран
 - [x] `ThemeToggle.svelte` (две кнопки: скин 🎀/`</>` + режим ☀/☾), временно
       смонтирован в layout, переедет в Topbar
-- [ ] Каркас `Topbar`/`Footer`/hero-окно, контейнер 1120px
+- [x] Каркас `Topbar`/`Footer`/hero-окно, контейнер 1120px
 - [ ] Карточки `Card` + `PostCard`/`ArticleCard`/`ProjectCard`/`ReportCard`,
       списки и детальные
 - [ ] Главная: «последние N постов» (`HOME_RECENT_POSTS`)

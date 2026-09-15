@@ -41,8 +41,15 @@
 	--font-body: "Nunito", system-ui, sans-serif;
 
 	--accent4: oklch(0.65 0.16 25);
-	--bg-ascii: #132413;
-	--ascii-font: "Fira Code", "JetBrains Mono", "Consolas", monospace;
+
+	--term-bg: #211c2b;
+	--term-fg: #eee5f2;
+	--term-prompt: #a98bd0;
+	--term-mood: #f4a8c8;
+	--term-status: #b9eee3;
+	--dot-pink: #f4a8c8;
+	--dot-mint: #b9eee3;
+	--dot-blue: #c7d8ff;
 }
 
 /* ===== kawaii + dark ===== */
@@ -68,7 +75,6 @@
 	--tag-foreground: oklch(0.68 0.06 300);
 
 	--accent4: oklch(0.6 0.15 25);
-	--bg-ascii: #0d1a0d;
 }
 
 /* ===== soft + light ===== */
@@ -98,7 +104,6 @@
 	--font-body: system-ui, Arial, sans-serif;
 
 	--accent4: #f87171;
-	--bg-ascii: #211c2b;
 }
 
 /* ===== soft + dark ===== */
@@ -124,7 +129,6 @@
 	--tag-foreground: #c9a0b8;
 
 	--accent4: #dc2626;
-	--bg-ascii: #17131f;
 }
 
 html {
@@ -158,10 +162,4 @@ body {
 
 ::-webkit-scrollbar-thumb {
 	background: var(--outline);
-}
-
-/* ===== skin-specific tech overrides ===== */
-[data-skin="soft"] .chip {
-	border: 1px solid var(--line);
-	border-radius: 12px;
 }

@@ -1,0 +1,106 @@
+<script lang="ts">
+	import { page } from "$app/stores";
+	import ThemeToggle from "$cmp/ThemeToggle.svelte";
+
+	const navItems = [
+		{ href: "/", label: "home" },
+		{ href: "/posts", label: "posts" },
+		{ href: "/articles", label: "articles" },
+		{ href: "/projects", label: "projects" },
+		{ href: "/weekly", label: "weekly" },
+	];
+
+	function isActive(pathname: string, href: string): boolean {
+		if (href === "/") return pathname === "/";
+		return pathname === href || pathname.startsWith(href + "/");
+	}
+</script>
+
+<nav class="topbar">
+	<a class="brand" href="/">
+		<span class="brand-mark" aria-hidden="true">✦</span>
+		<span>xboct<span class="brand-dot">.</span>dev</span>
+	</a>
+
+	<div class="nav-links">
+		{#each navItems as item (item.href)}
+			<a
+				href={item.href}
+				class:active={isActive($page.url.pathname, item.href)}
+			>
+				{item.label}
+			</a>
+		{/each}
+	</div>
+
+	<div class="nav-actions">
+		<ThemeToggle />
+	</div>
+</nav>
+
+<style>
+	.topbar {
+		width: min(1120px, calc(100% - 40px));
+		margin: 0 auto;
+		min-height: 76px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 24px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		font-family: var(--font-display);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		font-size: 20px;
+		color: var(--foreground);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.brand-mark,
+	.brand-dot {
+		color: var(--coral);
+	}
+
+	.nav-links {
+		display: flex;
+		gap: 26px;
+		color: var(--muted-foreground);
+		font-family: var(--font-display);
+		font-size: 14px;
+	}
+
+	.nav-links a {
+		text-decoration: none;
+		color: inherit;
+		transition: color 0.2s ease;
+	}
+
+	.nav-links a:hover,
+	.nav-links a.active {
+		color: var(--foreground);
+	}
+
+	.nav-actions {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	@media (max-width: 700px) {
+		.topbar {
+			width: calc(100% - 28px);
+		}
+
+		.nav-links {
+			gap: 16px;
+			font-size: 13px;
+		}
+	}
+</style>

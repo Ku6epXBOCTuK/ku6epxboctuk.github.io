@@ -1,50 +1,28 @@
 <script lang="ts">
 	import "../app.css";
-	import TerminalHeader from "$cmp/TerminalHeader.svelte";
-	import Nav from "$cmp/Nav.svelte";
+	import Topbar from "$cmp/Topbar.svelte";
 	import Footer from "$cmp/Footer.svelte";
-	import ThemeToggle from "$cmp/ThemeToggle.svelte";
 
 	let { children } = $props();
 </script>
 
-<div class="theme-toggle-wrap">
-	<ThemeToggle />
-</div>
+<Topbar />
 
-<TerminalHeader />
-
-<div class="container">
-	<Nav />
-
+<div class="site-shell">
 	{@render children()}
-
-	<Footer />
 </div>
+
+<Footer />
 
 <style>
-	.container {
-		max-width: 720px;
+	.site-shell {
+		width: min(1120px, calc(100% - 40px));
 		margin: 0 auto;
-		padding: 0 24px;
 	}
 
-	@media (max-width: 600px) {
-		.container {
-			padding: 0 16px;
-		}
-	}
-
-	.theme-toggle-wrap {
-		position: fixed;
-		top: 12px;
-		right: 24px;
-		z-index: 200;
-	}
-
-	@media (max-width: 600px) {
-		.theme-toggle-wrap {
-			right: 16px;
+	@media (max-width: 700px) {
+		.site-shell {
+			width: calc(100% - 28px);
 		}
 	}
 </style>

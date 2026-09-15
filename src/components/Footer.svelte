@@ -1,66 +1,60 @@
 <footer class="footer">
-	built with vscode and couple cups of tea <span class="blink">_</span><br /><br
-	/>
-	<a href="https://github.com/Ku6epXBOCTuK" target="_blank">github</a> ·
-	<a href="https://t.me/Ku6epXBOCTuK_feed" target="_blank">telegram</a> ·
-	<a href="https://www.twitch.tv/Ku6ep_XBOCTuK" target="_blank">twitch</a> ·
-	<a href="https://Ku6epXBOCTuK.github.io" target="_blank">this site</a> ·
-	<a href="mailto:Ku6epXBOCTuK@gmail.com">email</a>
+	<a class="brand" href="/">
+		<span class="brand-mark" aria-hidden="true">✦</span>
+		<span>xboct<span class="brand-dot">.</span>dev</span>
+	</a>
+	<p class="footer-note">built with attention to detail</p>
+	<span class="footer-code">© 2026 / system.online</span>
 </footer>
-
-<div class="status-bar">
-	<span><span class="mode">NORMAL</span></span>
-	<span>utf-8 · svelte</span>
-</div>
 
 <style>
 	.footer {
-		margin-top: 80px;
-		padding: 20px 0 40px;
-		border-top: 1px solid var(--outline);
-		text-align: center;
+		width: min(1120px, calc(100% - 40px));
+		margin: 0 auto;
+		padding: 35px 0 45px;
+		border-top: 1px solid var(--line);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 24px;
 		color: var(--muted-foreground);
 		font-size: 12px;
 	}
 
-	.footer a {
-		color: var(--periwinkle);
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		font-family: var(--font-display);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		font-size: 20px;
+		color: var(--foreground);
 		text-decoration: none;
+		white-space: nowrap;
 	}
 
-	.footer a:hover {
-		text-decoration: underline;
-	}
-
-	.blink {
-		animation: blink 1s step-end infinite;
+	.brand-mark,
+	.brand-dot {
 		color: var(--coral);
 	}
 
-	@keyframes blink {
-		50% {
-			opacity: 0;
-		}
-	}
-
-	.status-bar {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		padding: 4px 24px;
-		border-top: 1px solid var(--outline);
-		background: var(--background);
+	.footer-note {
 		display: flex;
-		justify-content: space-between;
-		font-size: 11px;
-		color: var(--muted-foreground);
-		z-index: 100;
+		align-items: center;
+		gap: 5px;
 	}
 
-	.status-bar .mode {
-		color: var(--background);
-		background: var(--coral);
-		padding: 1px 8px;
+	.footer-code {
+		font-family: var(--font-body);
+	}
+
+	@media (max-width: 700px) {
+		.footer {
+			width: calc(100% - 28px);
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 18px;
+		}
 	}
 </style>

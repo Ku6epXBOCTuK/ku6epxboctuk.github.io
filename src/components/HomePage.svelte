@@ -1,265 +1,139 @@
 <script lang="ts">
-	import { ASCII_ART } from "$lib/ascii";
-	import { onMount } from "svelte";
+	import type { Row } from "$cmp/TerminalWindow.svelte";
+	import TerminalWindow from "$cmp/TerminalWindow.svelte";
 
-	const FOCUS_DELAY = 2000;
-	const TYPING_BASE = 30;
-	const TYPING_SPREAD = 50;
-
-	interface Props {
-		commandInput?: string;
-		commandOutput?: { cmd: string; result: string; isError?: boolean } | null;
-		onCommand?: (_e: KeyboardEvent) => void;
-		onFocus?: () => void;
-	}
-
-	let {
-		commandInput = $bindable(""),
-		commandOutput = $bindable(null),
-		onCommand,
-		onFocus,
-	}: Props = $props();
-
-	let typedText = $state("");
-	let typedIndex = $state(0);
-	let localInputRef: HTMLInputElement | undefined = $state();
-
-	function typeAscii() {
-		if (typedIndex < ASCII_ART.length) {
-			typedText = ASCII_ART.substring(0, typedIndex + 1);
-			typedIndex++;
-		}
-	}
-
-	function startTyping() {
-		typeAscii();
-		const interval = setInterval(
-			() => {
-				if (typedIndex < ASCII_ART.length) {
-					typeAscii();
-				} else {
-					clearInterval(interval);
-				}
-			},
-			TYPING_BASE + Math.random() * TYPING_SPREAD,
-		);
-	}
-
-	onMount(() => {
-		startTyping();
-		setTimeout(() => {
-			localInputRef?.focus();
-			onFocus?.();
-		}, FOCUS_DELAY);
-	});
+	const nowRows: Row[] = [
+		{ cmd: "whoami", value: "creative developer" },
+		{ cmd: "current_mood", value: "soft focus", tone: "mood" },
+		{ cmd: "now_playing", value: "building in public", tone: "status" },
+	];
 </script>
 
-<div class="home-ascii">
-	<pre class="placeholder">{ASCII_ART}</pre>
-	<pre class="typed"><span class="text">{typedText}</span><span class="cursor"
-			>█</span
-		></pre>
-</div>
-
-<div class="home-intro">
-	<div><span class="cmd">$</span> whoami</div>
-	<div class="output">Ku6epXBOCTuK — developer & creative technologist</div>
-	<div class="comment">
-		// i build things for the web. mostly interesting, sometimes useful.
+<section class="hero">
+	<div class="hero-copy">
+		<span class="eyebrow">✦ personal dev log · 2026</span>
+		<h1>
+			Hi, I'm Ku6epXBOCTuK.<br /><em>Writing code</em> and growing<br />small
+			digital gardens.
+		</h1>
+		<p>
+			Personal blog about development, interface design, open source, and
+			attempts to make the internet a little kinder.
+		</p>
+		<div class="hero-actions">
+			<a class="btn btn-primary" href="/posts">read the feed</a>
+			<a class="btn btn-ghost" href="/projects">view projects</a>
+		</div>
 	</div>
-</div>
-
-<div class="home-intro">
-	<div><span class="cmd">$</span> cat currently-doing.txt</div>
-	<div class="output">
-		building products, writing code, exploring creative coding and generative
-		art.
-	</div>
-</div>
-
-<div class="home-intro">
-	<div><span class="cmd">$</span> ls -la ~/links/</div>
-	<ul class="home-links">
-		<li>
-			<a href="https://github.com/Ku6epXBOCTuK" target="_blank">github</a>
-			<span class="desc"># where the code lives</span>
-		</li>
-		<li>
-			<a href="https://t.me/Ku6epXBOCTuK_feed" target="_blank">telegram</a>
-			<span class="desc"># short thoughts & threads</span>
-		</li>
-		<li>
-			<a href="https://www.twitch.tv/Ku6ep_XBOCTuK" target="_blank">twitch</a>
-			<span class="desc"># coding streams</span>
-		</li>
-		<li>
-			<a href="mailto:Ku6epXBOCTuK@gmail.com">email</a>
-			<span class="desc"># reach out</span>
-		</li>
-	</ul>
-</div>
-
-<div class="command-line">
-	<span class="prompt">➜ ~ $</span>
-	<input
-		bind:this={localInputRef}
-		bind:value={commandInput}
-		onkeydown={onCommand}
-		type="text"
-		class="command-input"
-		placeholder="type 'help' for commands..."
-		autocomplete="off"
-		spellcheck="false"
-	/>
-</div>
-
-{#if commandOutput}
-	<div class="command-output show">
-		<span class="prompt">$</span>
-		<span class="cmd">{commandOutput.cmd}</span><br />
-		{#if commandOutput.isError}
-			<span class="error">{commandOutput.result}</span>
-		{:else}
-			<span class="result">{commandOutput.result}</span>
-		{/if}
-	</div>
-{/if}
+	<TerminalWindow title="xboct.dev / now" rows={nowRows} />
+</section>
 
 <style>
-	.home-ascii {
-		background: var(--bg-ascii);
-		padding: 8px 12px 40px;
-		border-radius: 4px;
-		font-size: 10px;
-		line-height: 1.2;
-		margin: 30px 0;
-		font-family: var(--ascii-font);
-		position: relative;
-		overflow: hidden;
+	.hero {
+		display: grid;
+		grid-template-columns: 1.2fr 0.8fr;
+		gap: 72px;
+		align-items: center;
+		padding: 100px 0 105px;
 	}
 
-	.home-ascii .placeholder {
-		color: var(--muted-foreground);
-		opacity: 0.1;
-		margin: 0;
-		pointer-events: none;
-		white-space: pre;
+	.hero-copy h1 {
+		font-family: var(--font-display);
+		font-size: clamp(38px, 5vw, 70px);
+		line-height: 1.08;
+		letter-spacing: -0.065em;
+		margin: 20px 0;
 	}
 
-	.home-ascii .typed {
-		color: var(--muted-foreground);
-		margin: 0;
-		position: absolute;
-		top: 8px;
-		left: 12px;
-		right: 12px;
-		bottom: 8px;
-		white-space: pre;
-	}
-
-	.home-ascii .cursor {
+	.hero-copy h1 em {
 		color: var(--coral);
-		animation: blink 0.5s step-end infinite;
-		font-weight: bold;
-		font-size: 12px;
+		font-style: normal;
 	}
 
-	.home-intro {
-		margin: 40px 0;
-	}
-
-	.home-intro .cmd {
+	.eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
 		color: var(--coral);
-		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.13em;
+		font-size: 11px;
+		font-weight: 700;
 	}
 
-	.home-intro .output {
-		color: var(--foreground);
-		margin: 8px 0 20px;
-	}
-
-	.home-intro .comment {
+	.hero-copy > p {
+		max-width: 510px;
+		font-size: 18px;
 		color: var(--muted-foreground);
 	}
 
-	.home-links {
-		margin: 30px 0;
-		padding-left: 20px;
-	}
-
-	.home-links li {
-		list-style: none;
-		margin: 6px 0;
-	}
-
-	.home-links a {
-		color: var(--periwinkle);
-		text-decoration: none;
-	}
-
-	.home-links a:hover {
-		text-decoration: underline;
-	}
-
-	.home-links .desc {
-		color: var(--muted-foreground);
-		margin-left: 8px;
-	}
-
-	.command-line {
-		margin: 30px 0;
+	.hero-actions {
 		display: flex;
+		gap: 12px;
+		margin-top: 28px;
+	}
+
+	.btn {
+		display: inline-flex;
 		align-items: center;
 		gap: 8px;
-	}
-
-	.command-line .prompt {
-		color: var(--coral);
-		white-space: nowrap;
-	}
-
-	.command-input {
-		background: transparent;
-		border: none;
-		outline: none;
-		color: var(--foreground);
-		font-family: var(--font-body);
-		font-size: 14px;
-		flex: 1;
-		caret-color: var(--coral);
-	}
-
-	.command-output {
-		margin: 10px 0 20px;
-		padding-left: 20px;
-		color: var(--muted-foreground);
+		font-family: var(--font-display);
 		font-size: 13px;
-		display: none;
-	}
-
-	.command-output.show {
-		display: block;
-	}
-
-	.command-output .prompt {
-		color: var(--muted-foreground);
-	}
-
-	.command-output .cmd {
-		color: var(--coral);
-	}
-
-	.command-output .result {
+		font-weight: 700;
+		padding: 12px 17px;
+		border-radius: 10px;
+		border: 2px solid var(--outline);
+		background: var(--window);
 		color: var(--foreground);
+		text-decoration: none;
+		cursor: pointer;
+		transition: transform 0.15s ease;
 	}
 
-	.command-output .error {
-		color: var(--accent4);
+	.btn:hover {
+		transform: translateY(-1px);
 	}
 
-	@keyframes blink {
-		50% {
-			opacity: 0;
+	.btn-primary {
+		border: none;
+		background: var(--primary);
+		color: var(--primary-foreground);
+		box-shadow: var(--hard-shadow);
+	}
+
+	.btn-ghost {
+		border: 2px solid var(--outline);
+	}
+
+	:global([data-skin="soft"]) .btn {
+		border-radius: 12px;
+	}
+
+	:global([data-skin="soft"]) .btn-primary {
+		border: 1px solid transparent;
+		background: var(--foreground);
+		color: var(--background);
+		box-shadow: none;
+	}
+
+	:global([data-skin="soft"]) .btn-ghost {
+		border: 1px solid var(--line);
+	}
+
+	@media (max-width: 700px) {
+		.hero {
+			grid-template-columns: 1fr;
+			gap: 35px;
+			padding: 60px 0 70px;
+		}
+
+		.hero-copy h1 {
+			font-size: 43px;
+		}
+
+		.hero-actions {
+			flex-direction: column;
+			align-items: flex-start;
 		}
 	}
 </style>
