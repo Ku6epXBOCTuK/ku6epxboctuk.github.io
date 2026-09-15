@@ -42,7 +42,8 @@
       новые имена)
 - [x] Инлайн-скрипт в `app.html` (`data-skin` + `dark`, без FOUC), Google Fonts
       CDN убран
-- [ ] `ThemeToggle.svelte` (две кнопки: скин 🎀/`</>` + режим ☀/☾)
+- [x] `ThemeToggle.svelte` (две кнопки: скин 🎀/`</>` + режим ☀/☾), временно
+      смонтирован в layout, переедет в Topbar
 - [ ] Каркас `Topbar`/`Footer`/hero-окно, контейнер 1120px
 - [ ] Карточки `Card` + `PostCard`/`ArticleCard`/`ProjectCard`/`ReportCard`,
       списки и детальные

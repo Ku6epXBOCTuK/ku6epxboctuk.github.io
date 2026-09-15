@@ -159,3 +159,9 @@ body {
 ::-webkit-scrollbar-thumb {
 	background: var(--outline);
 }
+
+/* ===== skin-specific tech overrides ===== */
+[data-skin="soft"] .chip {
+	border: 1px solid var(--line);
+	border-radius: 12px;
+}
