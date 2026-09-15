@@ -26,7 +26,7 @@
       `needs_translation` только в `index.en.md`
 - [x] `prepare-post.ts` + `templates.json`: `articles` (пути `src/content/*`,
       тизер), excerpt по типам, url-шаблоны
-- [ ] `publish.yml`: триггер на `src/content/articles/**` и
+- [x] `publish.yml`: триггер на `src/content/articles/**` и
       `src/content/posts/**`
 - [ ] `new-content.ts` + `npm run new` (создаёт пару `index.ru.md` +
       `index.en.md` с `needs_translation: true`; `--sync` досоздаёт копию для

@@ -4,9 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/posts/**"
-      - "src/projects/**"
-      - "src/weekly/**"
+      - "src/content/articles/**"
+      - "src/content/posts/**"
+      - "src/content/projects/**"
+      - "src/content/weekly/**"
   workflow_dispatch:
 
 jobs:
