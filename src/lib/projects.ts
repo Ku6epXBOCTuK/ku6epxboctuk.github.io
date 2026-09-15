@@ -1,5 +1,6 @@
 import {
 	DEFAULT_LANG,
+	otherLang,
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
@@ -48,6 +49,15 @@ const loader = createPairLoader<ProjectBase>({
 
 export function getProjects(lang: ContentLang = DEFAULT_LANG): Project[] {
 	return loader.getItems(lang);
+}
+
+export function getProject(slug: string, lang: ContentLang = DEFAULT_LANG) {
+	const meta = loader.getItem(slug, lang);
+	if (!meta) return undefined;
+	return {
+		meta,
+		altMeta: loader.getItem(slug, otherLang(lang)) ?? meta,
+	};
 }
 
 export function getProjectBaseSlugs(): string[] {

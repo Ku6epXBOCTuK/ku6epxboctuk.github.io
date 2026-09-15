@@ -14,6 +14,10 @@ const en = {
 	},
 	draft: "draft",
 	readIn: "read in english",
+	project: {
+		repo: "sources",
+		demo: "demo",
+	},
 	home: {
 		eyebrow: "✦ personal dev log · 2026",
 		titleTop: "Hi, I'm Ku6epXBOCTuK.",
@@ -51,6 +55,10 @@ const ru: UI = {
 	},
 	draft: "черновик",
 	readIn: "читать на русском",
+	project: {
+		repo: "исходники",
+		demo: "демо",
+	},
 	home: {
 		eyebrow: "✦ личный девлог · 2026",
 		titleTop: "Привет, я Ku6epXBOCTuK.",

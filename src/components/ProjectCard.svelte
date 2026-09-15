@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { page } from "$app/state";
 	import Card from "$cmp/Card.svelte";
+	import { langUrl, pageLang } from "$lib/content";
 	import type { Project } from "$lib/projects";
 
 	interface Props {
@@ -8,12 +10,16 @@
 
 	let { project }: Props = $props();
 
+	const href = $derived(
+		langUrl(pageLang(page.data.lang), `/projects/${project.slug}`),
+	);
+
 	const repoShort = $derived(
 		project.repo?.replace("https://github.com/", "") ?? "",
 	);
 </script>
 
-<Card href={project.repo ?? project.demo ?? "#"} draft={project.draft}>
+<Card {href} draft={project.draft}>
 	<div class="project-card">
 		{#if project.image}
 			<div class="project-screenshot">
