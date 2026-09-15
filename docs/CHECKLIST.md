@@ -37,7 +37,7 @@
 ## 2. Фаза design
 
 - [x] `@fontsource/comfortaa` + `@fontsource/nunito` установить
-- [ ] Токены в `app.css`: 4 набора (kawaii/soft × light/dark) + композитные
+- [x] Токены в `app.css`: 4 набора (kawaii/soft × light/dark) + композитные
 - [ ] Переименовать CSS-переменные во всех компонентах (старые → новые имена)
 - [ ] Инлайн-скрипт в `app.html` (`data-skin` + `dark`, без FOUC)
 - [ ] `ThemeToggle.svelte` (две кнопки: скин 🎀/`</>` + режим ☀/☾)
