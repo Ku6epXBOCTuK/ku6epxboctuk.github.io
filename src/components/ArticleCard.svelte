@@ -1,15 +1,21 @@
 <script lang="ts">
+	import { page } from "$app/state";
 	import Card from "$cmp/Card.svelte";
 	import type { Article } from "$lib/articles";
+	import { langUrl, pageLang } from "$lib/content";
 
 	interface Props {
 		article: Article;
 	}
 
 	let { article }: Props = $props();
+
+	const href = $derived(
+		langUrl(pageLang(page.data.lang), `/articles/${article.slug}`),
+	);
 </script>
 
-<Card href="/articles/{article.slug}" draft={article.draft}>
+<Card {href} draft={article.draft}>
 	<div class="article-card">
 		<div class="article-header">
 			<span class="article-title">{article.title}</span>

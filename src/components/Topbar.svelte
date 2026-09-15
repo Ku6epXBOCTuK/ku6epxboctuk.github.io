@@ -1,33 +1,34 @@
 <script lang="ts">
-	import { page } from "$app/stores";
+	import { page } from "$app/state";
 	import ThemeToggle from "$cmp/ThemeToggle.svelte";
+	import { langUrl, pageLang } from "$lib/content";
 
 	const navItems = [
-		{ href: "/", label: "home" },
-		{ href: "/posts", label: "posts" },
-		{ href: "/articles", label: "articles" },
-		{ href: "/projects", label: "projects" },
-		{ href: "/weekly", label: "weekly" },
+		{ path: "/", label: "home" },
+		{ path: "/posts", label: "posts" },
+		{ path: "/articles", label: "articles" },
+		{ path: "/projects", label: "projects" },
+		{ path: "/weekly", label: "weekly" },
 	];
 
-	function isActive(pathname: string, href: string): boolean {
-		if (href === "/") return pathname === "/";
-		return pathname === href || pathname.startsWith(href + "/");
+	const lang = $derived(pageLang(page.data.lang));
+	const pathname = $derived(page.url.pathname.replace(/^\/(ru|en)(\/|$)/, "/"));
+
+	function isActive(path: string): boolean {
+		if (path === "/") return pathname === "/";
+		return pathname === path || pathname.startsWith(path + "/");
 	}
 </script>
 
 <nav class="topbar">
-	<a class="brand" href="/">
+	<a class="brand" href={langUrl(lang, "/")}>
 		<span class="brand-mark" aria-hidden="true">✦</span>
 		<span>xboct<span class="brand-dot">.</span>dev</span>
 	</a>
 
 	<div class="nav-links">
-		{#each navItems as item (item.href)}
-			<a
-				href={item.href}
-				class:active={isActive($page.url.pathname, item.href)}
-			>
+		{#each navItems as item (item.path)}
+			<a href={langUrl(lang, item.path)} class:active={isActive(item.path)}>
 				{item.label}
 			</a>
 		{/each}

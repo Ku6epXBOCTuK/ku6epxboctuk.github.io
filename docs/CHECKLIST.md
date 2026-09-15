@@ -61,7 +61,7 @@
       `/articles[/slug]`, `/projects`, `/weekly[/slug]` → тот же путь под `/ru/`
       или `/en/` по языку браузера (`Redirect.svelte` + `goto`;
       `prerender.entries: ["*"]`)
-- [ ] i18n: ссылки с префиксом языка: Topbar, Footer, карточки, HomePage
+- [x] i18n: ссылки с префиксом языка: Topbar, Footer, карточки, HomePage
 - [ ] Локализация сайта: словарь `src/lib/i18n.ts`, UI-строки по
       `$page.params.lang`, топбарный переключатель RU/EN
 - [ ] Переключатель ru/en в топбаре

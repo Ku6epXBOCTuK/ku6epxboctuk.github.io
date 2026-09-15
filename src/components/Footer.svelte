@@ -1,5 +1,12 @@
+<script lang="ts">
+	import { page } from "$app/state";
+	import { langUrl, pageLang } from "$lib/content";
+
+	const lang = $derived(pageLang(page.data.lang));
+</script>
+
 <footer class="footer">
-	<a class="brand" href="/">
+	<a class="brand" href={langUrl(lang, "/")}>
 		<span class="brand-mark" aria-hidden="true">✦</span>
 		<span>xboct<span class="brand-dot">.</span>dev</span>
 	</a>

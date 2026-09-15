@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { page } from "$app/state";
 	import Card from "$cmp/Card.svelte";
+	import { langUrl, pageLang } from "$lib/content";
 	import type { Post } from "$lib/posts";
 
 	interface Props {
@@ -7,9 +9,13 @@
 	}
 
 	let { post }: Props = $props();
+
+	const href = $derived(
+		langUrl(pageLang(page.data.lang), `/posts/${post.slug}`),
+	);
 </script>
 
-<Card href="/posts/{post.slug}" draft={post.draft}>
+<Card {href} draft={post.draft}>
 	<div class="post-card">
 		<div class="post-header">
 			<span class="post-title">{post.title}</span>

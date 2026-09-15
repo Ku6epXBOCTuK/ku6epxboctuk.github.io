@@ -1,10 +1,10 @@
 <script lang="ts">
+	import PostCard from "$cmp/PostCard.svelte";
 	import type { Row } from "$cmp/TerminalWindow.svelte";
 	import TerminalWindow from "$cmp/TerminalWindow.svelte";
-	import PostCard from "$cmp/PostCard.svelte";
 	import { HOME_RECENT_POSTS } from "$lib/config";
+	import { DEFAULT_LANG, langUrl, type ContentLang } from "$lib/content";
 	import { getPosts } from "$lib/posts";
-	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 
 	interface Props {
 		lang?: ContentLang;
@@ -33,8 +33,12 @@
 			attempts to make the internet a little kinder.
 		</p>
 		<div class="hero-actions">
-			<a class="btn btn-primary" href="/posts">read the feed</a>
-			<a class="btn btn-ghost" href="/projects">view projects</a>
+			<a class="btn btn-primary" href={langUrl(lang, "/posts")}>
+				read the feed
+			</a>
+			<a class="btn btn-ghost" href={langUrl(lang, "/projects")}>
+				view projects
+			</a>
 		</div>
 	</div>
 	<TerminalWindow title="xboct.dev / now" rows={nowRows} />
@@ -47,7 +51,7 @@
 				<span class="eyebrow">short thoughts</span>
 				<h2>Recent posts</h2>
 			</div>
-			<a class="text-link" href="/posts">all posts →</a>
+			<a class="text-link" href={langUrl(lang, "/posts")}>all posts →</a>
 		</div>
 		<div class="grid-2">
 			{#each recentPosts as post (post.slug)}

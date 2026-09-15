@@ -30,6 +30,15 @@ export function browserLang(): ContentLang {
 	return DEFAULT_LANG;
 }
 
+export function pageLang(value: unknown): ContentLang {
+	return LANGS.find((item) => item === value) ?? DEFAULT_LANG;
+}
+
+export function langUrl(lang: ContentLang | undefined, path: string): string {
+	if (!lang) return path;
+	return path === "/" ? `/${lang}` : `/${lang}${path}`;
+}
+
 const LANG_FILE = /^index\.(ru|en)\.md$/;
 
 export interface Draftable {
