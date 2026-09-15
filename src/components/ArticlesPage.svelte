@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { getArticles } from "$lib/articles";
 	import ArticleCard from "$cmp/ArticleCard.svelte";
+	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 
-	const articles = getArticles();
+	interface Props {
+		lang?: ContentLang;
+	}
+
+	let { lang = DEFAULT_LANG }: Props = $props();
+
+	const articles = $derived(getArticles(lang));
 </script>
 
 <div class="section-title">articles</div>

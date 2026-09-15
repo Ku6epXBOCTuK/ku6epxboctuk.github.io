@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { getWeeklyReports } from "$lib/weekly";
 	import ReportCard from "$cmp/ReportCard.svelte";
+	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 
-	const reports = getWeeklyReports();
+	interface Props {
+		lang?: ContentLang;
+	}
+
+	let { lang = DEFAULT_LANG }: Props = $props();
+
+	const reports = $derived(getWeeklyReports(lang));
 </script>
 
 <div class="section-title">weekly</div>

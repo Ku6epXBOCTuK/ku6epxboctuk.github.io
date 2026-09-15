@@ -20,6 +20,7 @@ export interface ContentEntry {
 
 export const DEFAULT_LANG = "ru";
 export type ContentLang = "ru" | "en";
+export const LANGS: readonly ContentLang[] = ["ru", "en"];
 
 export function oldContentSlug(value: string): {
 	lang: ContentLang;

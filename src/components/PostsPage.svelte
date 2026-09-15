@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { getPosts } from "$lib/posts";
 	import PostCard from "$cmp/PostCard.svelte";
+	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 
-	const posts = getPosts();
+	interface Props {
+		lang?: ContentLang;
+	}
+
+	let { lang = DEFAULT_LANG }: Props = $props();
+
+	const posts = $derived(getPosts(lang));
 </script>
 
 <div class="section-title">posts</div>

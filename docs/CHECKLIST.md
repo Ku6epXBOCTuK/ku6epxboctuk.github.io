@@ -55,7 +55,7 @@
 - [x] i18n: загрузчики понимают язык — `lang` в `createFlatLoader`,
       `lang`-параметры у геттеров, `urlSlug`-суффикс убран (слаг базовый),
       геттеры базовых слагов для `entries()`
-- [ ] i18n: префикс `/ru/…` `/en/…` — маршруты в `src/routes/[lang]/…`, у
+- [x] i18n: префикс `/ru/…` `/en/…` — маршруты в `src/routes/[lang]/…`, у
       каждого `+page.ts` `entries()` по ru/en и `load()` с `lang` в `data`
 - [ ] i18n: корневые редиректы старых URL на дефолтную локаль: `/`, `/about`,
       `/posts[/slug]`, `/articles[/slug]`, `/projects`, `/weekly[/slug]` (302;

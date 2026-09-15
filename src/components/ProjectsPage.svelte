@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { getProjects } from "$lib/projects";
 	import ProjectCard from "$cmp/ProjectCard.svelte";
+	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 
-	let projects = getProjects();
+	interface Props {
+		lang?: ContentLang;
+	}
+
+	let { lang = DEFAULT_LANG }: Props = $props();
+
+	const projects = $derived(getProjects(lang));
 </script>
 
 <div class="section-title">projects</div>

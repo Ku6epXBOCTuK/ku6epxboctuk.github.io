@@ -4,6 +4,13 @@
 	import PostCard from "$cmp/PostCard.svelte";
 	import { HOME_RECENT_POSTS } from "$lib/config";
 	import { getPosts } from "$lib/posts";
+	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
+
+	interface Props {
+		lang?: ContentLang;
+	}
+
+	let { lang = DEFAULT_LANG }: Props = $props();
 
 	const nowRows: Row[] = [
 		{ cmd: "whoami", value: "creative developer" },
@@ -11,7 +18,7 @@
 		{ cmd: "now_playing", value: "building in public", tone: "status" },
 	];
 
-	const recentPosts = getPosts().slice(0, HOME_RECENT_POSTS);
+	const recentPosts = $derived(getPosts(lang).slice(0, HOME_RECENT_POSTS));
 </script>
 
 <section class="hero">
