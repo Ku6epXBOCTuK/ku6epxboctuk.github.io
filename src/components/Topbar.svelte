@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/state";
+	import LangSwitch from "$cmp/LangSwitch.svelte";
 	import ThemeToggle from "$cmp/ThemeToggle.svelte";
 	import { langUrl, pageLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
@@ -37,6 +38,7 @@
 	</div>
 
 	<div class="nav-actions">
+		<LangSwitch />
 		<ThemeToggle />
 	</div>
 </nav>
