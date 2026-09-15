@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/state";
-	import { otherLang, pageLang } from "$lib/content";
+	import { otherLang, pageLang, type ContentLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
 	import type { Component } from "svelte";
 
@@ -8,6 +8,8 @@
 		title: string;
 		date: string;
 		tags: string[];
+		lang?: ContentLang;
+		readingTime?: number;
 	}
 
 	interface Props {
@@ -26,6 +28,7 @@
 	const shown = $derived(showAlt ? alt : { meta, content: Content });
 	const Shown = $derived(shown.content);
 	const label = $derived(ui(showAlt ? lang : altLang).readIn);
+	const readLabel = $derived(ui(shown.meta.lang ?? lang).minRead);
 </script>
 
 <article class="content-detail">
@@ -37,6 +40,12 @@
 	</div>
 	<div class="detail-meta">
 		<span class="detail-date">{shown.meta.date}</span>
+		{#if shown.meta.readingTime}
+			<span class="detail-tag">
+				{shown.meta.readingTime}
+				{readLabel}
+			</span>
+		{/if}
 		{#each shown.meta.tags as tag (tag)}
 			<span class="detail-tag">#{tag}</span>
 		{/each}

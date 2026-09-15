@@ -14,6 +14,7 @@ const en = {
 	},
 	draft: "draft",
 	readIn: "read in english",
+	minRead: "min read",
 	project: {
 		repo: "sources",
 		demo: "demo",
@@ -55,6 +56,7 @@ const ru: UI = {
 	},
 	draft: "черновик",
 	readIn: "читать на русском",
+	minRead: "мин чтения",
 	project: {
 		repo: "исходники",
 		demo: "демо",

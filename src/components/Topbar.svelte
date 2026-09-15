@@ -101,11 +101,17 @@
 	@media (max-width: 700px) {
 		.topbar {
 			width: calc(100% - 28px);
+			flex-wrap: wrap;
+			padding: 14px 0 12px;
+			row-gap: 10px;
 		}
 
 		.nav-links {
 			gap: 16px;
 			font-size: 13px;
+			flex-wrap: wrap;
+			order: 3;
+			width: 100%;
 		}
 	}
 </style>

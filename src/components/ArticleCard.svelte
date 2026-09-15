@@ -3,12 +3,15 @@
 	import Card from "$cmp/Card.svelte";
 	import type { Article } from "$lib/articles";
 	import { langUrl, pageLang } from "$lib/content";
+	import { ui } from "$lib/i18n";
 
 	interface Props {
 		article: Article;
 	}
 
 	let { article }: Props = $props();
+
+	const t = $derived(ui(pageLang(page.data.lang)));
 
 	const href = $derived(
 		langUrl(pageLang(page.data.lang), `/articles/${article.slug}`),
@@ -19,7 +22,11 @@
 	<div class="article-card">
 		<div class="article-header">
 			<span class="article-title">{article.title}</span>
-			<span class="article-date">{article.date}</span>
+			<span class="article-date">
+				{article.date}{#if article.readingTime}
+					· {article.readingTime}
+					{t.minRead}{/if}
+			</span>
 		</div>
 		{#if article.tags.length}
 			<div class="article-tags">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/state";
+	import { DONATE } from "$lib/config";
 	import { langUrl, pageLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
 
@@ -13,6 +14,24 @@
 		<span>xboct<span class="brand-dot">.</span>dev</span>
 	</a>
 	<p class="footer-note">{t.footer.note}</p>
+	<div class="footer-donate">
+		<a
+			class="donate-chip"
+			href={DONATE.dalink}
+			target="_blank"
+			rel="noreferrer"
+		>
+			dalink <span class="donate-heart">♥</span>
+		</a>
+		<a
+			class="donate-chip"
+			href={DONATE.cloudtips}
+			target="_blank"
+			rel="noreferrer"
+		>
+			cloudtips <span class="donate-heart">♥</span>
+		</a>
+	</div>
 	<span class="footer-code">{t.footer.code}</span>
 </footer>
 
@@ -56,6 +75,40 @@
 
 	.footer-code {
 		font-family: var(--font-body);
+	}
+
+	.footer-donate {
+		display: flex;
+		gap: 8px;
+	}
+
+	.donate-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-family: var(--font-display);
+		font-size: 11px;
+		font-weight: 700;
+		padding: 5px 12px;
+		border: 2px solid var(--outline);
+		border-radius: 8px;
+		color: var(--muted-foreground);
+		text-decoration: none;
+		transition: transform 0.15s ease;
+	}
+
+	.donate-chip:hover {
+		transform: translateY(-1px);
+		color: var(--foreground);
+	}
+
+	.donate-heart {
+		color: var(--coral);
+	}
+
+	:global([data-skin="soft"]) .donate-chip {
+		border-width: 1px;
+		border-radius: 12px;
 	}
 
 	@media (max-width: 700px) {

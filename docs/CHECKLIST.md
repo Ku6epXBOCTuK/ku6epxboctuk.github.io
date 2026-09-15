@@ -72,7 +72,8 @@
       русском» (всегда видима, справа от заголовка)
 - [x] Проекты: внутренняя детальная страница (иконка, статус, описание, обложка
       `image`, repo + demo), карточка ведёт внутрь
-- [ ] Мелочи: focus-visible, чипы TG/Discord, спонсоры, `readingTime`, мобайл
+- [x] Мелочи: focus-visible, чипы TG/Twitch/Discord, донат-кнопки (dalink +
+      cloudtips), `readingTime`, мобайл
 - [ ] Обновить `README.md` под новый сайт
 
 ## 3. Фаза automation

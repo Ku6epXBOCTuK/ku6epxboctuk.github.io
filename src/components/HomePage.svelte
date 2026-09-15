@@ -2,7 +2,7 @@
 	import PostCard from "$cmp/PostCard.svelte";
 	import type { Row } from "$cmp/TerminalWindow.svelte";
 	import TerminalWindow from "$cmp/TerminalWindow.svelte";
-	import { HOME_RECENT_POSTS } from "$lib/config";
+	import { HOME_RECENT_POSTS, SOCIAL } from "$lib/config";
 	import { DEFAULT_LANG, langUrl, type ContentLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
 	import { getPosts } from "$lib/posts";
@@ -38,6 +38,17 @@
 			</a>
 			<a class="btn btn-ghost" href={langUrl(lang, "/projects")}>
 				{t.home.ghost}
+			</a>
+		</div>
+		<div class="hero-chips">
+			<a class="chip" href={SOCIAL.telegram} target="_blank" rel="noreferrer">
+				telegram
+			</a>
+			<a class="chip" href={SOCIAL.twitch} target="_blank" rel="noreferrer">
+				twitch
+			</a>
+			<a class="chip" href={SOCIAL.discord} target="_blank" rel="noreferrer">
+				discord
 			</a>
 		</div>
 	</div>
@@ -144,6 +155,36 @@
 		display: flex;
 		gap: 12px;
 		margin-top: 28px;
+	}
+
+	.hero-chips {
+		display: flex;
+		gap: 8px;
+		margin-top: 18px;
+	}
+
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		font-family: var(--font-display);
+		font-size: 12px;
+		font-weight: 700;
+		padding: 7px 14px;
+		border: 2px solid var(--outline);
+		border-radius: 8px;
+		color: var(--muted-foreground);
+		text-decoration: none;
+		transition: transform 0.15s ease;
+	}
+
+	.chip:hover {
+		transform: translateY(-1px);
+		color: var(--foreground);
+	}
+
+	:global([data-skin="soft"]) .chip {
+		border-width: 1px;
+		border-radius: 12px;
 	}
 
 	.btn {
