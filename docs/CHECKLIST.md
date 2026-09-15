@@ -32,8 +32,7 @@
       `index.en.md` с `needs_translation: true`; `--sync` досоздаёт копию для
       существующей)
 - [x] `docs/writing.md` — как писать пост/статью
-- [ ] Переписать `docs/publish.md` и `docs/test-publish-flow.md` под новую схему
-- [ ] Проверить флоу выкладывания (перенос одного поста/статьи вручную)
+- [x] Переписать `docs/publish.md` и `docs/test-publish-flow.md` под новую схему
 
 ## 2. Фаза design
 
@@ -55,3 +54,8 @@
 - [ ] `frontmatter.json`: project `status`, weekly `generated`
 - [ ] `lint-content.ts` — warn (не ошибка) для `need_review`
 - [ ] `docs/automation.md` — как запускать и читать отчёты
+
+## 4. Финальные шаги
+
+- [ ] Проверить флоу выкладывания
+- [ ] Обдумать - удобно ли это или нет, как работать с переводами и т.д.
