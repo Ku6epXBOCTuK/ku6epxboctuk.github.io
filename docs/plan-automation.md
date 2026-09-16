@@ -123,8 +123,9 @@ projects:
 - `git diff src/content/projects/_readmes/` показывает, что именно поменялось в
   README каждого проекта;
 - `git diff src/content/projects/` показывает изменение описаний;
-- пуш автоматически запускает workflow публикации, если поменялись файлы в
-  `src/content/projects/**` (работает через обновлённые пути триггеров).
+- публикация в соцсети — локальная (см. `docs/plan-deploy.md`):
+  `prepare-post.ts` по переменной `FILES` + `npm run publish` для изменившихся
+  файлов.
 
 ### Пример сгенерированного файла
 
@@ -229,10 +230,11 @@ draft: true
 ### Запуск
 
 На старте — локальный запуск в конце недели: `npm run gen:weekly`, просмотр,
-коммит вместе с остальной работой. Пуш weekly-файла → существующий workflow
-отправляет excerpt в Telegram/Discord. Scheduled GitHub Actions (cron в
-воскресенье) — отдельное решение на потом: требует доступности всех репозиториев
-с CI (тот же аккаунт GitHub — достижимо через checkout Ku6epXBOCTuK/\*).
+коммит вместе с остальной работой. Пуш weekly-файла обновляет сайт; excerpt в
+Telegram/Discord отправляется локально (`prepare-post.ts` + `npm run publish`,
+см. `docs/plan-deploy.md`). Scheduled GitHub Actions (cron в воскресенье) —
+отдельное решение на потом: требует доступности всех репозиториев с CI (тот же
+аккаунт GitHub — достижимо через checkout Ku6epXBOCTuK/\*).
 
 ### Задел под AI (этап 2, не сейчас)
 
@@ -267,7 +269,6 @@ draft: true
   `status: need_review`.
 - `src/content/weekly/` — наполняется автоматически (`.gitkeep` удалить при
   первом отчёте).
-- `.github/workflows/publish.yml` — пути триггеров на `src/content/**`.
 - `docs/automation.md` — чеклист: как запускать, как читать отчёты.
 
 ## Развитие плана

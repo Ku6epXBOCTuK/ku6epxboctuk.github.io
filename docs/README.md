@@ -58,6 +58,7 @@ scripts/
 | `npm run lint:content`       | Validate content frontmatter                      |
 | `npm run new <type> <slug>`  | Create new post or article                        |
 | `npm run sync <type> <slug>` | Create missing `index.en.md` for existing content |
+| `npm run publish`            | Post new content to Telegram & Discord (local)    |
 | `npm run check:all`          | Full CI pipeline (format → lint → check → test)   |
 
 ## Development
@@ -81,5 +82,6 @@ the full content creation guide.
 
 ## Deployment
 
-Deploys to GitHub Pages on push to `main` via GitHub Actions. A separate
-`publish.yml` workflow posts new content to Telegram & Discord.
+Deploys to GitHub Pages on push to `main` via GitHub Actions (`deploy.yml`).
+Social posting to Telegram & Discord is local: `prepare-post.ts` +
+`npm run publish` (needs `.env.publish`).
