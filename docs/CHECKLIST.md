@@ -22,7 +22,7 @@
 - [x] `frontmatter.json`: 4 схемы, убрать `Type` и `lang`, добавить
       `needs_translation` (post/article), pageFolders `src/content/articles`,
       `src/content/posts`
-- [x] `lint-content.ts`: 4 типа, ISO, `tags[]`, `<!--more-->`, `generated`,
+- [x] `lint-content.ts`: 4 типа, ISO, `tags[]`, `<!--more-->`,
       `needs_translation` только в `index.en.md`
 - [x] `prepare-post.ts` + `templates.json`: `articles` (пути `src/content/*`,
       тизер), excerpt по типам, url-шаблоны
@@ -81,7 +81,7 @@
 - [ ] `projects.yaml` — манифест
 - [ ] `sync-projects.ts` (+ `npm run sync:projects`)
 - [ ] `gen-weekly.ts` (+ `npm run gen:weekly`)
-- [ ] `frontmatter.json`: project `status`, weekly `generated`
+- [ ] `frontmatter.json`: project `status`
 - [ ] `lint-content.ts` — warn (не ошибка) для `need_review`
 - [ ] `docs/automation.md` — как запускать и читать отчёты
 

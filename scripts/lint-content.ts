@@ -103,13 +103,15 @@ function lintFile(
 		return;
 	}
 
-	if ("lang" in data) {
-		fail(
-			`${filePath}: field "lang" is not allowed (language comes from file name)`,
-		);
-	}
-
 	if (schema) {
+		const allowed = new Set(schema.fields.map((f) => f.name));
+
+		for (const key of Object.keys(data)) {
+			if (!allowed.has(key)) {
+				fail(`${filePath}: unknown field "${key}" (not in schema)`);
+			}
+		}
+
 		for (const field of schema.fields) {
 			const val = data[field.name];
 
@@ -156,10 +158,6 @@ function lintFile(
 		);
 	}
 
-	if (type === "weekly" && data.generated !== true) {
-		fail(`${filePath}: field "generated" must be true for weekly reports`);
-	}
-
 	if (type === "projects") {
 		if ("type" in data) {
 			fail(`${filePath}: field "type" is removed for projects (use tags)`);
@@ -175,7 +173,17 @@ function lintFile(
 		);
 	}
 
-	if (lang === "ru" && "needs_translation" in data) {
+	if (data.isMock === true && data.draft !== true) {
+		fail(
+			`${filePath}: "isMock: true" требует "draft: true" (mock-контент не должен попасть на прод)`,
+		);
+	}
+
+	if (data.draft === true && data.isMock !== true) {
+		warn(`${filePath}: "draft: true" — снять перед публикацией`);
+	}
+
+	if (lang === "ru" && "needs_translation" in data && data.isMock !== true) {
 		fail(
 			`${filePath}: field "needs_translation" is only allowed in index.en.md`,
 		);
@@ -214,7 +222,21 @@ function main(): void {
 			}
 
 			if (!files.includes("index.en.md")) {
-				warn(`[${type}] ${unit}: missing index.en.md`);
+				fail(`[${type}] ${unit}: missing index.en.md`);
+			}
+
+			if (files.includes("index.ru.md") && files.includes("index.en.md")) {
+				const ruDraft = parseFrontmatter(
+					fs.readFileSync(path.join(unitDir, "index.ru.md"), "utf8"),
+				).data.draft;
+				const enDraft = parseFrontmatter(
+					fs.readFileSync(path.join(unitDir, "index.en.md"), "utf8"),
+				).data.draft;
+				if (ruDraft !== enDraft) {
+					fail(
+						`[${type}] ${unit}: draft must match between index.ru.md and index.en.md`,
+					);
+				}
 			}
 
 			for (const file of files) {

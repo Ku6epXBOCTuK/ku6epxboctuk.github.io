@@ -340,6 +340,7 @@ function writePost(p: PostMock, lang: "ru" | "en"): void {
 	];
 	if (p.link) fields.push(["link", p.link]);
 	fields.push(["draft", true]);
+	fields.push(["isMock", true]);
 	if (lang === "en") fields.push(["needs_translation", true]);
 	const body = lang === "en" ? "перевод в работе." : p.body;
 	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n${body}`);
@@ -353,6 +354,7 @@ function writeArticle(a: ArticleMock, lang: "ru" | "en"): void {
 		["tags", a.tags],
 	];
 	fields.push(["draft", true]);
+	fields.push(["isMock", true]);
 	if (lang === "en") fields.push(["needs_translation", true]);
 	const body =
 		lang === "en"
@@ -378,6 +380,7 @@ function writeProject(p: ProjectMock, lang: "ru" | "en"): void {
 		["color", p.color],
 		["status", p.status],
 		["draft", true],
+		["isMock", true],
 	);
 	if (lang === "en") fields.push(["needs_translation", true]);
 	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n`);
@@ -389,8 +392,7 @@ function writeWeekly(w: WeeklyMock, lang: "ru" | "en"): void {
 		["title", w.title],
 		["date", w.date],
 		["excerpt", lang === "en" ? TRANSLATION_PENDING : w.excerpt],
-		["generated", true],
-		["generated_at", `${w.date}T10:00:00Z`],
+		["isMock", true],
 		["draft", true],
 	];
 	if (lang === "en") fields.push(["needs_translation", true]);

@@ -178,12 +178,10 @@ slug = ISO-дата понедельника недели).
 title: weekly 2026-W37
 date: 2026-09-07 # понедельник недели
 excerpt: 4 проекта, 23 коммита. now-playing: v1.2, git-overhooks: hooks api.
-generated: true
-generated_at: 2026-09-08T10:00:00Z
+draft: true
 ---
 ```
 
-- `generated: true` — явная пометка автогенерации (для UI и линтера);
 - генерация, формат body и запуски — в плане автоматизации.
 
 ## Сквозные решения
@@ -360,9 +358,9 @@ npm run new article ecs-deep-dive  # статья с шаблоном и <!--mor
   `Type` и без `lang`, с полем `needs_translation` (article/post); pageFolders
   под `src/content/articles`, `src/content/posts`.
 - `scripts/lint-content.ts` — схемы под 4 типа: ISO-даты, массив tags,
-  `<!--more-->` для статей, `generated: true` для weekly, `needs_translation`
-  только в `index.en.md`, отсутствие `lang` во frontmatter; предупреждение (не
-  ошибка), если у единицы нет `index.en.md`.
+  `<!--more-->` для статей, `isMock` только у mock-контента, `needs_translation`
+  только в `index.en.md`, отсутствие неизвестных схеме полей; ошибка, если у
+  единицы нет `index.en.md` или `index.ru.md`.
 - `scripts/prepare-post.ts` — CONTENT_DIRS на `src/content/*` + тип article
   (тизер до `<!--more-->`); `scripts/templates.json` — url-шаблон
   `/articles/{slug}` и шаблоны для post и weekly.

@@ -185,9 +185,9 @@ obs browser source widget that displays the currently playing track. ...
 5. Генерирует пару файлов в `src/content/weekly/<дата-понедельника>/` (дата —
    понедельник недели, ISO `YYYY-MM-DD`): `index.ru.md` — основной язык,
    `index.en.md` — копия-заглушка с `needs_translation: true` (содержательный
-   перевод — этап 2). Frontmatter: `generated: true`, `generated_at`; body —
-   человекочитаемый лог по проектам (обычный markdown; сайт рендерит как есть,
-   `excerpt` уходит в соцсети через существующий шаблон).
+   перевод — этап 2). Frontmatter; body — человекочитаемый лог по проектам
+   (обычный markdown; сайт рендерит как есть, `excerpt` уходит в соцсети через
+   существующий шаблон).
 6. Печатает сводку: проектов с активностью, коммитов, файл создан/обновлён.
 
 ### Вид генерируемого файла
@@ -199,8 +199,7 @@ obs browser source widget that displays the currently playing track. ...
 title: weekly 2026-W37
 date: 2026-09-07
 excerpt: 4 проекта, 23 коммита. now-playing: v1.2, git-overhooks: новый hooks api.
-generated: true
-generated_at: 2026-09-08T10:00:00Z
+draft: true
 ---
 
 ## now-playing
@@ -263,8 +262,7 @@ generated_at: 2026-09-08T10:00:00Z
   `src/content/weekly/<дата>/`).
 - `package.json` — скрипты `sync:projects`, `gen:weekly`.
 - `frontmatter.json` — для project поле `status` (choices:
-  raw/ready/need_review); для weekly поля `generated`/`generated_at` (только
-  просмотр); `needs_translation` — во всех четырёх схемах.
+  raw/ready/need_review); `needs_translation` — во всех четырёх схемах.
 - `scripts/lint-content.ts` — предупреждение (не ошибка) для
   `status: need_review`.
 - `src/content/weekly/` — наполняется автоматически (`.gitkeep` удалить при

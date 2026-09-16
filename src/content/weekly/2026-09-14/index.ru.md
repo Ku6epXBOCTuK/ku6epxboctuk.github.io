@@ -2,8 +2,7 @@
 title: weekly 2026-W38
 date: 2026-09-14
 excerpt: "now-playing v1.2, git-overhooks: hooks api."
-generated: true
-generated_at: "2026-09-14T10:00:00Z"
+isMock: true
 draft: true
 ---
 

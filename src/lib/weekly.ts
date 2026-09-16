@@ -7,7 +7,6 @@ import {
 } from "$lib/content";
 import {
 	createPairLoader,
-	optionalBool,
 	optionalString,
 	type LocalizedItem,
 } from "$lib/loaders";
@@ -21,8 +20,6 @@ const modules = import.meta.glob<MarkdownModule>(
 
 export interface WeeklyReportBase extends ContentEntry {
 	excerpt?: string;
-	generated?: boolean;
-	generatedAt?: string;
 }
 
 export interface WeeklyReport extends WeeklyReportBase, LocalizedItem {}
@@ -32,8 +29,6 @@ const loader = createPairLoader<WeeklyReportBase>({
 	toItem: (entry, fm) => ({
 		...entry,
 		excerpt: optionalString(fm, "excerpt"),
-		generated: optionalBool(fm, "generated") ?? false,
-		generatedAt: optionalString(fm, "generated_at"),
 	}),
 });
 

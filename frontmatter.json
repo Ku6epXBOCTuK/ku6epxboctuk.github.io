@@ -44,6 +44,11 @@
 					"title": "Draft",
 					"name": "draft",
 					"type": "boolean"
+				},
+				{
+					"title": "Is mock",
+					"name": "isMock",
+					"type": "boolean"
 				}
 			]
 		},
@@ -84,6 +89,11 @@
 				{
 					"title": "Draft",
 					"name": "draft",
+					"type": "boolean"
+				},
+				{
+					"title": "Is mock",
+					"name": "isMock",
 					"type": "boolean"
 				}
 			]
@@ -141,6 +151,11 @@
 					"title": "Draft",
 					"name": "draft",
 					"type": "boolean"
+				},
+				{
+					"title": "Is mock",
+					"name": "isMock",
+					"type": "boolean"
 				}
 			]
 		},
@@ -176,6 +191,11 @@
 				{
 					"title": "Draft",
 					"name": "draft",
+					"type": "boolean"
+				},
+				{
+					"title": "Is mock",
+					"name": "isMock",
 					"type": "boolean"
 				}
 			]

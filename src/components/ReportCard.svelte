@@ -24,9 +24,6 @@
 		{#if report.excerpt}
 			<div class="report-excerpt">{report.excerpt}</div>
 		{/if}
-		{#if report.generated}
-			<span class="report-badge">auto-generated</span>
-		{/if}
 	</div>
 </Card>
 
@@ -65,16 +62,5 @@
 		color: var(--muted-foreground);
 		font-size: 12px;
 		line-height: 1.6;
-	}
-
-	.report-badge {
-		display: inline-flex;
-		align-self: flex-start;
-		font-size: 10px;
-		padding: 2px 8px;
-		border: 1px solid var(--line);
-		border-radius: 4px;
-		color: var(--muted-foreground);
-		margin-top: 2px;
 	}
 </style>
