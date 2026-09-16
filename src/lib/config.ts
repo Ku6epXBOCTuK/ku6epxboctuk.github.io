@@ -1,12 +1,12 @@
 export const HOME_RECENT_POSTS = 3;
 
 export const SOCIAL = {
-	telegram: "https://t.me/your_channel",
-	twitch: "https://www.twitch.tv/your_channel",
-	discord: "https://discord.gg/your_invite",
+	telegram: "https://t.me/Ku6epXBOCTuK_feed",
+	twitch: "https://www.twitch.tv/ku6epxboctuk",
+	discord: "https://discord.gg/veKFRX5zeu",
 };
 
 export const DONATE = {
-	dalink: "https://dalink.to/your_page",
-	cloudtips: "https://pay.cloudtips.ru/p/your_page",
+	dalink: "https://dalink.to/ku6epxboctuk",
+	cloudtips: "https://pay.cloudtips.ru/p/efee773f",
 };

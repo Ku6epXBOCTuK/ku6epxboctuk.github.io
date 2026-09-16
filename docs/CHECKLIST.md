@@ -74,7 +74,7 @@
       `image`, repo + demo), карточка ведёт внутрь
 - [x] Мелочи: focus-visible, чипы TG/Twitch/Discord, донат-кнопки (dalink +
       cloudtips), `readingTime`, мобайл
-- [ ] Обновить `README.md` под новый сайт
+- [x] Обновить `README.md` под новый сайт
 
 ## 3. Фаза automation
 

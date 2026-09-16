@@ -1,29 +1,42 @@
-# Ku6epXBOCTuK Portfolio
+# Ku6epXBOCTuK
 
-Personal portfolio website built with SvelteKit.
+Мой маленький уголок интернета — личный сайт, где я делюсь тем, что делаю, учусь
+и нахожу интересным.
 
-## Overview
+👉 **[ku6epxboctuk.github.io](https://ku6epxboctuk.github.io/)**
 
-Terminal-inspired portfolio with:
+## Что здесь есть
 
-- Single-page navigation (home, about, projects, writings)
-- Command line interface
-- ASCII art header
-- Dark theme aesthetic
+- **Posts** — короткие заметки: что я натворил на неделе, впечатления,
+  наблюдения
+- **Articles** — большие развёрнутые статьи о коде, дизайне и всём, что меня
+  зацепило
+- **Projects** — мои проекты: что задумано, что сделано, что в процессе
+- **Weekly** — еженедельные отчёты о том, чем я занимаюсь
 
-## Tech Stack
+## Дизайн
 
-- SvelteKit
-- JetBrains Mono font
-- TypeScript
+Сайт умеет переключаться между двумя настроениями:
 
-## Development
+- **Kawaii** 🎀 — яркий, с сочными цветами и ретро-пиксельными тенями
+- **Soft** — спокойный, мягкий и уютный
 
-```bash
-npm install
-npm run dev
-```
+Добавь к этому ночной режим ☾ — и можно сидеть хоть всю ночь.
 
-## Deployment
+## Языки
 
-Deploys automatically to GitHub Pages on push to main via GitHub Actions.
+Сайт работает на русском и английском. Есть посты одного и второго —
+переключатель в топбаре.
+
+## Часто задаваемые (не)вопросы
+
+- Стек: SvelteKit, TypeScript, никакой CMS — просто папки с markdown.
+  Подробности — в [docs](docs/README.md).
+- Деплоится на GitHub Pages автоматически при пуше в `main`.
+- Хочешь сказать спасибо? Поддержать можно кнопками ниже или просто прийти на
+  стрим.
+
+## Поддержать
+
+[![Поддержать на Dalink](https://img.shields.io/badge/Dalink-поддержать-ff4da6)](https://dalink.to/ku6epxboctuk)
+[![Поддержать на CloudTips](https://img.shields.io/badge/CloudTips-поддержать-38bdf8)](https://pay.cloudtips.ru/p/efee773f)
