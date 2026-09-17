@@ -91,7 +91,7 @@
 - [x] `projects.yaml` — манифест: обязательные `path` + `repo`; опциональные
       `homepage`, `slug`, `image`, витринные поля; `frozen: true` для
       готовых/заброшенных
-- [ ] `c:new project <url>` — режим в `new-content.ts`: GitHub API → пара
+- [x] `c:new project <url>` — режим в `new-content.ts`: GitHub API → пара
       файлов + строка в манифесте (`# path:` закомментирован до клона)
 - [ ] `lint-projects.ts` (+ `npm run lint:projects`) — `repo` обязателен; без
       `frozen` обязателен существующий `path`; `path` + `frozen` вместе —

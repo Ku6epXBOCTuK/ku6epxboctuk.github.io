@@ -28,7 +28,7 @@ export interface ProjectBase extends ContentEntry {
 	icon?: string;
 	color?: string;
 	repo?: string;
-	demo?: string;
+	homepage?: string;
 	status?: string;
 	syncedAt?: string;
 }
@@ -44,7 +44,7 @@ const loader = createPairLoader<ProjectBase>({
 		icon: optionalString(fm, "icon"),
 		color: optionalString(fm, "color"),
 		repo: optionalString(fm, "repo"),
-		demo: optionalString(fm, "demo"),
+		homepage: optionalString(fm, "homepage"),
 		status: optionalString(fm, "status"),
 		syncedAt: optionalString(fm, "synced_at"),
 	}),

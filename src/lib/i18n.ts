@@ -17,7 +17,7 @@ const en = {
 	minRead: "min read",
 	project: {
 		repo: "sources",
-		demo: "demo",
+		homepage: "homepage",
 	},
 	home: {
 		eyebrow: "✦ personal dev log · 2026",
@@ -59,7 +59,7 @@ const ru: UI = {
 	minRead: "мин чтения",
 	project: {
 		repo: "исходники",
-		demo: "демо",
+		homepage: "сайт",
 	},
 	home: {
 		eyebrow: "✦ личный девлог · 2026",

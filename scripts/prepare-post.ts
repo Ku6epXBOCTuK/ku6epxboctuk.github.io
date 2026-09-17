@@ -107,7 +107,9 @@ function resolveUrl(
 	const vars = { slug, ...stringifyValues(data) };
 
 	if (type === "projects") {
-		if (typeof data.demo === "string" && data.demo) return data.demo;
+		if (typeof data.homepage === "string" && data.homepage) {
+			return data.homepage;
+		}
 		if (typeof data.repo === "string" && data.repo) return data.repo;
 	}
 

@@ -26,7 +26,7 @@ interface ProjectMock {
 	description: string;
 	tags: string[];
 	repo: string;
-	demo?: string;
+	homepage?: string;
 	icon: string;
 	color: string;
 	status: string;
@@ -38,7 +38,7 @@ interface WeeklyMock {
 	date: string;
 	week: string;
 	excerpt: string;
-	changes: string[];
+	changes: Array<[string, string]>;
 }
 
 const posts: PostMock[] = [
@@ -90,7 +90,6 @@ const posts: PostMock[] = [
 		title: "помидорка со следами: заметка-черновик",
 		date: "2026-09-14",
 		tags: ["таски", "эксперимент"],
-		draft: true,
 		body: "Идея: таймер показывает «след» прошлых сессий на трее — сколько минут уже накоплено за неделю.",
 	},
 ];
@@ -160,7 +159,7 @@ const projects: ProjectMock[] = [
 			"obs browser source виджет, который показывает трек, играющий прямо сейчас.",
 		tags: ["html", "css", "obs"],
 		repo: "https://github.com/Ku6epXBOCTuK/now_playing",
-		demo: "https://ku6epxboctuk.github.io/now_playing",
+		homepage: "https://ku6epxboctuk.github.io/now_playing",
 		icon: "◈",
 		color: "coral",
 		status: "active",
@@ -374,7 +373,7 @@ function writeProject(p: ProjectMock, lang: "ru" | "en"): void {
 		["tags", p.tags],
 		["repo", p.repo],
 	];
-	if (p.demo) fields.push(["demo", p.demo]);
+	if (p.homepage) fields.push(["homepage", p.homepage]);
 	fields.push(
 		["icon", p.icon],
 		["color", p.color],

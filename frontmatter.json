@@ -137,9 +137,16 @@
 					"required": true
 				},
 				{
-					"title": "Demo",
-					"name": "demo",
+					"title": "Homepage",
+					"name": "homepage",
 					"type": "string"
+				},
+				{
+					"title": "Status",
+					"name": "status",
+					"type": "choice",
+					"choices": ["raw", "ready", "need_review"],
+					"default": "raw"
 				},
 				{
 					"title": "Needs translation",

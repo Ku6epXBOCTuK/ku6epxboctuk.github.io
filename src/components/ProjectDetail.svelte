@@ -80,14 +80,14 @@
 				{t.project.repo} ↗
 			</a>
 		{/if}
-		{#if shown.demo}
+		{#if shown.homepage}
 			<a
 				class="project-link"
-				href={shown.demo}
+				href={shown.homepage}
 				target="_blank"
 				rel="noreferrer"
 			>
-				{t.project.demo} ↗
+				{t.project.homepage} ↗
 			</a>
 		{/if}
 	</div>
