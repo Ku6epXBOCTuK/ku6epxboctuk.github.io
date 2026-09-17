@@ -88,7 +88,7 @@
 
 ## 3. Фаза automation (план: `docs/plan-automation.md`)
 
-- [ ] `projects.yaml` — манифест: обязательные `path` + `repo`; опциональные
+- [x] `projects.yaml` — манифест: обязательные `path` + `repo`; опциональные
       `homepage`, `slug`, `image`, витринные поля; `frozen: true` для
       готовых/заброшенных
 - [ ] `c:new project <url>` — режим в `new-content.ts`: GitHub API → пара
@@ -110,9 +110,9 @@
       prepare-логика переезжает в `publish.ts`
 - [ ] `c:weekly` — `lint:projects` → `sync:projects` → `gen:weekly` одной
       командой
-- [ ] Переименование `demo` → `homepage` в коде (`projects.ts`,
+- [x] Переименование `demo` → `homepage` в коде (`projects.ts`,
       `frontmatter.json`, карточки)
-- [ ] `frontmatter.json`: project `status`
+- [x] `frontmatter.json`: project `status`
 - [ ] `lint-content.ts` — warn (не ошибка) для `need_review`
 - [ ] `docs/automation.md` — как запускать и читать отчёты
 

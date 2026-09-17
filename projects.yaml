@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=./projects.schema.json
+#
+# Источник правды о проектах. Поля записи:
+#   repo   — URL GitHub-репозитория (обязательно)
+#   path   — путь к локальному клону; обязателен, если нет frozen
+#   frozen — true: проект готов или заброшен, не ведётся (path не ставится)
+#   slug, title, homepage, image, subtitle, tags — опциональные
+#
+# Пример:
+#   - path: ../+streaming/now_playing
+#     repo: https://github.com/Ku6epXBOCTuK/now_playing
+#     homepage: https://ku6epxboctuk.github.io/now_playing
+#
+projects: []
