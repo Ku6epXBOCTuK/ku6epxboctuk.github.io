@@ -1,8 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import * as readline from "node:readline/promises";
 import { stdin as rlInput, stdout as rlOutput } from "node:process";
-import * as yaml from "js-yaml";
+import * as readline from "node:readline/promises";
 
 type ContentType = "post" | "article";
 
@@ -130,9 +129,7 @@ async function createPair(
 ): Promise<void> {
 	const folder = path.join(CONTENT_FOLDERS[type], slug);
 	if (fs.existsSync(folder)) {
-		console.error(
-			`Папка уже существует: ${folder}. Используйте "npm run sync ${type} ${slug}", чтобы добавить перевод.`,
-		);
+		console.error(`Папка уже существует: ${folder}.`);
 		process.exit(1);
 	}
 
@@ -149,75 +146,15 @@ async function createPair(
 	console.log(`Создан: ${path.join(folder, "index.en.md")}`);
 }
 
-async function runSync(typeArg: string, slug: string): Promise<void> {
-	if (typeArg !== "post" && typeArg !== "article") {
-		console.error('Для "--sync" нужен тип: npm run new article <slug> --sync');
-		process.exit(1);
-	}
-
-	const type = typeArg as ContentType;
-	if (!slug) {
-		console.error(`Для "--sync" нужен slug: npm run new ${type} <slug> --sync`);
-		process.exit(1);
-	}
-
-	const folder = path.join(CONTENT_FOLDERS[type], slug);
-	const ruPath = path.join(folder, "index.ru.md");
-	const enPath = path.join(folder, "index.en.md");
-
-	if (!fs.existsSync(ruPath)) {
-		console.error(`Основная версия не найдена: ${ruPath}`);
-		process.exit(1);
-	}
-
-	if (fs.existsSync(enPath)) {
-		console.log(`Перевод уже существует: ${enPath}`);
-		return;
-	}
-
-	let title = titleFromSlug(slug);
-	const ruRaw = fs.readFileSync(ruPath, "utf8");
-	const fmMatch = ruRaw.match(/^---\n([\s\S]*?)\n---/);
-	if (fmMatch) {
-		try {
-			const fm = yaml.load(fmMatch[1]) as Record<string, unknown>;
-			if (typeof fm.title === "string" && fm.title) {
-				title = fm.title;
-			}
-		} catch {
-			// оставляем title из slug
-		}
-	}
-
-	writeFile(enPath, buildContent(type, { title, tags: [] }, "en"));
-	console.log(`Создан: ${enPath}`);
-}
-
 async function main(): Promise<void> {
 	const rawArgv = process.argv.slice(2);
 	const argv =
 		(rawArgv[0]?.endsWith(".ts") ?? false) ? rawArgv.slice(1) : rawArgv;
-	const syncMode = argv.includes("--sync");
 	const args = argv.filter((arg) => !arg.startsWith("--"));
-	const argType = (args[0] ?? "") as ContentType | "";
-	const argSlug = args[1] ?? "";
+	let type = (args[0] ?? "") as ContentType | "";
+	let slug = args[1] ?? "";
 
-	if (syncMode) {
-		await runSync(argType, argSlug);
-		return;
-	}
-
-	let type = argType;
-	let slug = argSlug;
-	let isInteractive = false;
-
-	if (type !== "post" && type !== "article") {
-		isInteractive = true;
-	}
-
-	if (!slug) {
-		isInteractive = true;
-	}
+	const isInteractive = (type !== "post" && type !== "article") || !slug;
 
 	if (isInteractive) {
 		const rl = readline.createInterface({ input: rlInput, output: rlOutput });

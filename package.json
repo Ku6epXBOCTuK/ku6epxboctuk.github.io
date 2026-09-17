@@ -35,7 +35,6 @@
 		"lint:css-vars": "node scripts/css-vars.js",
 		"lint:content": "tsx scripts/lint-content.ts",
 		"c:new": "tsx scripts/new-content.ts",
-		"c:sync": "tsx scripts/new-content.ts --sync",
 		"c:publish": "tsx --env-file .env.publish scripts/publish.ts",
 		"mocks:gen": "tsx scripts/gen-mocks.ts",
 		"mocks:clean": "tsx scripts/clean-mocks.ts",
