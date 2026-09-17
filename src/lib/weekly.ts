@@ -11,12 +11,16 @@ import {
 	type LocalizedItem,
 } from "$lib/loaders";
 
-const modules = import.meta.glob<MarkdownModule>(
-	"/src/content/weekly/*/index.{ru,en}.md",
-	{
-		eager: true,
-	},
-);
+const modules = {
+	...import.meta.glob<MarkdownModule>(
+		"/src/content/weekly/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+	...import.meta.glob<MarkdownModule>(
+		"/src/content-mocks/weekly/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+};
 
 export interface WeeklyReportBase extends ContentEntry {
 	excerpt?: string;

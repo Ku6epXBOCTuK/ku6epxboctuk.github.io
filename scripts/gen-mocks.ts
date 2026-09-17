@@ -332,7 +332,7 @@ function write(dir: string, file: string, content: string): void {
 }
 
 function writePost(p: PostMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content/posts", p.slug);
+	const dir = path.join("src/content-mocks/posts", p.slug);
 	const fields: Array<[string, unknown]> = [
 		["title", p.title],
 		["date", p.date],
@@ -347,7 +347,7 @@ function writePost(p: PostMock, lang: "ru" | "en"): void {
 }
 
 function writeArticle(a: ArticleMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content/articles", a.slug);
+	const dir = path.join("src/content-mocks/articles", a.slug);
 	const fields: Array<[string, unknown]> = [
 		["title", a.title],
 		["date", a.date],
@@ -366,7 +366,7 @@ function writeArticle(a: ArticleMock, lang: "ru" | "en"): void {
 const TRANSLATION_PENDING = "translation in progress.";
 
 function writeProject(p: ProjectMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content/projects", p.slug);
+	const dir = path.join("src/content-mocks/projects", p.slug);
 	const fields: Array<[string, unknown]> = [
 		["title", p.title],
 		["subtitle", lang === "en" ? TRANSLATION_PENDING : p.subtitle],
@@ -387,7 +387,7 @@ function writeProject(p: ProjectMock, lang: "ru" | "en"): void {
 }
 
 function writeWeekly(w: WeeklyMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content/weekly", w.slug);
+	const dir = path.join("src/content-mocks/weekly", w.slug);
 	const fields: Array<[string, unknown]> = [
 		["title", w.title],
 		["date", w.date],

@@ -1,5 +1,6 @@
 import {
 	DEFAULT_LANG,
+	fileLang,
 	otherLang,
 	type ContentEntry,
 	type ContentLang,
@@ -15,24 +16,39 @@ export function readingMinutes(raw: string): number {
 	return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
 
-const modules = import.meta.glob<MarkdownModule>(
-	"/src/content/articles/*/index.{ru,en}.md",
-	{
-		eager: true,
-	},
-);
+const modules = {
+	...import.meta.glob<MarkdownModule>(
+		"/src/content/articles/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+	...import.meta.glob<MarkdownModule>(
+		"/src/content-mocks/articles/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+};
 
-const rawModules = import.meta.glob<string>(
-	"/src/content/articles/*/index.{ru,en}.md",
-	{
+const rawModules = {
+	...import.meta.glob<string>("/src/content/articles/*/index.{ru,en}.md", {
 		query: "?raw",
 		import: "default",
 		eager: true,
-	},
-);
+	}),
+	...import.meta.glob<string>(
+		"/src/content-mocks/articles/*/index.{ru,en}.md",
+		{
+			query: "?raw",
+			import: "default",
+			eager: true,
+		},
+	),
+};
 
-const minutesByPath = new Map(
-	Object.entries(rawModules).map(([path, raw]) => [path, readingMinutes(raw)]),
+const minutesBySlugLang = new Map(
+	Object.entries(rawModules).map(([path, raw]) => {
+		const segments = path.split("/");
+		const slug = segments[segments.length - 2] ?? "";
+		return [`${slug}:${fileLang(path)}`, readingMinutes(raw)];
+	}),
 );
 
 export interface Article extends ContentEntry, LocalizedItem {
@@ -40,8 +56,7 @@ export interface Article extends ContentEntry, LocalizedItem {
 }
 
 function withReadingTime(item: Article): Article {
-	const path = `/src/content/articles/${item.slug}/index.${item.lang}.md`;
-	const readingTime = minutesByPath.get(path);
+	const readingTime = minutesBySlugLang.get(`${item.slug}:${item.lang}`);
 	return readingTime ? { ...item, readingTime } : item;
 }
 

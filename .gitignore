@@ -9,6 +9,9 @@ node_modules
 /build
 /coverage
 
+# Generated mocks (npm run gen-mocks)
+src/content-mocks
+
 # OS
 .DS_Store
 Thumbs.db

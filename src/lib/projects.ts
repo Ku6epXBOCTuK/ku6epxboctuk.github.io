@@ -11,12 +11,16 @@ import {
 	optionalString,
 } from "$lib/loaders";
 
-const modules = import.meta.glob<MarkdownModule>(
-	"/src/content/projects/*/index.{ru,en}.md",
-	{
-		eager: true,
-	},
-);
+const modules = {
+	...import.meta.glob<MarkdownModule>(
+		"/src/content/projects/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+	...import.meta.glob<MarkdownModule>(
+		"/src/content-mocks/projects/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+};
 
 export interface ProjectBase extends ContentEntry {
 	subtitle?: string;

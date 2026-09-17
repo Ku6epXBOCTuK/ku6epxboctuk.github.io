@@ -7,12 +7,15 @@ import {
 } from "$lib/content";
 import { createPairLoader, type LocalizedItem } from "$lib/loaders";
 
-const modules = import.meta.glob<MarkdownModule>(
-	"/src/content/posts/*/index.{ru,en}.md",
-	{
+const modules = {
+	...import.meta.glob<MarkdownModule>("/src/content/posts/*/index.{ru,en}.md", {
 		eager: true,
-	},
-);
+	}),
+	...import.meta.glob<MarkdownModule>(
+		"/src/content-mocks/posts/*/index.{ru,en}.md",
+		{ eager: true },
+	),
+};
 
 interface PostBase extends ContentEntry {
 	link?: string;
