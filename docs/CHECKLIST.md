@@ -28,9 +28,19 @@
       тизер), excerpt по типам, url-шаблоны
 - [x] `publish.yml`: триггер на `src/content/articles/**` и
       `src/content/posts/**`
-- [x] `new-content.ts` + `npm run new` (создаёт пару `index.ru.md` +
-      `index.en.md` с `needs_translation: true`; `--sync` досоздаёт копию для
-      существующей)
+- [x] `new-content.ts` + `c:new` (создаёт пару `index.ru.md` + `index.en.md` с
+      `needs_translation: true`; `--sync` удалён — en-заглушка только при
+      создании)
+
+### Разделение моков и контента
+
+- [x] Моки → `src/content-mocks/` (gitignored): `mocks:gen` (`gen-mocks.ts`) +
+      `mocks:clean` (`clean-mocks.ts`); старые мок-файлы удалены из
+      `src/content`
+- [x] Merged-глобы в `posts/articles/projects/weekly` (оба дерева);
+      `articles.ts`: readingTime по ключу `slug:lang`
+- [x] Скрипты переименованы: `c:new`, `c:publish`, `verify` (бывший
+      `check:all`), `lint:all`
 - [x] `docs/writing.md` — как писать пост/статью
 - [x] Переписать `docs/publish.md` и `docs/test-publish-flow.md` под новую схему
 
@@ -76,11 +86,32 @@
       cloudtips), `readingTime`, мобайл
 - [x] Обновить `README.md` под новый сайт
 
-## 3. Фаза automation
+## 3. Фаза automation (план: `docs/plan-automation.md`)
 
-- [ ] `projects.yaml` — манифест
-- [ ] `sync-projects.ts` (+ `npm run sync:projects`)
-- [ ] `gen-weekly.ts` (+ `npm run gen:weekly`)
+- [ ] `projects.yaml` — манифест: обязательные `path` + `repo`; опциональные
+      `homepage`, `slug`, `image`, витринные поля; `frozen: true` для
+      готовых/заброшенных
+- [ ] `c:new project <url>` — режим в `new-content.ts`: GitHub API → пара
+      файлов + строка в манифесте (`# path:` закомментирован до клона)
+- [ ] `lint-projects.ts` (+ `npm run lint:projects`) — `repo` обязателен; без
+      `frozen` обязателен существующий `path`; `path` + `frozen` вместе —
+      ошибка; remote origin = `repo`
+- [ ] `projects.schema.json` — JSON Schema манифеста + привязка
+      `# yaml-language-server:` в первой строке
+- [ ] `sync-projects.ts` (+ `npm run sync:projects`) — первый абзац README
+      append-only в конец файлов при изменении (`_readmes/`); одиночный README →
+      оба языка + `needs_translation` по языку (латиница/кириллица); пары
+      `README_ru`/`README_en` → по соответствию; `description` — короткое из
+      about, не трогается; статусы raw/ready/need_review; пропуск записей с
+      `frozen` и без `path`
+- [ ] `gen-weekly.ts` (+ `npm run gen:weekly`) — git-логи, предыдущая неделя; те
+      же пропуски
+- [ ] `c:publish <type> @last|<slug>` — селекторы цели вместо `FILES`;
+      prepare-логика переезжает в `publish.ts`
+- [ ] `c:weekly` — `lint:projects` → `sync:projects` → `gen:weekly` одной
+      командой
+- [ ] Переименование `demo` → `homepage` в коде (`projects.ts`,
+      `frontmatter.json`, карточки)
 - [ ] `frontmatter.json`: project `status`
 - [ ] `lint-content.ts` — warn (не ошибка) для `need_review`
 - [ ] `docs/automation.md` — как запускать и читать отчёты
