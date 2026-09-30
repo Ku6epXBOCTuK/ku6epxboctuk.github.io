@@ -9,7 +9,9 @@ bun.lockb
 /static/
 /node_modules/
 /refs/
-/.svelte-kit/
+.svelte-kit/
+build/
+coverage/
 .gitattributes
 .gitignore
 .npmrc

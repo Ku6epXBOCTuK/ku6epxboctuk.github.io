@@ -43,8 +43,8 @@ SvelteKit для редактора, а не голый Vite: `hooks.server.ts` 
 ## Порядок
 
 ```txt
-0 baseline                     ✓ выполнен
-1 каркас монорепо
+0 baseline                     ✓
+1 каркас монорепо               ✓
 2 content-core
 3 перевести lint-content.ts на content-core
 4 каркас редактора + доступ
@@ -67,22 +67,25 @@ SvelteKit для редактора, а не голый Vite: `hooks.server.ts` 
 
 #### 1.1 Файлы
 
-- `pnpm-workspace.yaml` — добавить `packages: - "packages/*"`
-- `packages/content-core/package.json` + `tsconfig.json`
-- `packages/editor/package.json` + `tsconfig.json` + `svelte.config.js` +
-  `vite.config.ts`
+- `pnpm-workspace.yaml` — `packages: - "packages/*"`, `allowBuilds: sharp`
 - `package.json` (корень) — скрипт `editor`
+- `.gitignore`, `.prettierignore` — снять якорь с `/` у build-артефактов, иначе
+  вложенные `packages/editor/{.svelte-kit,build}` под них не попадают
+- `packages/content-core/`: `package.json`, `tsconfig.json`, `src/paths.ts`,
+  `src/types.ts`, `src/index.ts`
+- `packages/editor/`: `package.json`, `tsconfig.json`, `svelte.config.js`,
+  `vite.config.ts`, `src/app.html`, `src/app.d.ts`
 
 #### 1.2 Решения
 
 - корень репозитория резолвится от расположения пакета вверх до
   `pnpm-workspace.yaml`, а не от `process.cwd()` — иначе сломается при запуске
   из другой папки
-- editor: `host: "127.0.0.1"`, порт `4321`
-- добавить `sharp`; если pnpm заблокирует установку —
-  `onlyBuiltDependencies: ["sharp"]` в `pnpm-workspace.yaml`
+- editor: `host: "127.0.0.1"`, порт `4321`, `strictPort`
+- `sharp` ставится сразу, чтобы проблема с блокировкой сборки всплыла на первом
+  шаге, а не на седьмом
 
-Проверка: `pnpm install` без ошибок, `pnpm build` сайта работает.
+Проверка: `pnpm install` без ошибок, `pnpm build` сайта и редактора собираются.
 
 ### Шаг 2. `content-core` — чтение и запись
 
@@ -90,12 +93,9 @@ SvelteKit для редактора, а не голый Vite: `hooks.server.ts` 
 
 ```txt
 packages/content-core/src/
-  types.ts        ContentType, Lang, ContentUnit
   fields.ts       описания полей по типам
-  paths.ts        корень репозитория, пути content/static
   yaml.ts         split/serialize frontmatter, кавычки по необходимости
   repository.ts   list / read / write / delete единиц
-  index.ts
 ```
 
 #### 2.2 Что важно
