@@ -6,10 +6,11 @@
 		field: FieldDef;
 		value: unknown;
 		disabled?: boolean;
+		slug?: string;
 		onchange: (value: unknown) => void;
 	}
 
-	let { field, value, disabled = false, onchange }: Props = $props();
+	let { field, value, disabled = false, slug = "", onchange }: Props = $props();
 
 	const list = $derived(
 		Array.isArray(value) ? (value as string[]).join(", ") : "",
@@ -37,15 +38,18 @@
 	}
 </script>
 
-<label class="field" data-kind={field.kind}>
-	<span class="label">
+<!-- Обёртка div, а не label: у поля-картинки два контрола, и метка с двумя
+     input внутри получается неоднозначной для клика и для скринридера. -->
+<div class="field" data-kind={field.kind}>
+	<label class="label" for={field.name}>
 		{field.label}{#if field.required}<span class="req" title="обязательное"
 				>*</span
 			>{/if}
-	</span>
+	</label>
 
 	{#if field.kind === "boolean"}
 		<input
+			id={field.name}
 			type="checkbox"
 			{disabled}
 			checked={value === true}
@@ -53,6 +57,7 @@
 		/>
 	{:else if field.kind === "string[]"}
 		<input
+			id={field.name}
 			type="text"
 			{disabled}
 			value={list}
@@ -61,6 +66,7 @@
 		/>
 	{:else if field.kind === "choice"}
 		<select
+			id={field.name}
 			{disabled}
 			value={scalar}
 			onchange={(e) => text(e.currentTarget.value)}
@@ -72,6 +78,7 @@
 		</select>
 	{:else if field.kind === "number"}
 		<input
+			id={field.name}
 			type="number"
 			{disabled}
 			value={scalar}
@@ -79,6 +86,7 @@
 		/>
 	{:else if field.kind === "date"}
 		<input
+			id={field.name}
 			type="date"
 			{disabled}
 			value={scalar}
@@ -86,15 +94,23 @@
 		/>
 	{:else if field.kind === "text"}
 		<textarea
+			id={field.name}
 			{disabled}
 			rows="3"
 			value={scalar}
 			oninput={(e) => text(e.currentTarget.value)}
 		></textarea>
 	{:else if field.kind === "image"}
-		<ImageField {disabled} value={String(scalar)} onchange={text} />
+		<ImageField
+			id={field.name}
+			{disabled}
+			{slug}
+			value={String(scalar)}
+			onchange={text}
+		/>
 	{:else}
 		<input
+			id={field.name}
 			type={field.kind === "url" ? "url" : "text"}
 			{disabled}
 			value={scalar}
@@ -105,7 +121,7 @@
 	{#if field.help}
 		<span class="help">{field.help}</span>
 	{/if}
-</label>
+</div>
 
 <style>
 	.field {

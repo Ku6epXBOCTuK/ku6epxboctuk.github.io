@@ -1,7 +1,11 @@
 <script lang="ts">
+	import { uploadImage } from "$lib/upload";
+	import ImageDrop from "./ImageDrop.svelte";
+
 	interface Props {
 		value: string;
 		disabled?: boolean;
+		slug?: string;
 		needsMoreMarker?: boolean;
 		onchange: (value: string) => void;
 	}
@@ -9,15 +13,34 @@
 	let {
 		value,
 		disabled = false,
+		slug = "",
 		needsMoreMarker = false,
 		onchange,
 	}: Props = $props();
 
 	const MARKER = "<!--more-->";
 
+	let uploading = $state(false);
+	let uploadError = $state("");
+
 	const hasMarker = $derived(value.includes(MARKER));
 
 	const teaserLength = $derived(hasMarker ? value.indexOf(MARKER) : 0);
+
+	async function insertImage(file: File) {
+		uploading = true;
+		uploadError = "";
+		try {
+			const saved = await uploadImage({ file, kind: "content", slug });
+			const alt = file.name.replace(/\.[^.]+$/, "");
+			const base = value.trimEnd();
+			onchange(`${base}${base ? "\n\n" : ""}![${alt}](${saved.path})\n`);
+		} catch (err) {
+			uploadError = (err as Error).message;
+		} finally {
+			uploading = false;
+		}
+	}
 
 	function insertMarker() {
 		const base = value.trimEnd();
@@ -40,8 +63,8 @@
 		<div class="marker" class:missing={!hasMarker}>
 			{#if hasMarker}
 				<span>
-					<strong>&lt;!--more--&gt;</strong> тизер — {teaserLength} символов до маркера.
-					Всё до него — тизер.
+					<strong>&lt;!--more--&gt;</strong> на месте: тизер — {teaserLength}
+					символов, дальше текст.
 				</span>
 				<button type="button" {disabled} onclick={removeMarker}>убрать</button>
 			{:else}
@@ -62,13 +85,23 @@
 		oninput={(e) => onchange(e.currentTarget.value)}
 	></textarea>
 
+	<ImageDrop
+		{disabled}
+		label={uploading ? "загружаю…" : "перетащи картинку в текст"}
+		onpick={insertImage}
+	/>
+
 	<div class="foot">
 		<span>{value.length} символов</span>
 		<span
-			>картинки вставляй абсолютным путём: <code>![alt](/images/x.webp)</code
+			>вставка даёт абсолютный путь вида <code>![alt](/images/x.webp)</code
 			></span
 		>
 	</div>
+
+	{#if uploadError}
+		<span class="bad">{uploadError}</span>
+	{/if}
 </div>
 
 <style>
@@ -125,5 +158,10 @@
 		border-radius: 4px;
 		background: #fff;
 		cursor: pointer;
+	}
+
+	.bad {
+		font-size: 12px;
+		color: #b00020;
 	}
 </style>

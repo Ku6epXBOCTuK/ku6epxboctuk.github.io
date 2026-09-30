@@ -281,6 +281,7 @@
 				{field}
 				value={version.frontmatter[field.name]}
 				disabled={busy}
+				{slug}
 				onchange={(next) => setField(field.name, next)}
 			/>
 		{/each}
@@ -290,6 +291,7 @@
 			<MarkdownField
 				value={version.body}
 				disabled={busy}
+				{slug}
 				needsMoreMarker={type === "article"}
 				onchange={setBody}
 			/>
