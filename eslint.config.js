@@ -74,7 +74,7 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ["scripts/**"],
+		files: ["scripts/**", "**/vite.config.*", "**/svelte.config.*"],
 		rules: {
 			"no-magic-numbers": "off",
 			"@typescript-eslint/no-magic-numbers": "off",
@@ -89,7 +89,8 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ["src/**/*.test.ts", "src/**/*.spec.ts"],
+		files: ["**/*.test.ts", "**/*.spec.ts"],
+		ignores: ["e2e/**"],
 		plugins: { vitest },
 		rules: {
 			...vitest.configs.recommended.rules,

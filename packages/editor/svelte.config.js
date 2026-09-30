@@ -6,9 +6,6 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter(),
-		alias: {
-			"@ku6epxboctuk/content-core": "../content-core/src/index.ts",
-		},
 	},
 };
 

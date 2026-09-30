@@ -38,7 +38,7 @@ describe("схема совпадает с frontmatter.json", () => {
 
 	it.each(CONTENT_TYPES)("%s: набор полей идентичен", (type) => {
 		const cms = types.find((item) => item.name === type);
-		expect(cms, `${type} есть в frontmatter.json`).toBeDefined();
+		expect(cms).toBeDefined();
 
 		expect([...fieldNames(type)].sort()).toEqual(
 			(cms?.fields ?? []).map((field) => field.name).sort(),
@@ -53,9 +53,7 @@ describe("схема совпадает с frontmatter.json", () => {
 	it("isMock скрыт из формы, но присутствует в схеме", () => {
 		for (const type of CONTENT_TYPES) {
 			expect(fieldNames(type)).toContain("isMock");
-			expect(FIELDS[type].find((f) => f.name === "isMock")?.hidden, type).toBe(
-				true,
-			);
+			expect(FIELDS[type].find((f) => f.name === "isMock")?.hidden).toBe(true);
 		}
 	});
 });

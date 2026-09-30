@@ -47,7 +47,7 @@ SvelteKit для редактора, а не голый Vite: `hooks.server.ts` 
 1 каркас монорепо               ✓
 2 content-core                  ✓
 3 перевести lint-content.ts на content-core ✓
-4 каркас редактора + доступ
+4 каркас редактора + доступ      ✓
 5 API контента
 6 форма
 7 картинки
@@ -160,22 +160,39 @@ scripts/lint-content.ts                 тонкая обёртка: печат�
 ```txt
 packages/editor/src/
   hooks.server.ts              проверка доступа на каждый запрос
-  lib/server/auth.ts           токен: генерация, выдача, сверка
+  lib/server/token.ts          токен в файле, общий для конфига и SSR
+  lib/server/auth.ts           сверка токена, Host, Origin
+  lib/server/auth.test.ts
   routes/+layout.svelte
   routes/+page.svelte          список единиц
   routes/api/units/+server.ts  GET список
+vite.config.ts                 печать ссылки и открытие браузера
 ```
 
 #### 4.2 Поведение
 
 - при старте генерируется токен, печатается в консоль, открывается ссылка с ним
   в query
+- `GET /auth?t=<token>` → 303 на `/` и httpOnly-кука `SameSite=Strict`
 - `GET /` без валидного токена → 401
 - запрос с чужим `Host` → 403
+- чужой `Origin` или `Sec-Fetch-Site: cross-site` → 403
 - сервер слушает только `127.0.0.1`
 
-Проверка: `pnpm editor` открывает форму; `curl` без токена → 401;
-`curl -H "Host: evil.com"` → 403; `netstat` показывает только 127.0.0.1.
+#### 4.3 Решения
+
+- токен лежит в файле в `tmpdir`, а не в памяти процесса: конфиг Vite и SSR-граф
+  SvelteKit — разные экземпляры модулей, общее у них только ФС
+- `content-core` разделён на два входа: `.` тянет `node:fs` и годится только для
+  сервера, `./shared` (`types.ts` + `fields.ts`) безопасен для клиента
+- `kit.alias` убран, резолв идёт через `exports` в `package.json` пакета
+- `eslint.config.js`: блок правил vitest расширен на `**/*.test.ts`, но с
+  `ignores: ["e2e/**"]` — там playwright; `no-console` выключен для
+  `vite.config.*` и `svelte.config.*`
+
+Проверка: `pnpm editor` поднимается; без токена 401; чужой `Host` 403 (через
+сырой сокет — `fetch` не даёт подменить `Host`); подделанная кука 401; `netstat`
+показывает только `127.0.0.1:4321`; сборка `adapter-node` проходит.
 
 ### Шаг 5. API контента
 
