@@ -215,7 +215,7 @@ describe("запись на диск", () => {
 		expect(fs.existsSync(unitFile(type, next, "ru"))).toBe(false);
 	});
 
-	it("не перезаписывает чужую единицу молча", async () => {
+	it("не перезаписывает существующий язык молча", async () => {
 		const other = `${slug}-other`;
 		await createUnit(type, other, "ru", content);
 		try {
@@ -224,6 +224,21 @@ describe("запись на диск", () => {
 			);
 		} finally {
 			deleteUnit(type, other);
+		}
+	});
+
+	it("второй язык создаётся поверх первого", async () => {
+		const pair = `${slug}-pair`;
+		await createUnit(type, pair, "ru", content);
+		try {
+			await createUnit(type, pair, "en", {
+				frontmatter: { ...content.frontmatter, needs_translation: true },
+				body: "перевод в работе.",
+			});
+			expect(readUnit(type, pair, "ru")?.body).toBe(content.body);
+			expect(readUnit(type, pair, "en")?.body).toBe("перевод в работе.");
+		} finally {
+			deleteUnit(type, pair);
 		}
 	});
 

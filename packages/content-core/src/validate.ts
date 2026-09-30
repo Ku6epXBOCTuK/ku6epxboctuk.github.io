@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import { join, resolve } from "node:path";
 import { repoRoot } from "./paths.ts";
-import type { Frontmatter } from "./types.ts";
+import type { ContentType, Frontmatter } from "./types.ts";
 import { parseUnit } from "./yaml.ts";
 
 interface FmField {
@@ -10,7 +10,7 @@ interface FmField {
 	required?: boolean;
 }
 
-interface ContentType {
+interface SchemaType {
 	name: string;
 	fields: FmField[];
 }
@@ -26,6 +26,12 @@ const TARGETS: Target[] = [
 	{ dir: "projects", schema: "project" },
 	{ dir: "weekly", schema: "weekly" },
 ];
+
+const FOLDER: Record<ContentType, string> = {
+	post: "posts",
+	article: "articles",
+	project: "projects",
+};
 
 const TEASER_FROM_BODY = new Set(["articles", "posts"]);
 
@@ -61,7 +67,7 @@ function checkFieldType(value: unknown, expected: string): string | null {
 
 function lintFile(
 	type: string,
-	schema: ContentType | undefined,
+	schema: SchemaType | undefined,
 	report: Report,
 	displayUnit: string,
 	unitAbs: string,
@@ -173,11 +179,70 @@ function draftOf(file: string): unknown {
 	return parseUnit(fs.readFileSync(file, "utf8")).frontmatter.draft;
 }
 
-export function loadSchema(root = repoRoot()): Map<string, ContentType> {
+export function loadSchema(root = repoRoot()): Map<string, SchemaType> {
 	const raw = fs.readFileSync(join(root, "frontmatter.json"), "utf8");
-	const config = JSON.parse(raw) as Record<string, ContentType[]>;
+	const config = JSON.parse(raw) as Record<string, SchemaType[]>;
 	const types = config["frontMatter.taxonomy.contentTypes"] ?? [];
 	return new Map(types.map((type) => [type.name, type]));
+}
+
+function validateUnitIn(
+	dir: string,
+	schema: SchemaType | undefined,
+	report: Report,
+	displayUnit: string,
+	unitAbs: string,
+	unit: string,
+): void {
+	const files = fs.readdirSync(unitAbs).filter((file) => file.endsWith(".md"));
+
+	if (files.length === 0) {
+		report.errors.push(`[${dir}] ${unit}: no index.*.md file found`);
+		return;
+	}
+
+	if (!files.includes("index.ru.md")) {
+		report.errors.push(`[${dir}] ${unit}: missing index.ru.md`);
+	}
+
+	if (!files.includes("index.en.md")) {
+		report.errors.push(`[${dir}] ${unit}: missing index.en.md`);
+	}
+
+	if (files.includes("index.ru.md") && files.includes("index.en.md")) {
+		const ru = draftOf(join(unitAbs, "index.ru.md"));
+		const en = draftOf(join(unitAbs, "index.en.md"));
+		if (ru !== en) {
+			report.errors.push(
+				`[${dir}] ${unit}: draft must match between index.ru.md and index.en.md`,
+			);
+		}
+	}
+
+	for (const file of files) {
+		const match = LANG_FILE.exec(file);
+		if (!match) {
+			report.warnings.push(
+				`[${dir}] ${unit}: unexpected file "${file}" (expected index.ru.md / index.en.md)`,
+			);
+			continue;
+		}
+		lintFile(
+			dir,
+			schema,
+			report,
+			displayUnit,
+			unitAbs,
+			file,
+			match[1] as "ru" | "en",
+		);
+	}
+}
+
+function targetFor(type: ContentType): Target {
+	const found = TARGETS.find((item) => item.dir === FOLDER[type]);
+	if (!found) throw new Error(`Нет правил валидации для типа ${type}`);
+	return found;
 }
 
 export function validateContent(root = repoRoot()): Report {
@@ -200,56 +265,47 @@ export function validateContent(root = repoRoot()): Report {
 			.map((entry) => entry.name);
 
 		for (const unit of units) {
-			const displayUnit = join(displayDir, unit);
-			const unitAbs = join(absDir, unit);
-			const files = fs
-				.readdirSync(unitAbs)
-				.filter((file) => file.endsWith(".md"));
-
-			if (files.length === 0) {
-				report.errors.push(`[${dir}] ${unit}: no index.*.md file found`);
-				continue;
-			}
-
-			if (!files.includes("index.ru.md")) {
-				report.errors.push(`[${dir}] ${unit}: missing index.ru.md`);
-			}
-
-			if (!files.includes("index.en.md")) {
-				report.errors.push(`[${dir}] ${unit}: missing index.en.md`);
-			}
-
-			if (files.includes("index.ru.md") && files.includes("index.en.md")) {
-				const ru = draftOf(join(unitAbs, "index.ru.md"));
-				const en = draftOf(join(unitAbs, "index.en.md"));
-				if (ru !== en) {
-					report.errors.push(
-						`[${dir}] ${unit}: draft must match between index.ru.md and index.en.md`,
-					);
-				}
-			}
-
-			for (const file of files) {
-				const match = LANG_FILE.exec(file);
-				if (!match) {
-					report.warnings.push(
-						`[${dir}] ${unit}: unexpected file "${file}" (expected index.ru.md / index.en.md)`,
-					);
-					continue;
-				}
-				lintFile(
-					dir,
-					schema,
-					report,
-					displayUnit,
-					unitAbs,
-					file,
-					match[1] as "ru" | "en",
-				);
-			}
+			validateUnitIn(
+				dir,
+				schema,
+				report,
+				join(displayDir, unit),
+				join(absDir, unit),
+				unit,
+			);
 		}
 	}
 
+	return report;
+}
+
+/**
+ * Проверка одной единицы: редактор зовёт её после каждого сохранения, а не
+ * гоняет всё дерево и не выковыривает свои строки из общего отчёта.
+ */
+export function validateUnit(
+	type: ContentType,
+	slug: string,
+	root = repoRoot(),
+): Report {
+	const report: Report = { errors: [], warnings: [] };
+	const { dir, schema: schemaName } = targetFor(type);
+	const displayUnit = join("src", "content", dir, slug);
+	const unitAbs = resolve(root, "src", "content", dir, slug);
+
+	if (!fs.existsSync(unitAbs)) {
+		report.errors.push(`[${dir}] ${slug}: no index.*.md file found`);
+		return report;
+	}
+
+	validateUnitIn(
+		dir,
+		loadSchema(root).get(schemaName),
+		report,
+		displayUnit,
+		unitAbs,
+		slug,
+	);
 	return report;
 }
 

@@ -80,14 +80,18 @@ export async function writeUnit(
 	return file;
 }
 
+/**
+ * Создаёт языковую версию. Проверяется файл, а не папка: index.en.md можно
+ * создать после index.ru.md, это штатный путь для «Скопировать из RU».
+ */
 export async function createUnit(
 	type: ContentType,
 	slug: string,
 	lang: ContentLang,
 	content: UnitContent,
 ): Promise<string> {
-	if (unitExists(type, slug)) {
-		throw new Error(`Единица уже существует: ${type}/${slug}`);
+	if (readUnit(type, slug, lang)) {
+		throw new Error(`Файл уже существует: ${type}/${slug}/${lang}`);
 	}
 	return writeUnit(type, slug, lang, content);
 }
