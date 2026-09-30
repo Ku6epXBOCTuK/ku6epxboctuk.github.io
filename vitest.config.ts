@@ -1,9 +1,11 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import Icons from "unplugin-icons/vite";
 import { defineConfig } from "vitest/config";
+import svelteMd from "vite-plugin-svelte-md";
 
 export default defineConfig({
 	plugins: [
+		svelteMd({ headEnabled: false }),
 		sveltekit(),
 		Icons({
 			compiler: "svelte",
@@ -20,7 +22,7 @@ export default defineConfig({
 			"**/dist/**",
 			"**/.svelte-kit/**",
 			"**/build/**",
-			"tests/**",
+			"e2e/**",
 		],
 		env: {
 			DEBUG_PRINT_LIMIT: "2000",

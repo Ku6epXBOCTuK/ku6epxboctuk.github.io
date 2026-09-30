@@ -111,7 +111,7 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ["tests/**/*.spec.ts"],
+		files: ["e2e/**/*.spec.ts"],
 		...playwright.configs["flat/recommended"],
 		rules: {
 			"playwright/require-hook": "warn",
