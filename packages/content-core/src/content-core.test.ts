@@ -1,20 +1,22 @@
 // @vitest-environment node
 
 import * as fs from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { FIELDS, fieldNames } from "./fields.ts";
 import { formatUnit, isFormatted } from "./format.ts";
 import {
 	SLUG_PATTERN,
+	createUnit,
+	deleteUnit,
 	isValidSlug,
 	readUnit,
-	writeUnit,
-	deleteUnit,
-	createUnit,
 	renameUnit,
+	writeUnit,
 } from "./repository.ts";
 import { CONTENT_TYPES, type ContentType } from "./types.ts";
+import { type Report, validateContent } from "./validate.ts";
 import { needsQuotes, parseUnit, serializeUnit } from "./yaml.ts";
 import { repoRoot, unitFile } from "./paths.ts";
 
@@ -51,8 +53,9 @@ describe("схема совпадает с frontmatter.json", () => {
 	it("isMock скрыт из формы, но присутствует в схеме", () => {
 		for (const type of CONTENT_TYPES) {
 			expect(fieldNames(type)).toContain("isMock");
-			const hidden = FIELDS[type].find((f) => f.name === "isMock");
-			expect(hidden?.hidden, type).toBe(true);
+			expect(FIELDS[type].find((f) => f.name === "isMock")?.hidden, type).toBe(
+				true,
+			);
 		}
 	});
 });
@@ -101,12 +104,7 @@ describe("round-trip frontmatter", () => {
 			"Тело.",
 			{ title: "T", description: "первая строка\nвторая строка" },
 		],
-		[
-			"тело с обрамляющими переводами строк",
-			{ title: "T" },
-			"\n\nТело.\n\n",
-			{ title: "T" },
-		],
+		["тело в обрамлении", { title: "T" }, "\n\nТело.\n\n", { title: "T" }],
 	];
 
 	it.each(cases)("%s", (_name, frontmatter, body, expected) => {
@@ -152,8 +150,9 @@ describe("файл после записи устойчив к prettier", () => 
 	});
 
 	it("после форматирования тело читается обратно без обрамления", async () => {
-		const raw = await formatUnit(serializeUnit(frontmatter, "Тело."));
-		const parsed = parseUnit(raw);
+		const parsed = parseUnit(
+			await formatUnit(serializeUnit(frontmatter, "Тело.")),
+		);
 		expect(parsed.body).toBe("Тело.");
 		expect(parsed.frontmatter).toEqual(frontmatter);
 	});
@@ -238,6 +237,203 @@ describe("запись на диск", () => {
 			expect(readUnit(type, over, "ru")?.body).toBe("Другое тело.");
 		} finally {
 			deleteUnit(type, over);
+		}
+	});
+});
+
+describe("валидация", () => {
+	const REPO = "https://github.com/Ku6epXBOCTuK/brul";
+	const ARTICLE = ["title: Статья", "date: 2026-09-30"];
+	const POST = ["title: Пост", "date: 2026-09-30"];
+	const PROJECT = ["title: Проект", "description: Описание", `repo: ${REPO}`];
+
+	const roots: string[] = [];
+
+	afterAll(() => {
+		for (const root of roots) fs.rmSync(root, { recursive: true, force: true });
+	});
+
+	function md(lines: string[], body: string): string {
+		return `---\n${lines.join("\n")}\n---\n\n${body}\n`;
+	}
+
+	function tree(files: Record<string, string>): Report {
+		const root = fs.mkdtempSync(join(tmpdir(), "content-core-"));
+		roots.push(root);
+		fs.copyFileSync(
+			join(repoRoot(), "frontmatter.json"),
+			join(root, "frontmatter.json"),
+		);
+		for (const [rel, text] of Object.entries(files)) {
+			const file = join(root, "src", "content", rel);
+			fs.mkdirSync(join(file, ".."), { recursive: true });
+			fs.writeFileSync(file, text, "utf8");
+		}
+		return validateContent(root);
+	}
+
+	function pair(
+		dir: string,
+		ru: string[],
+		en: string[],
+		ruBody = "Б",
+		enBody = "B",
+	) {
+		return {
+			[`${dir}/index.ru.md`]: md(ru, ruBody),
+			[`${dir}/index.en.md`]: md(en, enBody),
+		};
+	}
+
+	it("чистое дерево не даёт замечаний", () => {
+		const report = tree({
+			...pair(
+				"articles/ok",
+				ARTICLE,
+				ARTICLE,
+				"Текст.\n\n<!--more-->",
+				"Text.\n\n<!--more-->",
+			),
+			...pair("posts/ok", POST, POST),
+			...pair("projects/ok", PROJECT, PROJECT),
+			...pair(
+				"weekly/2026-09-22",
+				["title: Неделя", "date: 2026-09-22", "excerpt: Итог"],
+				["title: Week", "date: 2026-09-22", "excerpt: Summary"],
+			),
+		});
+		expect(report.errors).toEqual([]);
+		expect(report.warnings).toEqual([]);
+	});
+
+	const errors: Array<[string, Record<string, string>, RegExp]> = [
+		[
+			"unknown field",
+			pair("posts/x", [...POST, "nope: 1"], POST),
+			/unknown field "nope"/,
+		],
+		[
+			"missing required",
+			pair("posts/x", ["date: 2026-09-30"], POST),
+			/missing required field "title"/,
+		],
+		[
+			"неверный тип поля",
+			pair("posts/x", [...POST, "draft: да"], POST),
+			/field "draft" must be a boolean/,
+		],
+		[
+			"tags не массив",
+			pair("posts/x", [...POST, "tags: нет"], POST),
+			/field "tags" must be an array/,
+		],
+		[
+			"не ISO дата",
+			pair("posts/x", ["title: T", "date: 30.09.2026"], POST),
+			/must be ISO YYYY-MM-DD/,
+		],
+		[
+			"нет маркера в статье",
+			pair("articles/x", ARTICLE, ARTICLE, "Текст.", "<!--more-->"),
+			/article must contain/,
+		],
+		[
+			"needs_translation в ru",
+			pair("posts/x", [...POST, "needs_translation: true"], POST),
+			/only allowed in index\.en\.md/,
+		],
+		[
+			"нет en",
+			{ "posts/x/index.ru.md": md(POST, "Б") },
+			/missing index\.en\.md/,
+		],
+		[
+			"draft разошёлся",
+			pair("posts/x", [...POST, "draft: true"], POST),
+			/draft must match between/,
+		],
+		[
+			"excerpt у поста",
+			pair("posts/x", [...POST, "excerpt: нельзя"], POST),
+			/"excerpt" is not used for post/,
+		],
+		[
+			"isMock без draft",
+			pair(
+				"projects/x",
+				[...PROJECT, "isMock: true"],
+				[...PROJECT, "isMock: true"],
+			),
+			/"isMock: true" требует "draft: true"/,
+		],
+		[
+			"старое поле type",
+			pair("projects/x", [...PROJECT, "type: x"], PROJECT),
+			/"type" is removed for projects/,
+		],
+		[
+			"старое поле url",
+			pair("projects/x", [...PROJECT, "url: https://e.com"], PROJECT),
+			/"url" is renamed to "repo"/,
+		],
+		[
+			"нет description у проекта",
+			pair(
+				"projects/x",
+				["title: T", `repo: ${REPO}`],
+				["title: T", `repo: ${REPO}`],
+			),
+			/missing required field "description"/,
+		],
+	];
+
+	it.each(errors)("ошибка: %s", (_name, files, pattern) => {
+		expect(tree(files).errors.some((line) => pattern.test(line))).toBe(true);
+	});
+
+	const warnings: Array<[string, Record<string, string>, RegExp]> = [
+		[
+			"draft в продакшене",
+			pair("posts/x", [...POST, "draft: true"], [...POST, "draft: true"]),
+			/"draft: true" — снять перед публикацией/,
+		],
+		[
+			"маркер в посте",
+			pair("posts/x", POST, POST, "Б\n\n<!--more-->"),
+			/"<!--more-->" is not used in posts/,
+		],
+		[
+			"лишний файл",
+			{ ...pair("posts/x", POST, POST), "posts/x/notes.md": "x" },
+			/unexpected file "notes\.md"/,
+		],
+	];
+
+	it.each(warnings)("предупреждение: %s", (_name, files, pattern) => {
+		expect(tree(files).warnings.some((line) => pattern.test(line))).toBe(true);
+	});
+
+	it("пустая папка в дереве", () => {
+		const root = fs.mkdtempSync(join(tmpdir(), "content-core-"));
+		roots.push(root);
+		fs.copyFileSync(
+			join(repoRoot(), "frontmatter.json"),
+			join(root, "frontmatter.json"),
+		);
+		fs.mkdirSync(join(root, "src", "content", "posts", "empty"), {
+			recursive: true,
+		});
+		expect(validateContent(root).errors.join()).toMatch(
+			/\[posts\] empty: no index\.\*\.md file found/,
+		);
+	});
+
+	it("в путях сообщений есть slug", () => {
+		const report = tree(pair("posts/x", [...POST, "nope: 1"], POST));
+		for (const line of [...report.errors, ...report.warnings]) {
+			expect(line).toMatch(
+				/^(\[\w+\] \S+|src[\\/]content[\\/]\w+[\\/]\S+[\\/]index\.(ru|en)\.md)/,
+			);
 		}
 	});
 });

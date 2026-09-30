@@ -47,6 +47,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",
 		"@eslint/js": "^10.0.1",
+		"@ku6epxboctuk/content-core": "workspace:*",
 		"@playwright/test": "^1.58.1",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.50.2",
