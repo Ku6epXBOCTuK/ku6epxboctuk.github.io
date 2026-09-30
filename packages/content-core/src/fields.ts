@@ -158,3 +158,24 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 export function fieldNames(type: ContentType): string[] {
 	return FIELDS[type].map((field) => field.name);
 }
+
+const DATE_LENGTH = 10;
+
+/**
+ * Значения по умолчанию строго из схемы. Нельзя сеять поля, которого в
+ * `frontmatter.json` нет: у project, например, нет `date`, и линтер отвергнет
+ * такой файл.
+ */
+export function defaultsFor(type: ContentType): Record<string, unknown> {
+	const out: Record<string, unknown> = {};
+
+	for (const field of FIELDS[type]) {
+		if (field.hidden || field.auto || field.default === undefined) continue;
+		out[field.name] =
+			field.default === "today"
+				? new Date().toISOString().slice(0, DATE_LENGTH)
+				: field.default;
+	}
+
+	return out;
+}

@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { FIELDS, fieldNames } from "./fields.ts";
+import { FIELDS, defaultsFor, fieldNames } from "./fields.ts";
 import { formatUnit, isFormatted } from "./format.ts";
 import {
 	SLUG_PATTERN,
@@ -54,6 +54,29 @@ describe("схема совпадает с frontmatter.json", () => {
 		for (const type of CONTENT_TYPES) {
 			expect(fieldNames(type)).toContain("isMock");
 			expect(FIELDS[type].find((f) => f.name === "isMock")?.hidden).toBe(true);
+		}
+	});
+
+	it.each(CONTENT_TYPES)(
+		"defaultsFor не выдаёт полей вне схемы: %s",
+		(type) => {
+			const allowed = new Set(fieldNames(type));
+			for (const key of Object.keys(defaultsFor(type))) {
+				expect(allowed.has(key), `${type}: ${key}`).toBe(true);
+			}
+		},
+	);
+
+	it("у project нет date, поэтому и в дефолтах его нет", () => {
+		expect(fieldNames("project")).not.toContain("date");
+		expect(defaultsFor("project")).not.toHaveProperty("date");
+	});
+
+	it("у post и article дефолтная дата — сегодня", () => {
+		for (const type of ["post", "article"] as const) {
+			expect(defaultsFor(type).date).toBe(
+				new Date().toISOString().slice(0, 10),
+			);
 		}
 	});
 });

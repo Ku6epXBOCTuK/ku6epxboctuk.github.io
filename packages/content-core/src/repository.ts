@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import { formatUnit } from "./format.ts";
 import { contentDir, unitDir, unitFile } from "./paths.ts";
+import { isValidSlug } from "./slug.ts";
 import {
 	CONTENT_LANGS,
 	CONTENT_TYPES,
@@ -14,21 +15,9 @@ import {
 import { parseUnit, serializeUnit } from "./yaml.ts";
 
 // slug подставляется в путь файловой системы, поэтому шаблон жёсткий.
-const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+export { isValidSlug, SLUG_PATTERN } from "./slug.ts";
 
-export const SLUG_PATTERN = "[a-z0-9]+(-[a-z0-9]+)*";
-
-export function isValidSlug(slug: string): boolean {
-	return SLUG_RE.test(slug);
-}
-
-export function isContentType(value: string): value is ContentType {
-	return (CONTENT_TYPES as readonly string[]).includes(value);
-}
-
-export function isContentLang(value: string): value is ContentLang {
-	return (CONTENT_LANGS as readonly string[]).includes(value);
-}
+/** Страховка на случай, если шаблон выше ослабят. */
 
 // Страховка на случай, если шаблон выше ослабят.
 function assertInside(type: ContentType, slug: string): void {

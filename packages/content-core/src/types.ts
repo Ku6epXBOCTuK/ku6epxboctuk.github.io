@@ -10,6 +10,14 @@ export type ContentLang = (typeof CONTENT_LANGS)[number];
 
 export const DEFAULT_LANG: ContentLang = "ru";
 
+export function isContentType(value: string): value is ContentType {
+	return (CONTENT_TYPES as readonly string[]).includes(value);
+}
+
+export function isContentLang(value: string): value is ContentLang {
+	return (CONTENT_LANGS as readonly string[]).includes(value);
+}
+
 export type Frontmatter = Record<string, unknown>;
 
 export interface ContentUnit {
