@@ -149,6 +149,11 @@
 					"default": "raw"
 				},
 				{
+					"title": "Order",
+					"name": "order",
+					"type": "number"
+				},
+				{
 					"title": "Needs translation",
 					"name": "needs_translation",
 					"type": "boolean",

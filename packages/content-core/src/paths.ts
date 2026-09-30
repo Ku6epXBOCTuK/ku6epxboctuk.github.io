@@ -7,10 +7,8 @@ const MARKER = "pnpm-workspace.yaml";
 
 let cachedRoot: string | undefined;
 
-/**
- * Корень репозитория. Ищем вверх от этого файла, а не от process.cwd() —
- * иначе путь ломается при запуске из вложенной папки.
- */
+// Ищем вверх от этого файла, а не от process.cwd(): запуск из вложенной
+// папки не должен ломать пути.
 export function repoRoot(): string {
 	if (cachedRoot) return cachedRoot;
 

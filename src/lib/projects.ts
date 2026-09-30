@@ -7,6 +7,7 @@ import {
 } from "$lib/content";
 import {
 	createPairLoader,
+	type Frontmatter,
 	type LocalizedItem,
 	optionalString,
 } from "$lib/loaders";
@@ -30,10 +31,18 @@ export interface ProjectBase extends ContentEntry {
 	repo?: string;
 	homepage?: string;
 	status?: string;
+	order?: number;
 	syncedAt?: string;
 }
 
 export interface Project extends ProjectBase, LocalizedItem {}
+
+function optionalNumber(fm: Frontmatter, key: string): number | undefined {
+	const value = fm[key];
+	return typeof value === "number" ? value : undefined;
+}
+
+const UNORDERED = Number.MAX_SAFE_INTEGER;
 
 const loader = createPairLoader<ProjectBase>({
 	modules,
@@ -46,13 +55,16 @@ const loader = createPairLoader<ProjectBase>({
 		repo: optionalString(fm, "repo"),
 		homepage: optionalString(fm, "homepage"),
 		status: optionalString(fm, "status"),
+		order: optionalNumber(fm, "order"),
 		syncedAt: optionalString(fm, "synced_at"),
 	}),
 	sortByDate: false,
 });
 
 export function getProjects(lang: ContentLang = DEFAULT_LANG): Project[] {
-	return loader.getItems(lang);
+	return [...loader.getItems(lang)].sort(
+		(a, b) => (a.order ?? UNORDERED) - (b.order ?? UNORDERED),
+	);
 }
 
 export function getProject(slug: string, lang: ContentLang = DEFAULT_LANG) {
