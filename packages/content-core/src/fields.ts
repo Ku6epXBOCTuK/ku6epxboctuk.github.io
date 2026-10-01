@@ -1,4 +1,4 @@
-import type { ContentType } from "./types.ts";
+import type { ContentLang, ContentType } from "./types.ts";
 
 // Виды редактора не совпадают с типами Frontmatter CMS: там `string`,
 // здесь `text` для многострочного ввода и `markdown` для тела поста.
@@ -26,6 +26,9 @@ export interface FieldDef {
 	default?: string | boolean;
 	/** Ставится кодом, в форме не редактируется. */
 	auto?: boolean;
+	/** Поле принадлежит одному языку, в остальных скрыто и при сохранении
+	 * вычищается. Для фактов о машине вроде `path`, а не о переводе. */
+	only?: ContentLang;
 }
 
 const DRAFT: FieldDef = {
@@ -126,6 +129,14 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			label: "Репозиторий",
 			required: true,
 			help: "https://github.com/owner/name",
+		},
+		{
+			name: "path",
+			kind: "string",
+			label: "Локальная папка",
+			required: false,
+			only: "ru",
+			help: "Путь к клону относительно корня сайта, например ../brul. Нужен weekly, чтобы собрать git-логи. Попадёт в git.",
 		},
 		{
 			name: "homepage",

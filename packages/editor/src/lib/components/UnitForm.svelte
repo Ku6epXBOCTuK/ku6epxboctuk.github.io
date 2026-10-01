@@ -55,13 +55,33 @@
 
 	const version = $derived(current === "ru" ? ru : en);
 	const fields = $derived(
-		FIELDS[type].filter((field) => !field.hidden && !field.auto),
+		FIELDS[type].filter((field) => {
+			if (field.hidden || field.auto) return false;
+			return !field.only || field.only === current;
+		}),
 	);
 	const slugOk = $derived(isValidSlug(renameTo));
 	const renameChanged = $derived(renameTo !== renameFrom && slugOk);
 
 	function versionFor(lang: ContentLang): UnitVersion | null {
 		return lang === "ru" ? ru : en;
+	}
+
+	/**
+	 * Поля с `only` принадлежат одному языку. Если EN получила `path` при
+	 * копировании из RU, при сохранении вычищаем — иначе в index.en.md
+	 * появится вторая копия факта о машине, которая со временем разъедется.
+	 */
+	function payloadFor(lang: ContentLang): UnitVersion {
+		const data = versionFor(lang);
+		if (!data) throw new Error(`Нет версии ${lang}`);
+
+		const frontmatter = { ...data.frontmatter };
+		for (const field of FIELDS[type]) {
+			if (field.only && field.only !== lang) delete frontmatter[field.name];
+		}
+
+		return { frontmatter, body: data.body };
 	}
 
 	function blank(): UnitVersion {
@@ -80,8 +100,7 @@
 	}
 
 	async function save(lang: ContentLang): Promise<boolean> {
-		const data = versionFor(lang);
-		if (!data) {
+		if (!versionFor(lang)) {
 			status = `Нет версии ${LANG_LABEL[lang]}.`;
 			return false;
 		}
@@ -91,7 +110,7 @@
 			const res = await fetch(`/api/units/${type}/${slug}/${lang}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(data),
+				body: JSON.stringify(payloadFor(lang)),
 			});
 			const json = await readJson(res);
 			if (!res.ok) {

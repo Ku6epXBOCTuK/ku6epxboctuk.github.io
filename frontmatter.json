@@ -137,6 +137,11 @@
 					"required": true
 				},
 				{
+					"title": "Path",
+					"name": "path",
+					"type": "string"
+				},
+				{
 					"title": "Homepage",
 					"name": "homepage",
 					"type": "string"

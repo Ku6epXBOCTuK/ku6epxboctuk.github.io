@@ -51,7 +51,7 @@ SvelteKit для редактора, а не голый Vite: `hooks.server.ts` 
 5 API контента                   ✓
 6 форма                         ✓
 7 картинки                      ✓
-8 документация
+8 документация                   ✓
 ```
 
 После каждого шага: `pnpm build` сайта, `pnpm check`, `pnpm lint`.
@@ -332,7 +332,23 @@ markdown. 19 тестов конвейера, включая GIF, SVG, лими�
 
 ### Шаг 8. Документация
 
-- `docs/writing.md` — переписать вокруг редактора
-- `AGENTS.md` — добавить `pnpm editor` в раздел Content
-- решить судьбу CLI `npm run new`: оставить как инструмент для скриптов и
-  агентов, или удалить
+- `docs/writing.md` — переписан вокруг редактора: запуск, порядок работы, поля,
+  перевод, картинки, панель замечаний
+- `docs/README.md` — монорепо, роль `content-core` и `editor`, актуальные
+  скрипты
+- `AGENTS.md` — раздел Content переписан на `pnpm editor`; добавлено требование
+  гонять `pnpm --filter @ku6epxboctuk/editor check` для правок в `packages/`
+- `docs/backlog.md` — убраны пункты про CLI, добавлены реальные долги
+- CLI `npm run new` и `c:new` удалены вместе с `scripts/new-content.ts`
+- удалены `docs/plan-automation.md`, `plan-deploy.md`, `CHECKLIST.md`,
+  `test-publish-flow.md` — они описывали команды, которых нет в репозитории
+
+Позже, вне объёма этого плана, по решению владельца репозитория:
+
+- публикация в соцсети удалена целиком — `scripts/publish.ts`,
+  `scripts/prepare-post.ts`, `scripts/templates.json`, скрипт `c:publish`,
+  `docs/archive/publish.md`, `docs/archive/test-publish-flow.md`. Осталось
+  только `git push` и CI
+- `projects.yaml`, `projects.schema.json` и `scripts/projects-index.ts` удалены.
+  Путь к локальному клону переехал в поле `path` проекта, см.
+  [docs/plan-weekly.md](plan-weekly.md)

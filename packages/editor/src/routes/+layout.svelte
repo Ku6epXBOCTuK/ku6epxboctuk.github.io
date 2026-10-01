@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from "$app/state";
 	import type { Snippet } from "svelte";
 
 	interface Props {
@@ -12,6 +13,12 @@
 	<header>
 		<span class="mark">редактор</span>
 		<span class="hint">локально · пишет в <code>src/content</code></span>
+		<nav>
+			<a
+				href="/errors"
+				aria-current={page.url.pathname === "/errors" || undefined}>ошибки</a
+			>
+		</nav>
 	</header>
 	<main>
 		{@render children()}
@@ -41,6 +48,25 @@
 	.hint {
 		font-size: 13px;
 		color: #666;
+	}
+
+	header nav {
+		margin-left: auto;
+	}
+
+	header nav a {
+		font-size: 13px;
+		color: #333;
+		text-decoration: none;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+		padding: 4px 10px;
+	}
+
+	header nav a[aria-current] {
+		background: #f0f0f0;
+		border-color: #bbb;
+		font-weight: 600;
 	}
 
 	code {

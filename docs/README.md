@@ -1,87 +1,76 @@
 # Site Docs
 
-Technical documentation for the Ku6epXBOCTuK personal site.
+Личный сайт Ku6epXBOCTuK. Статический, без бэкенда и CMS: весь контент —
+markdown в git.
 
-## Tech Stack
+## Стек
 
 - SvelteKit 2 + Svelte 5 (runes), Vite 7, TypeScript
 - `adapter-static` (SPA, `ssr = false`, `prerender = true`) → GitHub Pages
-- Comfortaa (display) + Nunito (body) — self-hosted via `@fontsource`
-- OKLCH design tokens, 4 theme variants (kawaii/soft × light/dark)
-- `vite-plugin-svelte-md` (markdown as Svelte components)
-- ESLint 9 + Prettier + Stylelint
-- Vitest (unit) + Playwright (E2E)
+- `vite-plugin-svelte-md` (markdown компилится в Svelte-компоненты)
+- Comfortaa + Nunito, self-hosted через `@fontsource`
+- OKLCH-токены в `src/app.css`, 4 темы (kawaii/soft × light/dark)
+- ESLint + Prettier + Stylelint, Vitest (unit) + Playwright (e2e)
 
-## Project structure
-
-```txt
-src/
-  app.css              # Design tokens (4 theme variants)
-  lib/
-    content.ts         # Core types & helpers
-    loaders.ts         # createFlatLoader / createPairLoader
-    articles.ts        # Article loader
-    posts.ts           # Post loader
-    projects.ts        # Project loader
-    weekly.ts          # Weekly report loader
-    i18n.ts            # UI string translations (ru/en)
-    config.ts          # Site constants
-  routes/
-    [lang]/            # /ru/… and /en/…
-      posts/
-      articles/
-      projects/
-      weekly/
-  content/
-    posts/
-    articles/
-    projects/
-    weekly/
-scripts/
-  lint-content.ts      # Frontmatter validator
-  new-content.ts       # Content wizard
-  publish.ts           # Social auto-posting
-  prepare-post.ts      # Build publish payload
-```
-
-## Key scripts
-
-| Command                      | Purpose                                           |
-| ---------------------------- | ------------------------------------------------- |
-| `npm run dev`                | Local dev server                                  |
-| `npm run build`              | Production build                                  |
-| `npm run format`             | Auto-format (Prettier)                            |
-| `npm run check`              | Type-check (`svelte-kit sync && svelte-check`)    |
-| `npm run lint`               | Format check + ESLint                             |
-| `npm run lint:css`           | Stylelint                                         |
-| `npm run lint:css-vars`      | Enforce CSS variable usage                        |
-| `npm run lint:content`       | Validate content frontmatter                      |
-| `npm run new <type> <slug>`  | Create new post or article                        |
-| `npm run sync <type> <slug>` | Create missing `index.en.md` for existing content |
-| `npm run publish`            | Post new content to Telegram & Discord (local)    |
-| `npm run check:all`          | Full CI pipeline (format → lint → check → test)   |
-
-## Development
-
-```bash
-npm install
-npm run dev
-```
-
-## Content model
-
-Each content unit lives in `src/content/{type}/<slug>/` with a pair of files:
+## Монорепо
 
 ```txt
-index.ru.md   # Russian (default)
-index.en.md   # English
+web-site/                    сайт — статика на GitHub Pages
+packages/
+  content-core/              вся логика контента: чтение, запись, валидация
+  editor/                    локальный редактор: SvelteKit + adapter-node
 ```
 
-**Types:** `posts`, `articles`, `projects`, `weekly`. See `docs/writing.md` for
-the full content creation guide.
+`content-core` — единственный источник правды о контенте. Его читают и
+`scripts/lint-content.ts`, и редактор, поэтому правила валидации у них общие.
+Вход `./shared` (`types.ts`, `fields.ts`, `slug.ts`) не тянет `node:fs` и
+безопасен для браузера; всё остальное — только для сервера.
 
-## Deployment
+## Контент
 
-Deploys to GitHub Pages on push to `main` via GitHub Actions (`deploy.yml`).
-Social posting to Telegram & Discord is local: `prepare-post.ts` +
-`npm run publish` (needs `.env.publish`).
+```txt
+src/content/
+  posts/<slug>/index.{ru,en}.md
+  articles/<slug>/index.{ru,en}.md
+  projects/<slug>/index.{ru,en}.md
+  weekly/<YYYY-MM-DD>/index.{ru,en}.md
+```
+
+Загрузчики в `src/lib/{posts,articles,projects,weekly}.ts` собирают всё через
+`import.meta.glob` на этапе сборки. Черновики (`draft: true`) фильтруются в
+production.
+
+Редактор запускается локально и пишет файлы напрямую, в git он не коммитит.
+
+**Как добавлять контент — [docs/writing.md](writing.md).** Коротко:
+`pnpm editor` → открыть ссылку из консоли → заполнить форму → `git push`.
+
+`weekly` редактор не правит: отчёты генерируются из git-логов, план в
+[docs/plan-weekly.md](plan-weekly.md).
+
+## Скрипты
+
+| Команда              | Что делает                                  |
+| -------------------- | ------------------------------------------- |
+| `pnpm editor`        | локальный редактор контента                 |
+| `pnpm dev`           | дев-сервер сайта                            |
+| `pnpm build`         | продакшен-сборка сайта                      |
+| `pnpm format`        | prettier --write                            |
+| `pnpm check`         | svelte-check                                |
+| `pnpm lint`          | prettier --check + eslint                   |
+| `pnpm lint:css`      | stylelint                                   |
+| `pnpm lint:css-vars` | запрет прямых цветов в CSS                  |
+| `pnpm lint:content`  | валидация frontmatter                       |
+| `pnpm test:run`      | vitest                                      |
+| `pnpm test:e2e`      | playwright                                  |
+| `pnpm verify`        | format → check → lint:all → test:run        |
+| `pnpm mocks:gen`     | сгенерировать мок-контент в `content-mocks` |
+
+`src/content-mocks/` в гитигноре и на сайт не попадает — это заглушки для
+разработки.
+
+## Деплой
+
+Push в `main` → `.github/workflows/deploy.yml` → GitHub Pages. Workflow ставит
+зависимости через `pnpm install --frozen-lockfile`, публикации в соцсети больше
+нет: всё происходит по `git push`.

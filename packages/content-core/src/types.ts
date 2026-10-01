@@ -38,3 +38,20 @@ export interface UnitSummary {
 	needsTranslation: boolean;
 	updatedAt: string;
 }
+
+/**
+ * Разбор `path` из frontmatter проекта. Живёт в types.ts, а не рядом с
+ * разбором: страница ошибок в браузере тоже нуждается в типе, а сам разбор
+ * ходит в fs.
+ */
+export type ProjectPathState = "ok" | "not-set" | "missing" | "not-a-repo";
+
+export interface ProjectPathReport {
+	slug: string;
+	title: string;
+	/** Как записано в frontmatter, `null` если поля нет. */
+	declared: string | null;
+	/** Абсолютный путь, если объявленный удалось разрешить. */
+	resolved: string | null;
+	state: ProjectPathState;
+}
