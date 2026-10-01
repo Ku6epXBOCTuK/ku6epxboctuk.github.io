@@ -352,3 +352,9 @@ markdown. 19 тестов конвейера, включая GIF, SVG, лими�
 - `projects.yaml`, `projects.schema.json` и `scripts/projects-index.ts` удалены.
   Путь к локальному клону переехал в поле `path` проекта, см.
   [docs/plan-weekly.md](plan-weekly.md)
+- авторизация удалена целиком — `hooks.server.ts`, `lib/server/auth.ts`,
+  `lib/server/token.ts` и тесты к ним. Осталась привязка к `127.0.0.1` в
+  `vite.config.ts`
+- редактор переделан в тёмную приборную панель: свои токены в
+  `packages/editor/src/lib/theme.css`, форма в две колонки, создание контента
+  кнопками, страница ошибок с красной точкой в хедере. Сайт не тронут

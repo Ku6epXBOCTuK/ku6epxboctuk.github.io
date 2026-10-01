@@ -12,6 +12,8 @@
 		".github/**/*",
 		".svelte-kit/**/*",
 		"build/**/*",
+		"packages/*/build/**/*",
+		"packages/*/.svelte-kit/**/*",
 		"coverage/**/*",
 		"dist/**/*",
 		"node_modules/**/*",

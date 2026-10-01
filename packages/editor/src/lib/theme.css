@@ -1,0 +1,117 @@
+/*
+ * Токены редактора. Тёмная приборная панель: графит с зелёным подтоном от
+ * знака KX, один акцент на весь интерфейс. Палитра не зависит от темы сайта —
+ * редактор живёт своей жизнью и не должен перекрашиваться вместе с ним.
+ *
+ * Слои различимы светлотой, а не свечением: тень с ненулевым смещением и
+ * размытием, никаких неоновых обводок.
+ */
+
+:root {
+	/* Поверхности: от самого тёмного фона к приподнятому контролу */
+	--bg: #131417;
+	--surface: #1a1c20;
+	--surface-2: #212429;
+	--surface-3: #282c33;
+
+	/* Линии: обычные и заметные */
+	--line: #2c2f36;
+	--line-strong: #3d424c;
+
+	/* Текст: 13:1, 7:1 и 4.8:1 к --bg */
+	--text: #e7e5e1;
+	--text-dim: #a8a6ac;
+	--text-faint: #8a8891;
+
+	/* Акцент и состояния */
+	--accent: #57cc7d;
+	--accent-dim: #2f7a48;
+	--accent-wash: #17291d;
+	--danger: #f2777a;
+	--danger-wash: #2a191b;
+	--warn: #e3b341;
+	--warn-wash: #2a2317;
+
+	/* Радиусы: контролы мельче панелей */
+	--r-control: 8px;
+	--r-panel: 14px;
+	--r-group: 12px;
+
+	/*
+	 * Кегли. Работа ведётся на нормальном мониторе, поэтому базовая линия 18px.
+	 * Подпись поля — 16px: разница с текстом в поле должна читаться сразу,
+	 * иначе «вот заголовок, вот текст, вот теги» сливается в серую массу.
+	 */
+	--fs-xs: 14px;
+	--fs-sm: 15px;
+	--fs-label: 16px;
+	--fs-md: 17px;
+	--fs-lg: 18px;
+	--fs-xl: 28px;
+
+	/* Тень: смещение + размытие, не блок-тень */
+	--shadow-panel: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 28%);
+	--shadow-pop: 0 6px 20px rgb(0 0 0 / 45%);
+
+	--font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--font-mono:
+		ui-monospace, "Cascadia Code", Consolas, "Liberation Mono", monospace;
+
+	/* Ритм: база 4px */
+	--gap-1: 6px;
+	--gap-2: 10px;
+	--gap-3: 16px;
+	--gap-4: 20px;
+	--gap-6: 32px;
+	--gap-8: 44px;
+
+	/* Внутренний отступ текста от края экрана */
+	--gutter: 24px;
+}
+
+html,
+body {
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font-ui);
+	font-size: var(--fs-lg);
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+body {
+	margin: 0;
+}
+
+/*
+ * Без этого ширина считалась по содержимому, и любой паддинг у полей и кнопок
+ * выталкивал их за правый край — страница получала горизонтальную прокрутку.
+ */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+* {
+	scrollbar-color: var(--surface-3) transparent;
+	scrollbar-width: thin;
+}
+
+::selection {
+	background: var(--accent-dim);
+	color: #fff;
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/*
+ * Блоки идут от края до края, а текст внутри них отодвинут от рамки экрана.
+ * Списки исключены: у них своя рамка, и отступ съел бы её.
+ */
+.app > main > *:not(ul) {
+	padding-inline: var(--gutter);
+}

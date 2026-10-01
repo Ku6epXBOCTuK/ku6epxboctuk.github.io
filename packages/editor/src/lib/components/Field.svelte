@@ -7,6 +7,13 @@
 		value: unknown;
 		disabled?: boolean;
 		slug?: string;
+		/**
+		 * Уникальный префикс для `id` и `for`. На странице две копии одной формы —
+		 * RU и EN, поэтому без префикса у полей совпадают `id`, и подпись RU ведёт
+		 * на контрол EN. `id` получается `${scope}-${name}`, поэтому сам `scope`
+		 * уже должен быть готовым идентификатором, без имени поля на конце.
+		 */
+		scope?: string;
 		/** Необязательное действие под контролом — дозаполнение извне. */
 		actionLabel?: string;
 		onaction?: () => void;
@@ -18,10 +25,13 @@
 		value,
 		disabled = false,
 		slug = "",
+		scope = "",
 		actionLabel,
 		onaction,
 		onchange,
 	}: Props = $props();
+
+	const controlId = $derived(scope ? `${scope}-${field.name}` : field.name);
 
 	const list = $derived(
 		Array.isArray(value) ? (value as string[]).join(", ") : "",
@@ -30,6 +40,11 @@
 	const scalar = $derived(
 		typeof value === "string" || typeof value === "number" ? value : "",
 	);
+
+	/** slug, path и repo — это данные, а не проза: показываем моноширинным. */
+	const MONO_FIELDS = new Set(["slug", "path", "repo", "image"]);
+
+	const mono = $derived(MONO_FIELDS.has(field.name));
 
 	function text(next: string) {
 		onchange(next);
@@ -52,7 +67,7 @@
 <!-- Обёртка div, а не label: у поля-картинки два контрола, и метка с двумя
      input внутри получается неоднозначной для клика и для скринридера. -->
 <div class="field" data-kind={field.kind}>
-	<label class="label" for={field.name}>
+	<label class="label" for={controlId}>
 		{field.label}{#if field.required}<span class="req" title="обязательное"
 				>*</span
 			>{/if}
@@ -60,7 +75,7 @@
 
 	{#if field.kind === "boolean"}
 		<input
-			id={field.name}
+			id={controlId}
 			type="checkbox"
 			{disabled}
 			checked={value === true}
@@ -68,8 +83,9 @@
 		/>
 	{:else if field.kind === "string[]"}
 		<input
-			id={field.name}
+			id={controlId}
 			type="text"
+			class:mono
 			{disabled}
 			value={list}
 			placeholder="svelte, css"
@@ -77,7 +93,7 @@
 		/>
 	{:else if field.kind === "choice"}
 		<select
-			id={field.name}
+			id={controlId}
 			{disabled}
 			value={scalar}
 			onchange={(e) => text(e.currentTarget.value)}
@@ -89,7 +105,7 @@
 		</select>
 	{:else if field.kind === "number"}
 		<input
-			id={field.name}
+			id={controlId}
 			type="number"
 			{disabled}
 			value={scalar}
@@ -97,7 +113,7 @@
 		/>
 	{:else if field.kind === "date"}
 		<input
-			id={field.name}
+			id={controlId}
 			type="date"
 			{disabled}
 			value={scalar}
@@ -105,7 +121,7 @@
 		/>
 	{:else if field.kind === "text"}
 		<textarea
-			id={field.name}
+			id={controlId}
 			{disabled}
 			rows="3"
 			value={scalar}
@@ -113,7 +129,7 @@
 		></textarea>
 	{:else if field.kind === "image"}
 		<ImageField
-			id={field.name}
+			id={controlId}
 			{disabled}
 			{slug}
 			value={String(scalar)}
@@ -121,7 +137,8 @@
 		/>
 	{:else}
 		<input
-			id={field.name}
+			id={controlId}
+			class:mono
 			type={field.kind === "url" ? "url" : "text"}
 			{disabled}
 			value={scalar}
@@ -129,14 +146,13 @@
 		/>
 	{/if}
 
-	{#if field.help}
-		<span class="help">{field.help}</span>
-	{/if}
-
 	{#if actionLabel && onaction}
 		<div class="action">
 			<button type="button" {disabled} onclick={onaction}>{actionLabel}</button>
 		</div>
+	{/if}
+	{#if field.help}
+		<span class="help">{field.help}</span>
 	{/if}
 </div>
 
@@ -144,24 +160,33 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		padding: 10px 0;
-		border-bottom: 1px solid #eee;
+		gap: 7px;
+		padding: 14px 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.field:last-child {
+		border-bottom: none;
+		padding-bottom: 6px;
+	}
+
+	.field[data-kind="boolean"] {
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--gap-2);
 	}
 
 	.label {
-		font-size: 12px;
-		font-weight: 600;
-		color: #333;
+		font-size: var(--fs-label);
+		font-weight: 700;
+		letter-spacing: 0.01em;
+		color: var(--text);
 	}
 
 	.req {
-		color: #b00020;
-	}
-
-	.help {
-		font-size: 11px;
-		color: #777;
+		color: var(--danger);
 	}
 
 	input[type="text"],
@@ -171,40 +196,88 @@
 	textarea,
 	select {
 		font: inherit;
+		font-size: var(--fs-md);
 		padding: 7px 9px;
-		border: 1px solid #ccc;
-		border-radius: 5px;
-		background: #fff;
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
+	}
+
+	.mono {
+		font-family: var(--font-mono);
+		font-size: var(--fs-md);
 	}
 
 	textarea {
 		resize: vertical;
+		line-height: 1.55;
+	}
+
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--text-faint);
+	}
+
+	input[type="checkbox"] {
+		width: 16px;
+		height: 16px;
+		accent-color: var(--accent);
+	}
+
+	.help {
+		font-size: var(--fs-sm);
+		line-height: 1.5;
+		color: var(--text-faint);
+	}
+	.field[data-kind="boolean"] .help {
+		order: 3;
+		flex-basis: 100%;
+		margin: 0;
 	}
 
 	input:disabled,
 	textarea:disabled,
 	select:disabled {
-		background: #f4f4f4;
+		background: var(--surface);
+		color: var(--text-faint);
+	}
+
+	input:focus,
+	textarea:focus,
+	select:focus {
+		outline: none;
+		border-color: var(--accent);
+	}
+
+	input:hover:not(:disabled),
+	textarea:hover:not(:disabled),
+	select:hover:not(:disabled) {
+		border-color: #4d535f;
 	}
 
 	.action {
 		display: flex;
-		gap: 6px;
 		margin-top: 2px;
 	}
 
 	.action button {
 		font: inherit;
-		font-size: 12px;
+		font-size: var(--fs-sm);
 		padding: 4px 10px;
-		border: 1px solid #bbb;
-		border-radius: 5px;
-		background: #fff;
+		color: var(--accent);
+		background: transparent;
+		border: 1px solid var(--accent-dim);
+		border-radius: var(--r-control);
 		cursor: pointer;
 	}
 
 	.action button:disabled {
-		opacity: 0.5;
+		opacity: 0.45;
 		cursor: default;
+	}
+
+	.action button:hover:not(:disabled) {
+		background: var(--accent-wash);
 	}
 </style>

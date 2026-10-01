@@ -30,29 +30,27 @@
 	</header>
 
 	<p class="lead">
-		Weekly обходит проекты по папке <code>path</code> из frontmatter. Если папка недоступна,
+		Weekly обходит проекты по папке <code>path</code> из frontmatter. Нет папки —
 		проект в отчёт не попадёт.
 	</p>
 
-	{#if broken.length === 0 && unset.length === 0}
-		<p class="all-good">
-			Всё на месте: у каждого проекта заданная папка найдена.
-		</p>
+	{#if data.reports.length === 0}
+		<p class="all-good">Проектов пока нет — проверять нечего.</p>
+	{:else if broken.length === 0 && unset.length === 0}
+		<p class="all-good">Всё на месте: у каждого проекта папка найдена.</p>
 	{/if}
 
 	{#if broken.length > 0}
 		<section>
-			<h2>Нельзя обойти · {broken.length}</h2>
+			<h2>не обойти <span class="count">{broken.length}</span></h2>
 			<ul>
 				{#each broken as report (report.slug)}
 					<li>
 						<a href="/project/{report.slug}">{report.slug}</a>
 						<span class="title">{report.title}</span>
-						<span class="state" data-state={report.state}
-							>{STATE_TEXT[report.state]}</span
-						>
-						<code class="declared">{report.declared}</code>
-						{#if report.resolved}
+						<span class="state">{STATE_TEXT[report.state]}</span>
+						<code>{report.declared}</code>
+						{#if report.resolved && report.resolved !== report.declared}
 							<code class="resolved">{report.resolved}</code>
 						{/if}
 					</li>
@@ -63,11 +61,11 @@
 
 	{#if unset.length > 0}
 		<section>
-			<h2>Не участвуют · {unset.length}</h2>
+			<h2>не участвуют <span class="count">{unset.length}</span></h2>
 			<p class="note">
 				Папка не указана. Это не поломка: не каждый проект нужен в weekly.
 			</p>
-			<ul>
+			<ul class="plain">
 				{#each unset as report (report.slug)}
 					<li>
 						<a href="/project/{report.slug}">{report.slug}</a>
@@ -80,8 +78,8 @@
 
 	{#if ok.length > 0}
 		<details>
-			<summary>Найдено · {ok.length}</summary>
-			<ul>
+			<summary>найдено <span class="count">{ok.length}</span></summary>
+			<ul class="plain">
 				{#each ok as report (report.slug)}
 					<li>
 						<a href="/project/{report.slug}">{report.slug}</a>
@@ -97,110 +95,156 @@
 	.errors {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: var(--gap-6);
 	}
 
 	header {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--gap-3);
 	}
 
 	h1 {
 		flex: 1;
 		margin: 0;
-		font-size: 17px;
+		font-size: var(--fs-xl);
+		font-weight: 600;
+		letter-spacing: -0.01em;
 	}
 
 	h2 {
-		margin: 0 0 8px;
-		font-size: 12px;
+		display: flex;
+		align-items: center;
+		gap: var(--gap-2);
+		margin: 0 0 var(--gap-2);
+		font-size: var(--fs-sm);
+		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		color: #7a2020;
+		letter-spacing: 0.08em;
+		color: var(--danger);
 	}
 
 	.lead,
 	.note {
 		margin: 0;
-		font-size: 13px;
-		color: #555;
+		font-size: var(--fs-md);
+		line-height: 1.6;
+		color: var(--text-dim);
+	}
+
+	code {
+		font-family: var(--font-mono);
+		font-size: var(--fs-sm);
+		color: var(--text-dim);
+	}
+
+	.resolved {
+		color: var(--text-faint);
+		word-break: break-all;
 	}
 
 	.all-good {
 		margin: 0;
-		padding: 12px;
-		border: 1px solid #c8ddc8;
-		border-radius: 6px;
-		background: #f4faf4;
-		font-size: 13px;
+		padding: var(--gap-3);
+		border: 1px solid var(--accent-dim);
+		border-radius: var(--r-control);
+		background: var(--accent-wash);
+		font-size: var(--fs-md);
+		color: var(--accent);
+	}
+
+	.count {
+		font-family: var(--font-mono);
+		font-size: var(--fs-xs);
+		letter-spacing: 0;
+		color: var(--text-faint);
+		background: var(--surface-2);
+		border-radius: 999px;
+		padding: 1px 6px;
 	}
 
 	ul {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
+		border: 1px solid var(--line);
+		border-radius: var(--r-panel);
+		overflow: hidden;
 	}
 
 	li {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
+		gap: var(--gap-3);
 		flex-wrap: wrap;
-		padding: 8px 10px;
-		border: 1px solid #e0c0c0;
-		border-radius: 5px;
-		font-size: 13px;
+		padding: 8px var(--gap-3);
+		border-bottom: 1px solid var(--line);
+		background: var(--surface);
+		font-size: var(--fs-md);
+	}
+
+	li:last-child {
+		border-bottom: none;
+	}
+
+	ul.plain li {
+		border: none;
+	}
+
+	a {
+		font-family: var(--font-mono);
+		font-size: var(--fs-md);
+		color: var(--text);
+		text-decoration: none;
+	}
+
+	a:hover {
+		color: var(--accent);
 	}
 
 	.title {
-		color: #666;
+		color: var(--text-faint);
 	}
 
 	.state {
-		font-size: 12px;
+		font-size: var(--fs-sm);
 		padding: 1px 7px;
-		border-radius: 10px;
-		background: #fdf0f0;
-		color: #a11;
-	}
-
-	code {
-		font-size: 12px;
-		color: #444;
-	}
-
-	.resolved {
-		color: #777;
+		border-radius: 999px;
+		background: var(--danger-wash);
+		color: var(--danger);
 	}
 
 	details {
-		border-top: 1px solid #eee;
-		padding-top: 12px;
+		border-top: 1px solid var(--line);
+		padding-top: var(--gap-4);
 	}
 
 	summary {
+		display: flex;
+		align-items: center;
+		gap: var(--gap-2);
+		margin-bottom: var(--gap-3);
 		cursor: pointer;
-		font-size: 12px;
+		font-size: var(--fs-sm);
+		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		color: #555;
-	}
-
-	details li {
-		border-color: #ddd;
+		letter-spacing: 0.08em;
+		color: var(--text-faint);
 	}
 
 	button {
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--fs-md);
 		padding: 6px 12px;
-		border: 1px solid #bbb;
-		border-radius: 5px;
-		background: #fff;
+		color: var(--text-dim);
+		background: var(--surface-2);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
 		cursor: pointer;
+	}
+
+	button:hover {
+		color: var(--text);
+		background: var(--surface-3);
 	}
 </style>

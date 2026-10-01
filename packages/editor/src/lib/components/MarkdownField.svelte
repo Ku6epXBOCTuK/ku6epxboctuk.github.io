@@ -63,15 +63,11 @@
 		<div class="marker" class:missing={!hasMarker}>
 			{#if hasMarker}
 				<span>
-					<strong>&lt;!--more--&gt;</strong> на месте: тизер — {teaserLength}
-					символов, дальше текст.
+					<strong>&lt;!--more--&gt;</strong> · тизер {teaserLength}
 				</span>
 				<button type="button" {disabled} onclick={removeMarker}>убрать</button>
 			{:else}
-				<span>
-					<strong>&lt;!--more--&gt;</strong> обязателен для статьи: до него тизер,
-					после — текст.
-				</span>
+				<span><strong>&lt;!--more--&gt;</strong> · обязателен для статьи</span>
 				<button type="button" {disabled} onclick={insertMarker}>вставить</button
 				>
 			{/if}
@@ -80,7 +76,7 @@
 
 	<textarea
 		{disabled}
-		rows="18"
+		rows="10"
 		{value}
 		oninput={(e) => onchange(e.currentTarget.value)}
 	></textarea>
@@ -93,10 +89,6 @@
 
 	<div class="foot">
 		<span>{value.length} символов</span>
-		<span
-			>вставка даёт абсолютный путь вида <code>![alt](/images/x.webp)</code
-			></span
-		>
 	</div>
 
 	{#if uploadError}
@@ -108,60 +100,75 @@
 	.markdown {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--gap-2);
 	}
 
 	.marker {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 10px;
-		font-size: 12px;
-		padding: 7px 9px;
-		border: 1px solid #c9e3c9;
-		border-radius: 5px;
-		background: #f2faf2;
+		gap: var(--gap-3);
+		font-size: var(--fs-sm);
+		padding: 6px 9px;
+		border: 1px solid var(--accent-dim);
+		border-radius: var(--r-control);
+		background: var(--accent-wash);
+		color: var(--text-dim);
 	}
 
 	.marker.missing {
-		border-color: #e0c0c0;
-		background: #fdf3f3;
+		border-color: #5c2f31;
+		background: var(--danger-wash);
+		color: var(--danger);
 	}
 
 	textarea {
-		font-family: ui-monospace, monospace;
-		font-size: 13px;
-		line-height: 1.6;
-		padding: 10px;
-		border: 1px solid #ccc;
-		border-radius: 5px;
+		font-family: var(--font-mono);
+		font-size: var(--fs-md);
+		line-height: 1.75;
+		/* Описания проектов — это 2–3 абзаца. Растягивать поле на весь экран
+		   незачем, поэтому отвязываемся от высоты окна: тянется мышью. */
+		min-height: 360px;
+		padding: var(--gap-4);
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
 		resize: vertical;
+		tab-size: 2;
+	}
+
+	textarea:focus {
+		outline: none;
+		border-color: var(--accent);
 	}
 
 	.foot {
 		display: flex;
 		justify-content: space-between;
-		gap: 12px;
-		font-size: 11px;
-		color: #777;
-	}
-
-	code {
-		font-size: 11px;
+		gap: var(--gap-3);
+		font-size: var(--fs-sm);
+		color: var(--text-faint);
 	}
 
 	button {
 		font: inherit;
-		font-size: 11px;
+		font-size: var(--fs-sm);
 		padding: 2px 8px;
-		border: 1px solid #bbb;
+		color: var(--text-dim);
+		background: var(--surface-2);
+		border: 1px solid var(--line-strong);
 		border-radius: 4px;
-		background: #fff;
 		cursor: pointer;
 	}
 
+	button:hover {
+		color: var(--text);
+		background: var(--surface-3);
+	}
+
 	.bad {
-		font-size: 12px;
-		color: #b00020;
+		font-size: var(--fs-md);
+		color: var(--danger);
 	}
 </style>

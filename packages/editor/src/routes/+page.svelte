@@ -13,14 +13,13 @@
 	const units = $derived(page.data.units as UnitSummary[]);
 
 	const TYPE_LABEL: Record<ContentType, string> = {
-		post: "Пост",
-		article: "Статья",
-		project: "Проект",
+		post: "посты",
+		article: "статьи",
+		project: "проекты",
 	};
 
 	let creating = $state(false);
 	let errorText = $state("");
-	let ghOpen = $state(false);
 	let ghUrl = $state("");
 	let ghNotes = $state<string[]>([]);
 
@@ -32,7 +31,6 @@
 		}
 	}
 
-	/** Создать единицу с черновым slug: без заголовка имя папки всё равно нужно. */
 	async function createPlain(type: ContentType) {
 		const slug = draftSlug(type);
 		creating = true;
@@ -41,10 +39,7 @@
 			const res = await fetch(`/api/units/${type}/${slug}/ru`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					frontmatter: defaultsFor(type),
-					body: "",
-				}),
+				body: JSON.stringify({ frontmatter: defaultsFor(type), body: "" }),
 			});
 			if (!res.ok) {
 				errorText =
@@ -61,6 +56,7 @@
 	}
 
 	async function createFromGithub() {
+		if (!ghUrl.trim()) return;
 		creating = true;
 		errorText = "";
 		ghNotes = [];
@@ -79,9 +75,8 @@
 			}
 
 			ghNotes = json.notes ?? [];
-			const slug = json.slug;
 
-			const saved = await fetch(`/api/units/project/${slug}/ru`, {
+			const saved = await fetch(`/api/units/project/${json.slug}/ru`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -95,7 +90,7 @@
 					`HTTP ${saved.status}`;
 				return;
 			}
-			await goto(`/project/${slug}`);
+			await goto(`/project/${json.slug}`);
 		} catch (err) {
 			errorText = (err as Error).message;
 		} finally {
@@ -104,11 +99,8 @@
 	}
 </script>
 
-<h1>Единицы контента</h1>
-
-<section class="new">
-	<span class="new-label">Создать</span>
-	<div class="new-buttons">
+<section class="create">
+	<div class="row">
 		<button
 			type="button"
 			disabled={creating}
@@ -124,32 +116,23 @@
 			disabled={creating}
 			onclick={() => createPlain("project")}>пустой проект</button
 		>
-		<button type="button" disabled={creating} onclick={() => (ghOpen = !ghOpen)}
-			>проект из ссылки</button
-		>
-	</div>
-
-	{#if ghOpen}
+		<span class="sep" aria-hidden="true"></span>
 		<div class="gh">
+			<span class="gh-label">из github</span>
 			<input
 				type="text"
 				bind:value={ghUrl}
-				placeholder="https://github.com/owner/name"
+				placeholder="owner/name"
 				onkeydown={(e) => e.key === "Enter" && createFromGithub()}
 			/>
 			<button
 				type="button"
+				class="primary"
 				disabled={creating || !ghUrl.trim()}
-				onclick={createFromGithub}
+				onclick={createFromGithub}>создать</button
 			>
-				создать
-			</button>
 		</div>
-		<p class="gh-hint">
-			Подтянем описание, темы, демо, первый абзац README и картинку из него.
-			Путь, порядок и статус заполняешь сама.
-		</p>
-	{/if}
+	</div>
 
 	{#if ghNotes.length > 0}
 		<ul class="notes">
@@ -158,20 +141,21 @@
 			{/each}
 		</ul>
 	{/if}
-
-	{#if errorText}<span class="bad">{errorText}</span>{/if}
+	{#if errorText}
+		<p class="bad">{errorText}</p>
+	{/if}
 </section>
 
 {#if units.length === 0}
-	<p class="note">
-		Пока пусто. Создай первую единицу через поле выше — откроется форма с
-		вкладками RU и EN.
-	</p>
+	<p class="empty">Пока пусто. Создай первую единицу кнопкой выше.</p>
 {:else}
 	{#each CONTENT_TYPES as type (type)}
 		{@const group = units.filter((unit) => unit.type === type)}
 		{#if group.length > 0}
-			<h2>{TYPE_LABEL[type]}</h2>
+			<h2>
+				{TYPE_LABEL[type]}
+				<span class="count">{group.length}</span>
+			</h2>
 			<ul>
 				{#each group as unit (unit.slug)}
 					<li>
@@ -182,9 +166,9 @@
 						<span class="flags">
 							{#if unit.draft}<span class="badge">черновик</span>{/if}
 							{#if unit.needsTranslation}
-								<span class="badge warn">нужен перевод</span>
+								<span class="badge warn">перевод</span>
 							{/if}
-							<span class="langs">{unit.langs.join(" / ")}</span>
+							<span class="langs">{unit.langs.join(" ")}</span>
 						</span>
 					</li>
 				{/each}
@@ -194,155 +178,210 @@
 {/if}
 
 <style>
-	h1 {
-		font-size: 20px;
-		margin: 0 0 16px;
+	.create {
+		background: var(--surface);
+		border: 1px solid var(--line);
+		border-radius: var(--r-panel);
+		box-shadow: var(--shadow-panel);
+		padding: var(--gap-3);
 	}
 
-	h2 {
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 1.5px;
-		color: #666;
-		margin: 24px 0 8px;
-	}
-
-	.new {
+	.row {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 10px;
-		padding: 12px;
-		border: 1px solid #e5e5e5;
-		border-radius: 6px;
-		margin-bottom: 8px;
-	}
-
-	.new-label {
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 1.5px;
-		color: #666;
-	}
-
-	.new-buttons {
-		display: flex;
-		gap: 8px;
+		align-items: center;
+		gap: var(--gap-2);
 		flex-wrap: wrap;
+	}
+
+	.sep {
+		align-self: stretch;
+		width: 1px;
+		background: var(--line);
+		margin: 0 var(--gap-1);
 	}
 
 	.gh {
 		display: flex;
-		gap: 8px;
+		align-items: center;
+		gap: var(--gap-2);
+		/* Без wrap и min-width кнопка «создать» уезжала за край панели на
+		   узком экране: поле сжималось не до нуля, а до своей базы. */
+		flex: 1 1 240px;
+		min-width: 0;
+		max-width: 440px;
 		flex-wrap: wrap;
-		width: 100%;
+	}
+
+	.gh-label {
+		font-size: var(--fs-md);
+		color: var(--text-faint);
+		white-space: nowrap;
 	}
 
 	.gh input {
 		font: inherit;
-		flex: 1;
-		min-width: 260px;
-		padding: 7px 9px;
-		border: 1px solid #ccc;
-		border-radius: 5px;
+		font-family: var(--font-mono);
+		font-size: var(--fs-sm);
+		flex: 1 1 140px;
+		min-width: 0;
+		padding: 7px 10px;
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
 	}
 
-	.gh-hint {
-		margin: 0;
-		font-size: 12px;
-		color: #777;
+	.gh input::placeholder {
+		color: var(--text-faint);
+	}
+
+	button {
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 6px 12px;
+		color: var(--text-dim);
+		background: var(--surface-2);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
+		cursor: pointer;
+	}
+
+	button:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
+	button:hover:not(:disabled) {
+		color: var(--text);
+		background: var(--surface-3);
+	}
+
+	button.primary {
+		color: var(--bg);
+		background: var(--accent);
+		border-color: var(--accent);
+		font-weight: 600;
+	}
+
+	button.primary:hover:not(:disabled) {
+		background: #6ad68d;
+		border-color: #6ad68d;
 	}
 
 	.notes {
-		margin: 0;
+		margin: var(--gap-3) 0 0;
 		padding-left: 18px;
-		font-size: 12px;
-		color: #8a6d1f;
+		font-size: var(--fs-md);
+		color: var(--warn);
+	}
+
+	.bad {
+		margin: var(--gap-3) 0 0;
+		font-size: var(--fs-md);
+		color: var(--danger);
+	}
+
+	.empty {
+		margin: var(--gap-6) 0;
+		font-size: var(--fs-md);
+		color: var(--text-faint);
+	}
+
+	h2 {
+		display: flex;
+		align-items: center;
+		gap: var(--gap-2);
+		margin: var(--gap-6) 0 var(--gap-2);
+		font-size: var(--fs-sm);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--text-faint);
+	}
+
+	.count {
+		font-family: var(--font-mono);
+		font-size: var(--fs-xs);
+		letter-spacing: 0;
+		color: var(--text-faint);
+		background: var(--surface-2);
+		border-radius: 999px;
+		padding: 1px 6px;
 	}
 
 	ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
+		border: 1px solid var(--line);
+		border-radius: var(--r-panel);
+		overflow: hidden;
 	}
 
 	li {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 10px;
-		padding: 8px 10px;
-		border: 1px solid #eaeaea;
-		border-radius: 6px;
+		gap: var(--gap-3);
+		padding: 7px var(--gap-3);
+		border-bottom: 1px solid var(--line);
+	}
+
+	li:last-child {
+		border-bottom: none;
+	}
+
+	li:hover {
+		background: var(--surface);
 	}
 
 	li a {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
+		gap: var(--gap-3);
+		min-width: 0;
 		color: inherit;
 		text-decoration: none;
 	}
 
 	.slug {
-		font-weight: 600;
+		font-family: var(--font-mono);
+		font-size: var(--fs-md);
+		color: var(--text);
+		white-space: nowrap;
 	}
 
 	.title {
-		font-size: 13px;
-		color: #666;
+		font-size: var(--fs-md);
+		color: var(--text-dim);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.flags {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--gap-2);
 		flex-shrink: 0;
 	}
 
 	.badge {
-		font-size: 11px;
-		padding: 1px 7px;
-		border: 1px solid #bbb;
+		font-size: var(--fs-xs);
+		padding: 1px 6px;
 		border-radius: 4px;
-		color: #555;
+		color: var(--text-dim);
+		background: var(--surface-2);
 	}
 
 	.badge.warn {
-		border-color: #d08a00;
-		color: #a06a00;
+		color: var(--warn);
+		background: var(--warn-wash);
 	}
 
 	.langs {
-		font-size: 11px;
-		color: #999;
-	}
-
-	.note,
-	.bad {
-		font-size: 13px;
-		color: #666;
-	}
-
-	.bad {
-		color: #b00020;
-	}
-
-	button {
-		font: inherit;
-		font-size: 13px;
-		padding: 6px 14px;
-		border: 1px solid #bbb;
-		border-radius: 5px;
-		background: #fff;
-		cursor: pointer;
-	}
-
-	button:disabled {
-		opacity: 0.5;
-		cursor: default;
+		font-family: var(--font-mono);
+		font-size: var(--fs-xs);
+		color: var(--text-faint);
 	}
 </style>

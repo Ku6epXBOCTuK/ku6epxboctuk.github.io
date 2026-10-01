@@ -29,6 +29,13 @@ export interface FieldDef {
 	/** Поле принадлежит одному языку, в остальных скрыто и при сохранении
 	 * вычищается. Для фактов о машине вроде `path`, а не о переводе. */
 	only?: ContentLang;
+	/**
+	 * Поле не переводится и одинаково у всех языков: теги, ссылки, обложка,
+	 * статус, порядок. Редактор правит его один раз и пишет одинаково в оба
+	 * файла, иначе они молча разъедутся, а расхождение заметит только
+	 * сравнение двух файлов глазами.
+	 */
+	shared?: boolean;
 }
 
 const DRAFT: FieldDef = {
@@ -36,7 +43,7 @@ const DRAFT: FieldDef = {
 	kind: "boolean",
 	label: "Черновик",
 	required: false,
-	help: "Не публиковать на сайте. В dev виден с бейджем.",
+	shared: true,
 };
 
 const IMAGE: FieldDef = {
@@ -44,7 +51,9 @@ const IMAGE: FieldDef = {
 	kind: "image",
 	label: "Обложка",
 	required: false,
-	help: "Загрузить картинку — редактор приведёт её к 1200×630 и положит в static/images.",
+	// Обложка может отличаться: у проекта баннер на главной и на странице
+	// проекта — разные картинки, см. ответ пользователя.
+	shared: false,
 };
 
 const NEEDS_TRANSLATION: FieldDef = {
@@ -69,7 +78,7 @@ const TAGS: FieldDef = {
 	kind: "string[]",
 	label: "Теги",
 	required: false,
-	help: "Через запятую. Регистр не важен.",
+	shared: true,
 };
 
 const TITLE: FieldDef = {
@@ -85,6 +94,7 @@ const DATE: FieldDef = {
 	label: "Дата",
 	required: true,
 	default: "today",
+	shared: true,
 };
 
 export const FIELDS: Record<ContentType, FieldDef[]> = {
@@ -98,7 +108,7 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			kind: "url",
 			label: "Ссылка",
 			required: false,
-			help: "Внешняя ссылка, если пост ведёт куда-то.",
+			shared: true,
 		},
 		DRAFT,
 		NEEDS_TRANSLATION,
@@ -112,14 +122,12 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			kind: "string",
 			label: "Подзаголовок",
 			required: false,
-			help: "Короткая строка под названием, например «Rust · CLI».",
 		},
 		{
 			name: "description",
 			kind: "text",
 			label: "Описание",
 			required: true,
-			help: "Одно-два предложения, по-русски.",
 		},
 		TAGS,
 		IMAGE,
@@ -128,7 +136,7 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			kind: "url",
 			label: "Репозиторий",
 			required: true,
-			help: "https://github.com/owner/name",
+			shared: true,
 		},
 		{
 			name: "path",
@@ -136,14 +144,18 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			label: "Локальная папка",
 			required: false,
 			only: "ru",
-			help: "Путь к клону относительно корня сайта, например ../brul. Нужен weekly, чтобы собрать git-логи. Попадёт в git.",
+			// Правится один раз, но пишется только в RU: `only` важнее `shared`
+			// при сохранении. В форме это общий блок — рядом с переводимыми полями
+			// пустое место выглядело бы как потерянный блок.
+			shared: true,
+			help: "Путь к клону относительно корня сайта, например ../brul. Нужен weekly, чтобы собрать git-логи.",
 		},
 		{
 			name: "homepage",
 			kind: "url",
 			label: "Демо",
 			required: false,
-			help: "Ссылка на живой пример.",
+			shared: true,
 		},
 		{
 			name: "status",
@@ -152,13 +164,14 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			required: false,
 			choices: ["raw", "ready", "need_review"],
 			default: "ready",
+			shared: true,
 		},
 		{
 			name: "order",
 			kind: "number",
 			label: "Порядок",
 			required: false,
-			help: "Число: меньше — выше на странице проектов. Без него порядок случайный.",
+			shared: true,
 		},
 		DRAFT,
 		NEEDS_TRANSLATION,

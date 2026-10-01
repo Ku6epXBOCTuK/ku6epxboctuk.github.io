@@ -1,5 +1,6 @@
 import {
 	createUnit,
+	ensureUnit,
 	isValidSlug,
 	readUnit,
 	unitExists,
@@ -69,10 +70,14 @@ export const POST: RequestHandler = async (event) => {
 		return json({ error: (err as Error).message }, { status: 400 });
 	}
 
+	// Единица всегда живёт двумя файлами, поэтому первый же созданный добирает
+	// себе второй: в редакторе нет состояния «файла нет».
+	const alsoCreated = await ensureUnit(type, slug);
+
 	return json(
 		{
 			ok: true,
-			created: `${type}/${slug}/${lang}`,
+			created: [`${type}/${slug}/${lang}`, ...alsoCreated],
 			validation: validateUnit(type, slug),
 		},
 		{ status: 201 },

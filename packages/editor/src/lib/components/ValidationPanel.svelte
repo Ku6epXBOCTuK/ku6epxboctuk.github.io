@@ -38,30 +38,31 @@
 
 <style>
 	.panel {
-		border: 1px solid #e0c0c0;
-		background: #fdf5f5;
-		border-radius: 6px;
-		padding: 10px 12px;
+		border: 1px solid #5c2f31;
+		background: var(--danger-wash);
+		border-radius: var(--r-panel);
+		padding: var(--gap-3);
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: var(--gap-2);
 	}
 
 	.panel[data-state="warn"] {
-		border-color: #e5d5a8;
-		background: #fdfaf0;
+		border-color: #5a4a20;
+		background: var(--warn-wash);
 	}
 
 	.group h3 {
 		margin: 0 0 4px;
-		font-size: 12px;
+		font-size: var(--fs-sm);
+		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		color: #7a2020;
+		letter-spacing: 0.08em;
+		color: var(--danger);
 	}
 
 	.panel[data-state="warn"] .group h3 {
-		color: #8a6d1f;
+		color: var(--warn);
 	}
 
 	ul {
@@ -69,18 +70,23 @@
 		padding-left: 18px;
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 3px;
 	}
 
 	li {
-		font-size: 12px;
-		font-family: ui-monospace, monospace;
-		line-height: 1.5;
+		font-size: var(--fs-sm);
+		font-family: var(--font-mono);
+		line-height: 1.6;
+		color: var(--text-dim);
 	}
 
 	.ok {
 		margin: 0;
-		font-size: 12px;
-		color: #2c6b2c;
+		padding: 7px var(--gap-3);
+		border: 1px solid var(--line);
+		border-radius: var(--r-control);
+		background: var(--surface);
+		font-size: var(--fs-md);
+		color: var(--text-faint);
 	}
 </style>

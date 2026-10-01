@@ -8,10 +8,12 @@ Content is edited through the local editor, never by hand.
 pnpm editor
 ```
 
-It prints a `http://127.0.0.1:4321/auth?t=<token>` link. The editor writes
-`src/content/**` on disk, formats with prettier before writing, and shows the
-result of `lint:content` for the edited unit. Types: `post`, `article`,
-`project`. `weekly` is generated automatically and is not editable here.
+It prints a `http://127.0.0.1:4321/` link. There is no auth: the editor binds
+loopback only and relies on that, so it must never be started on a public
+interface. The editor writes `src/content/**` on disk, formats with prettier
+before writing, and shows the result of `lint:content` for the edited unit.
+Types: `post`, `article`, `project`. `weekly` is generated automatically and is
+not editable here.
 
 Full guide: `docs/writing.md`. `frontmatter.json` is the source of truth for
 allowed fields — `npm run lint:content` errors on anything not in it, and

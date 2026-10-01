@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
+import { FIELDS } from "./fields.ts";
 import { formatUnit } from "./format.ts";
 import { contentDir, unitDir, unitFile } from "./paths.ts";
 import { isValidSlug } from "./slug.ts";
@@ -83,6 +84,50 @@ export async function createUnit(
 		throw new Error(`Файл уже существует: ${type}/${slug}/${lang}`);
 	}
 	return writeUnit(type, slug, lang, content);
+}
+
+/**
+ * Доводит единицу до двух файлов: `index.ru.md` и `index.en.md` должны
+ * существовать всегда. Одного языка на диске достаточно, чтобы линтер молчал,
+ * но редактору состояние «файла нет» показывать нечего — вместо него вторую
+ * колонку просто нечем наполнить.
+ *
+ * Новый файл получает frontmatter соседнего языка, кроме полей с `only`:
+ * `path` описывает машину, а не перевод, и в EN ему не место. Текст пустой,
+ * `needs_translation` ставится переводу — он по определению не дописан.
+ */
+export async function ensureUnit(
+	type: ContentType,
+	slug: string,
+): Promise<ContentLang[]> {
+	assertInside(type, slug);
+
+	const missing: ContentLang[] = [];
+	for (const lang of CONTENT_LANGS) {
+		if (readUnit(type, slug, lang)) continue;
+		missing.push(lang);
+	}
+
+	if (missing.length === 0) return [];
+
+	const source = readUnit(type, slug, "ru") ?? readUnit(type, slug, "en");
+
+	for (const lang of missing) {
+		const frontmatter: Frontmatter = {};
+
+		for (const [key, value] of Object.entries(source?.frontmatter ?? {})) {
+			const field = FIELDS[type].find((item) => item.name === key);
+			if (field?.only && field.only !== lang) continue;
+			if (value === undefined || value === null || value === "") continue;
+			frontmatter[key] = value;
+		}
+
+		if (lang === "en") frontmatter.needs_translation = true;
+
+		await writeUnit(type, slug, lang, { frontmatter, body: "" });
+	}
+
+	return missing;
 }
 
 export function deleteUnit(type: ContentType, slug: string): boolean {

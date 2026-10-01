@@ -10,6 +10,7 @@ import {
 	SLUG_PATTERN,
 	createUnit,
 	deleteUnit,
+	ensureUnit,
 	isValidSlug,
 	readUnit,
 	renameUnit,
@@ -302,6 +303,70 @@ describe("запись на диск", () => {
 			expect(readUnit(type, over, "ru")?.body).toBe("Другое тело.");
 		} finally {
 			deleteUnit(type, over);
+		}
+	});
+});
+
+describe("двуязычность", () => {
+	it("добирает отсутствующий язык пустым файлом", async () => {
+		const slug = "vitest-ensure";
+		await createUnit("post", slug, "ru", {
+			frontmatter: { title: "Фикстура", date: "2026-09-30", tags: ["test"] },
+			body: "Тело.",
+		});
+		try {
+			expect(await ensureUnit("post", slug)).toEqual(["en"]);
+
+			const en = readUnit("post", slug, "en");
+			expect(en?.body).toBe("");
+			// frontmatter переезжает, иначе EN-форма откроется пустой и Rulebook
+			// отправит всё в теги.
+			expect(en?.frontmatter.title).toBe("Фикстура");
+			expect(en?.frontmatter.tags).toEqual(["test"]);
+			expect(en?.frontmatter.needs_translation).toBe(true);
+		} finally {
+			deleteUnit("post", slug);
+		}
+	});
+
+	it("не трогает готовую пару", async () => {
+		const slug = "vitest-ensure-full";
+		await createUnit("post", slug, "ru", {
+			frontmatter: { title: "Фикстура", date: "2026-09-30" },
+			body: "Тело.",
+		});
+		await createUnit("post", slug, "en", {
+			frontmatter: { title: "Fixture", date: "2026-09-30" },
+			body: "Body.",
+		});
+		try {
+			expect(await ensureUnit("post", slug)).toEqual([]);
+			expect(readUnit("post", slug, "en")?.body).toBe("Body.");
+		} finally {
+			deleteUnit("post", slug);
+		}
+	});
+
+	it("не тащит поля `only: ru` в перевод", async () => {
+		const slug = "vitest-ensure-only";
+		await createUnit("project", slug, "ru", {
+			frontmatter: {
+				title: "Проект",
+				description: "Описание.",
+				repo: "https://github.com/o/n",
+				path: "../brul",
+			},
+			body: "Тело.",
+		});
+		try {
+			await ensureUnit("project", slug);
+
+			const en = readUnit("project", slug, "en");
+			expect(en?.frontmatter.path).toBeUndefined();
+			expect(en?.frontmatter.repo).toBe("https://github.com/o/n");
+			expect(readUnit("project", slug, "ru")?.frontmatter.path).toBe("../brul");
+		} finally {
+			deleteUnit("project", slug);
 		}
 	});
 });

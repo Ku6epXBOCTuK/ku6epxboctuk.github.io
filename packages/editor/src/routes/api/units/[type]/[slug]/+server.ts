@@ -1,5 +1,6 @@
 import {
 	deleteUnit,
+	ensureUnit,
 	isValidSlug,
 	readUnit,
 	renameUnit,
@@ -10,22 +11,26 @@ import { json } from "@sveltejs/kit";
 import { readSlug, readType } from "$lib/server/params.ts";
 import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = (event) => {
+export const GET: RequestHandler = async (event) => {
 	const type = readType(event);
 	const slug = readSlug(event);
 
-	const summary = summarize(type, slug);
-	if (summary.langs.length === 0) {
+	if (summarize(type, slug).langs.length === 0) {
 		return json({ error: `Не найдено: ${type}/${slug}` }, { status: 404 });
 	}
+
+	// Открытие единицы — точка, где она обязана стать полной. Иначе редактор
+	// рисовал бы колонку EN с плашкой «файла нет» вместо формы.
+	const created = await ensureUnit(type, slug);
 
 	const ru = readUnit(type, slug, "ru");
 	const en = readUnit(type, slug, "en");
 
 	return json({
-		summary,
+		summary: summarize(type, slug),
 		ru: ru && { frontmatter: ru.frontmatter, body: ru.body },
 		en: en && { frontmatter: en.frontmatter, body: en.body },
+		created,
 		validation: validateUnit(type, slug),
 	});
 };

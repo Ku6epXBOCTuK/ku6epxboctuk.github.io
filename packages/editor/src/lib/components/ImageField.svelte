@@ -68,11 +68,8 @@
 		oninput={(e) => onchange(e.currentTarget.value)}
 	/>
 
-	<span class="note">
-		Обложка приводится к 1200×630 и кладётся в <code>static/images</code>. При
-		загрузке новой старая удаляется. Путь можно вписать вручную.
-	</span>
-
+	<!-- Подсказку про 1200×630 и static/images показывает Field из fields.ts,
+	     здесь она была бы второй копией того же текста. -->
 	{#if error}
 		<span class="bad">{error}</span>
 	{:else if saved}
@@ -86,31 +83,36 @@
 	.image {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--gap-2);
 	}
 
 	img {
 		max-width: 100%;
 		max-height: 180px;
 		object-fit: contain;
-		border: 1px solid #ddd;
-		border-radius: 5px;
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
 	}
 
 	input {
 		font: inherit;
-		padding: 7px 9px;
-		border: 1px solid #ccc;
-		border-radius: 5px;
+		font-family: var(--font-mono);
+		font-size: var(--fs-md);
+		padding: 6px 9px;
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
 	}
 
 	.note {
-		font-size: 11px;
-		color: #777;
+		font-size: var(--fs-sm);
+		color: var(--text-faint);
 	}
 
 	.bad {
-		font-size: 12px;
-		color: #b00020;
+		font-size: var(--fs-md);
+		color: var(--danger);
 	}
 </style>

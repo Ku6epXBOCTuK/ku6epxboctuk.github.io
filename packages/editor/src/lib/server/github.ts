@@ -224,8 +224,9 @@ export function readmeImageUrls(markdown: string, rawBase: string): string[] {
 	)) {
 		push(match[1] as string);
 	}
+	// Регулярка разбирает чужой README, а не рендерит картинку.
 	for (const match of normalizeMarkdown(markdown).matchAll(
-		/<img[^>]+src=["']([^"']+)["']/gi,
+		/<img[^>]+src=["']([^"']+)["']/gi, // impeccable-disable-line broken-image
 	)) {
 		push(match[1] as string);
 	}

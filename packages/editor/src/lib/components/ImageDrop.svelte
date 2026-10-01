@@ -63,22 +63,28 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 8px;
-		min-height: 52px;
-		padding: 10px;
-		font-size: 12px;
-		color: #666;
+		gap: var(--gap-2);
+		min-height: 48px;
+		padding: var(--gap-2);
+		font-size: var(--fs-sm);
+		color: var(--text-faint);
 		text-align: center;
-		border: 1px dashed #bbb;
-		border-radius: 6px;
-		background: #fafafa;
+		border: 1px dashed var(--line-strong);
+		border-radius: var(--r-control);
+		background: var(--bg);
 		cursor: pointer;
 	}
 
+	.drop:hover:not(.disabled) {
+		border-color: var(--accent-dim);
+		color: var(--text-dim);
+	}
+
 	.drop.over {
-		border-color: #4a90d9;
-		background: #eef5fd;
-		color: #245c94;
+		border-color: var(--accent);
+		border-style: solid;
+		background: var(--accent-wash);
+		color: var(--accent);
 	}
 
 	.drop.disabled {
