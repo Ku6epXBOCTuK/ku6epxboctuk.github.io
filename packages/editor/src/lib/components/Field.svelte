@@ -7,10 +7,21 @@
 		value: unknown;
 		disabled?: boolean;
 		slug?: string;
+		/** Необязательное действие под контролом — дозаполнение извне. */
+		actionLabel?: string;
+		onaction?: () => void;
 		onchange: (value: unknown) => void;
 	}
 
-	let { field, value, disabled = false, slug = "", onchange }: Props = $props();
+	let {
+		field,
+		value,
+		disabled = false,
+		slug = "",
+		actionLabel,
+		onaction,
+		onchange,
+	}: Props = $props();
 
 	const list = $derived(
 		Array.isArray(value) ? (value as string[]).join(", ") : "",
@@ -121,6 +132,12 @@
 	{#if field.help}
 		<span class="help">{field.help}</span>
 	{/if}
+
+	{#if actionLabel && onaction}
+		<div class="action">
+			<button type="button" {disabled} onclick={onaction}>{actionLabel}</button>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -168,5 +185,26 @@
 	textarea:disabled,
 	select:disabled {
 		background: #f4f4f4;
+	}
+
+	.action {
+		display: flex;
+		gap: 6px;
+		margin-top: 2px;
+	}
+
+	.action button {
+		font: inherit;
+		font-size: 12px;
+		padding: 4px 10px;
+		border: 1px solid #bbb;
+		border-radius: 5px;
+		background: #fff;
+		cursor: pointer;
+	}
+
+	.action button:disabled {
+		opacity: 0.5;
+		cursor: default;
 	}
 </style>

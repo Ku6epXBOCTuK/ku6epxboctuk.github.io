@@ -16,6 +16,21 @@ export function slugFromTitle(title: string): string {
 		.replace(/^-|-$/g, "");
 }
 
+/**
+ * Черновой slug для единицы, у которой ещё нет заголовка: пост создаётся
+ * кнопкой без ввода, а папке нужно имя. По времени — два клика в одну минуту
+ * не столкнутся, а по типу видно, что это за черновик. Дальше переименовывается
+ * кнопкой «из заголовка».
+ */
+export function draftSlug(type: string, now = new Date()): string {
+	const pad = (value: number) => String(value).padStart(2, "0");
+	const stamp =
+		`${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}` +
+		`-${pad(now.getHours())}${pad(now.getMinutes())}`;
+	const prefix = slugFromTitle(type);
+	return prefix ? `${prefix}-${stamp}` : stamp;
+}
+
 const TRANSLIT: Record<string, string> = {
 	а: "a",
 	б: "b",

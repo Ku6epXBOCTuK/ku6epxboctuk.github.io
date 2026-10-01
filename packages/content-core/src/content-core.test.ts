@@ -15,6 +15,7 @@ import {
 	renameUnit,
 	writeUnit,
 } from "./repository.ts";
+import { draftSlug } from "./slug.ts";
 import { CONTENT_TYPES, type ContentType } from "./types.ts";
 import { type Report, validateContent } from "./validate.ts";
 import { needsQuotes, parseUnit, serializeUnit } from "./yaml.ts";
@@ -209,6 +210,34 @@ describe("slug", () => {
 		expect(() => readUnit("post", "../../etc", "ru")).toThrow(
 			/Некорректный slug/,
 		);
+	});
+
+	describe("draftSlug", () => {
+		const when = new Date(2026, 8, 30, 14, 5);
+
+		it.each([
+			["post", "post-20260930-1405"],
+			["article", "article-20260930-1405"],
+			["project", "project-20260930-1405"],
+		])("%s → %s", (type, expected) => {
+			expect(draftSlug(type, when)).toBe(expected);
+		});
+
+		it("минуты с ведущим нулём не теряются", () => {
+			expect(draftSlug("post", new Date(2026, 0, 2, 9, 7))).toBe(
+				"post-20260102-0907",
+			);
+		});
+
+		it("на выходе всегда валидный slug", () => {
+			for (const type of ["post", "article", "project"]) {
+				expect(isValidSlug(draftSlug(type, when))).toBe(true);
+			}
+		});
+
+		it("два клика в одну минуту дают разные slug", () => {
+			expect(draftSlug("post", when)).not.toBe(draftSlug("article", when));
+		});
 	});
 });
 

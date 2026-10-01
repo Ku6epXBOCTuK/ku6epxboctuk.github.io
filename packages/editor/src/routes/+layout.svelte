@@ -11,7 +11,7 @@
 
 <div class="app">
 	<header>
-		<span class="mark">редактор</span>
+		<a class="mark" href="/">редактор</a>
 		<span class="hint">локально · пишет в <code>src/content</code></span>
 		<nav>
 			<a
@@ -43,6 +43,8 @@
 
 	.mark {
 		font-weight: 700;
+		color: inherit;
+		text-decoration: none;
 	}
 
 	.hint {

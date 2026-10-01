@@ -9,6 +9,7 @@
 		type ContentType,
 	} from "@ku6epxboctuk/content-core/shared";
 	import type { UnitDetail, UnitVersion, ValidationReport } from "$lib/types";
+	import type { GitHubProjectPayload } from "../../routes/api/github-project/+server";
 	import Field from "./Field.svelte";
 	import MarkdownField from "./MarkdownField.svelte";
 	import ValidationPanel from "./ValidationPanel.svelte";
@@ -30,6 +31,7 @@
 	let en = $state<UnitVersion | null>(null);
 	let report = $state<ValidationReport | null>(null);
 	let status = $state("");
+	let ghStatus = $state("");
 	let busy = $state(false);
 
 	let renameFrom = $state("");
@@ -51,6 +53,7 @@
 		renameTo = slug;
 		confirmingDelete = false;
 		status = "";
+		ghStatus = "";
 	});
 
 	const version = $derived(current === "ru" ? ru : en);
@@ -231,6 +234,80 @@
 		const guess = slugFromTitle(String(ru?.frontmatter.title ?? ""));
 		if (guess) renameTo = guess;
 	}
+
+	/**
+	 * Дозаполнение из GitHub. Заполняем только пустые поля: ручное не трогаем,
+	 * а что не тронули — говорим, чтобы не было сюрпризов.
+	 */
+	async function pullFromGithub() {
+		const data = versionFor(current);
+		const url = String(data?.frontmatter.repo ?? "").trim();
+		if (!data || !url) {
+			ghStatus = "Сначала впиши ссылку на репозиторий.";
+			return;
+		}
+
+		busy = true;
+		ghStatus = "Тяну с GitHub…";
+		try {
+			const res = await fetch("/api/github-project", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ url, image: !data.frontmatter.image }),
+			});
+			const json = (await readJson(res)) as GitHubProjectPayload & {
+				error?: string;
+			};
+			if (!res.ok) {
+				ghStatus = json.error ?? `HTTP ${res.status}`;
+				return;
+			}
+
+			const filled: string[] = [];
+			const skipped: string[] = [];
+			const next = { ...data.frontmatter };
+
+			for (const [key, incoming] of Object.entries(json.frontmatter)) {
+				if (incoming === undefined || incoming === null || incoming === "")
+					continue;
+
+				const existing = next[key];
+				const empty =
+					existing === undefined ||
+					existing === null ||
+					existing === "" ||
+					(Array.isArray(existing) && existing.length === 0);
+
+				if (empty) {
+					next[key] = incoming;
+					filled.push(key);
+				} else {
+					skipped.push(key);
+				}
+			}
+
+			if (filled.length === 0) {
+				ghStatus = "Заполнять нечего: все поля уже есть.";
+				return;
+			}
+
+			const body = data.body.trim() ? data.body : json.body;
+			if (current === "ru") ru = { frontmatter: next, body };
+			else en = { frontmatter: next, body };
+
+			const parts = [`заполнено: ${filled.join(", ")}`];
+			if (skipped.length > 0) parts.push(`не тронуто: ${skipped.join(", ")}`);
+			parts.push(
+				`обложка: ${json.imageFrom === "readme" ? "из README" : "заглушка"}`,
+			);
+			for (const note of json.notes) parts.push(note);
+			ghStatus = parts.join(" · ");
+		} catch (err) {
+			ghStatus = (err as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
 </script>
 
 <div class="unit">
@@ -301,9 +378,15 @@
 				value={version.frontmatter[field.name]}
 				disabled={busy}
 				{slug}
+				actionLabel={field.name === "repo" ? "подтянуть с GitHub" : undefined}
+				onaction={field.name === "repo" ? pullFromGithub : undefined}
 				onchange={(next) => setField(field.name, next)}
 			/>
 		{/each}
+
+		{#if ghStatus}
+			<p class="gh-status">{ghStatus}</p>
+		{/if}
 
 		<div class="body">
 			<span class="body-label">Текст</span>
@@ -455,6 +538,16 @@
 	.status {
 		font-size: 12px;
 		color: #555;
+	}
+
+	.gh-status {
+		margin: 0;
+		padding: 8px 10px;
+		border: 1px solid #d8e2d0;
+		border-radius: 5px;
+		background: #f6faf4;
+		font-size: 12px;
+		color: #46543d;
 	}
 
 	.slug-zone {
