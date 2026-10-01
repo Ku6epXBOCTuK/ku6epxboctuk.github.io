@@ -48,6 +48,11 @@ production.
 `weekly` редактор не правит: отчёты генерируются из git-логов, план в
 [docs/plan-weekly.md](plan-weekly.md).
 
+**План переноса данных из frontmatter в json —
+[docs/plan-split-content.md](plan-split-content.md).** Переводимое остаётся в
+`index.<lang>.md`, общее уходит в `<type>s.json`, пути к репозиториям — в
+`<type>s.local.json`. Плана нет: раскладка пока старая.
+
 ## Скрипты
 
 | Команда              | Что делает                                  |
