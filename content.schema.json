@@ -1,0 +1,53 @@
+{
+	"description": "Поля, которые лежат не в frontmatter. Значения хранятся в src/content/<type>s.json и src/content/<type>s.local.json, ключ записи — slug. Переводимые поля описаны отдельно в frontmatter.json: валидатор фронтматтера в редакторе не должен знать про json. Источник правды — packages/content-core/src/fields.ts, совпадение с ним проверяет тест.",
+	"types": {
+		"post": {
+			"shared": [
+				{ "name": "date", "type": "date", "required": true },
+				{ "name": "tags", "type": "tags" },
+				{ "name": "image", "type": "image" },
+				{ "name": "link", "type": "url" },
+				{ "name": "draft", "type": "boolean" }
+			],
+			"local": []
+		},
+		"article": {
+			"shared": [
+				{ "name": "date", "type": "date", "required": true },
+				{ "name": "tags", "type": "tags" },
+				{ "name": "image", "type": "image" },
+				{ "name": "draft", "type": "boolean" }
+			],
+			"local": []
+		},
+		"project": {
+			"shared": [
+				{ "name": "tags", "type": "tags" },
+				{ "name": "image", "type": "image" },
+				{ "name": "repo", "type": "url", "required": true },
+				{ "name": "homepage", "type": "url" },
+				{
+					"name": "status",
+					"type": "choice",
+					"choices": ["raw", "ready", "need_review"],
+					"default": "ready"
+				},
+				{ "name": "order", "type": "number" },
+				{ "name": "icon", "type": "string" },
+				{ "name": "color", "type": "string" },
+				{ "name": "synced_at", "type": "date" },
+				{ "name": "draft", "type": "boolean" }
+			],
+			"local": [{ "name": "path", "type": "string" }]
+		},
+		"weekly": {
+			"description": "Генерируется из git-логов, руками не редактируется.",
+			"shared": [
+				{ "name": "date", "type": "date", "required": true },
+				{ "name": "tags", "type": "tags" },
+				{ "name": "draft", "type": "boolean" }
+			],
+			"local": []
+		}
+	}
+}

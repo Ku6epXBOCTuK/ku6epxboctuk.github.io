@@ -1,4 +1,4 @@
-import type { ContentLang, ContentType } from "./types.ts";
+import type { ContentType } from "./types.ts";
 
 // Виды редактора не совпадают с типами Frontmatter CMS: там `string`,
 // здесь `text` для многострочного ввода и `markdown` для тела поста.
@@ -14,28 +14,34 @@ export type FieldKind =
 	| "image"
 	| "choice";
 
+/**
+ * Куда поле физически лежит. Единственная ось вместо прежних `only` и
+ * `shared`, которые означали разное и не выражались друг через друга.
+ *
+ * - `translatable` — frontmatter `index.<lang>.md`, своё значение на язык.
+ * - `shared` — `<type>s.json`, одно значение на единицу контента: теги,
+ *   ссылки, дата, обложка, статус.
+ * - `local` — `<type>s.local.json` в гитигноре: факты о машине, не о контенте.
+ *
+ * Раскладка хранится только здесь. Репозиторий раскладывает поля по `scope` и
+ * ничего не знает про конкретные имена, поэтому перенос поля между файлами —
+ * смена одной строки, а не правка чтения и записи.
+ */
+export type FieldScope = "translatable" | "shared" | "local";
+
 export interface FieldDef {
 	name: string;
 	kind: FieldKind;
 	label: string;
 	required: boolean;
-	/** Скрыть из формы, но оставить в схеме — как у `isMock`. */
+	scope: FieldScope;
+	/** Скрыть из формы, но оставить в схеме. */
 	hidden?: boolean;
 	help?: string;
 	choices?: string[];
 	default?: string | boolean;
 	/** Ставится кодом, в форме не редактируется. */
 	auto?: boolean;
-	/** Поле принадлежит одному языку, в остальных скрыто и при сохранении
-	 * вычищается. Для фактов о машине вроде `path`, а не о переводе. */
-	only?: ContentLang;
-	/**
-	 * Поле не переводится и одинаково у всех языков: теги, ссылки, обложка,
-	 * статус, порядок. Редактор правит его один раз и пишет одинаково в оба
-	 * файла, иначе они молча разъедутся, а расхождение заметит только
-	 * сравнение двух файлов глазами.
-	 */
-	shared?: boolean;
 }
 
 const DRAFT: FieldDef = {
@@ -43,7 +49,7 @@ const DRAFT: FieldDef = {
 	kind: "boolean",
 	label: "Черновик",
 	required: false,
-	shared: true,
+	scope: "shared",
 };
 
 const IMAGE: FieldDef = {
@@ -51,9 +57,9 @@ const IMAGE: FieldDef = {
 	kind: "image",
 	label: "Обложка",
 	required: false,
-	// Обложка может отличаться: у проекта баннер на главной и на странице
-	// проекта — разные картинки, см. ответ пользователя.
-	shared: false,
+	// Сейчас одна картинка на оба языка: так проще. Если понадобится своя
+	// картинка для перевода, меняется только эта строка.
+	scope: "shared",
 };
 
 const NEEDS_TRANSLATION: FieldDef = {
@@ -62,15 +68,8 @@ const NEEDS_TRANSLATION: FieldDef = {
 	label: "Нужен перевод",
 	required: false,
 	auto: true,
+	scope: "translatable",
 	help: "Ставится кнопкой «Скопировать из RU». Убрать, когда переведёшь.",
-};
-
-const IS_MOCK: FieldDef = {
-	name: "isMock",
-	kind: "boolean",
-	label: "Мок-контент",
-	required: false,
-	hidden: true,
 };
 
 const TAGS: FieldDef = {
@@ -78,7 +77,7 @@ const TAGS: FieldDef = {
 	kind: "string[]",
 	label: "Теги",
 	required: false,
-	shared: true,
+	scope: "shared",
 };
 
 const TITLE: FieldDef = {
@@ -86,6 +85,7 @@ const TITLE: FieldDef = {
 	kind: "string",
 	label: "Заголовок",
 	required: true,
+	scope: "translatable",
 };
 
 const DATE: FieldDef = {
@@ -94,7 +94,7 @@ const DATE: FieldDef = {
 	label: "Дата",
 	required: true,
 	default: "today",
-	shared: true,
+	scope: "shared",
 };
 
 export const FIELDS: Record<ContentType, FieldDef[]> = {
@@ -108,13 +108,12 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			kind: "url",
 			label: "Ссылка",
 			required: false,
-			shared: true,
+			scope: "shared",
 		},
 		DRAFT,
 		NEEDS_TRANSLATION,
-		IS_MOCK,
 	],
-	article: [TITLE, DATE, TAGS, IMAGE, DRAFT, NEEDS_TRANSLATION, IS_MOCK],
+	article: [TITLE, DATE, TAGS, IMAGE, DRAFT, NEEDS_TRANSLATION],
 	project: [
 		TITLE,
 		{
@@ -122,12 +121,14 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			kind: "string",
 			label: "Подзаголовок",
 			required: false,
+			scope: "translatable",
 		},
 		{
 			name: "description",
 			kind: "text",
 			label: "Описание",
 			required: true,
+			scope: "translatable",
 		},
 		TAGS,
 		IMAGE,
@@ -136,26 +137,14 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			kind: "url",
 			label: "Репозиторий",
 			required: true,
-			shared: true,
-		},
-		{
-			name: "path",
-			kind: "string",
-			label: "Локальная папка",
-			required: false,
-			only: "ru",
-			// Правится один раз, но пишется только в RU: `only` важнее `shared`
-			// при сохранении. В форме это общий блок — рядом с переводимыми полями
-			// пустое место выглядело бы как потерянный блок.
-			shared: true,
-			help: "Путь к клону относительно корня сайта, например ../brul. Нужен weekly, чтобы собрать git-логи.",
+			scope: "shared",
 		},
 		{
 			name: "homepage",
 			kind: "url",
 			label: "Демо",
 			required: false,
-			shared: true,
+			scope: "shared",
 		},
 		{
 			name: "status",
@@ -164,20 +153,94 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 			required: false,
 			choices: ["raw", "ready", "need_review"],
 			default: "ready",
-			shared: true,
+			scope: "shared",
 		},
 		{
 			name: "order",
 			kind: "number",
 			label: "Порядок",
 			required: false,
-			shared: true,
+			scope: "shared",
+		},
+		{
+			name: "icon",
+			kind: "string",
+			label: "Иконка",
+			required: false,
+			scope: "shared",
+			help: "Имя иконки для карточки проекта.",
+		},
+		{
+			name: "color",
+			kind: "string",
+			label: "Цвет",
+			required: false,
+			scope: "shared",
+		},
+		{
+			name: "synced_at",
+			kind: "date",
+			label: "Синхронизирован",
+			required: false,
+			scope: "shared",
+		},
+		{
+			name: "path",
+			kind: "string",
+			label: "Локальная папка",
+			required: false,
+			scope: "local",
+			help: "Путь к клону относительно корня сайта, например ../brul. Нужен weekly, чтобы собрать git-логи.",
 		},
 		DRAFT,
 		NEEDS_TRANSLATION,
-		IS_MOCK,
 	],
 };
+
+/**
+ * `weekly` генерируется из git-логов, руками не редактируется и типа в
+ * `CONTENT_TYPES` не имеет. Схема ему всё равно нужна: файлы есть, и валидация
+ * их читает.
+ */
+const WEEKLY: FieldDef[] = [
+	{
+		name: "title",
+		kind: "string",
+		label: "Заголовок",
+		required: false,
+		scope: "translatable",
+	},
+	{
+		name: "excerpt",
+		kind: "text",
+		label: "Отрывок",
+		required: true,
+		scope: "translatable",
+	},
+	DATE,
+	{
+		name: "tags",
+		kind: "string[]",
+		label: "Теги",
+		required: false,
+		scope: "shared",
+	},
+	DRAFT,
+	NEEDS_TRANSLATION,
+];
+
+/** Типы, которые редактор правит руками. */
+export const EDITABLE_FIELDS = FIELDS;
+
+/** Все типы, у которых есть схема, включая генерируемый `weekly`. */
+export const ALL_FIELDS: Record<string, FieldDef[]> = {
+	...FIELDS,
+	weekly: WEEKLY,
+};
+
+export function fieldsForType(type: string): FieldDef[] {
+	return ALL_FIELDS[type] ?? [];
+}
 
 export function fieldNames(type: ContentType): string[] {
 	return FIELDS[type].map((field) => field.name);
@@ -186,9 +249,8 @@ export function fieldNames(type: ContentType): string[] {
 const DATE_LENGTH = 10;
 
 /**
- * Значения по умолчанию строго из схемы. Нельзя сеять поля, которого в
- * `frontmatter.json` нет: у project, например, нет `date`, и линтер отвергнет
- * такой файл.
+ * Значения по умолчанию строго из схемы. Нельзя сеять поле, которого нет в
+ * `content.schema.json`: линтер отвергнет такой файл.
  */
 export function defaultsFor(type: ContentType): Record<string, unknown> {
 	const out: Record<string, unknown> = {};
@@ -202,4 +264,37 @@ export function defaultsFor(type: ContentType): Record<string, unknown> {
 	}
 
 	return out;
+}
+
+/**
+ * Все поля места хранения, включая скрытые и ставящиеся кодом. По этой
+ * раскладке сверяются `frontmatter.json` и `content.schema.json`: там
+ * `needs_translation` есть, хотя в форме его нет.
+ */
+export function fieldsWithScope(type: string, scope: FieldScope): FieldDef[] {
+	return fieldsForType(type).filter((field) => field.scope === scope);
+}
+
+/**
+ * Разбивка полей по месту хранения. Единственное место, где живёт знание о том,
+ * что переводится, что общее и что локальное; репозиторий берёт готовые списки и
+ * не разбирает поля по именам.
+ *
+ * Скрытые и ставящиеся кодом поля не отдаются: их нельзя править в форме. `scope`
+ * у них при этом остаётся, и репозиторий знает, куда их класть.
+ */
+export function fieldsByScope(type: string, scope: FieldScope): FieldDef[] {
+	return fieldsWithScope(type, scope).filter(
+		(field) => !field.hidden && !field.auto,
+	);
+}
+
+/** Поля, которые редактор показывает: всё, кроме скрытых и ставящихся кодом. */
+export function editableFields(type: string): FieldDef[] {
+	return fieldsForType(type).filter((field) => !field.hidden && !field.auto);
+}
+
+/** Поля, о которых знает схема, включая скрытые и ставящиеся кодом. */
+export function allFields(type: string): FieldDef[] {
+	return fieldsForType(type);
 }

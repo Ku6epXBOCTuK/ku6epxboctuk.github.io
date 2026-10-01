@@ -2,6 +2,7 @@
 	import { goto } from "$app/navigation";
 	import {
 		FIELDS,
+		fieldsByScope,
 		isValidSlug,
 		slugFromTitle,
 		type ContentLang,
@@ -58,24 +59,20 @@
 	});
 
 	/**
-	 * Поля языка. `only` убирает поле из чужой колонки: `path` описывает клон на
-	 * машине, и в EN ему не место — там такую копию всё равно вычистили бы при
-	 * сохранении, то есть человек бы правил поле, которое молча пропадёт.
+	 * Поля одного языка — это ровно `translatable`. Различать ru и en больше
+	 * нечем: `only` ушёл вместе с новой раскладкой.
 	 */
-	function fieldsFor(lang: ContentLang): FieldDef[] {
-		return FIELDS[type].filter((field) => {
-			if (field.hidden || field.auto || field.shared) return false;
-			return !field.only || field.only === lang;
-		});
+	function fieldsFor(): FieldDef[] {
+		return fieldsByScope(type, "translatable");
 	}
 
 	const sharedFields = $derived(
 		FIELDS[type].filter(
-			(field) => field.shared && !field.hidden && !field.auto,
+			(field) => field.scope !== "translatable" && !field.hidden && !field.auto,
 		),
 	);
 
-	const rows = $derived(fieldRows(type, fieldsFor("ru"), fieldsFor("en")));
+	const rows = $derived(fieldRows(type, fieldsFor(), fieldsFor()));
 
 	/**
 	 * Общие поля живут в одном состоянии на оба языка. Берём из RU: он есть
@@ -114,9 +111,9 @@
 	}
 
 	/**
-	 * Поля с `only` принадлежат одному языку. Если EN получила `path` при
-	 * копировании из RU, при сохранении вычищаем — иначе в index.en.md
-	 * появится вторая копия факта о машине, которая со временем разъедется.
+	 * Пока поля лежат в frontmatter, поэтому и общие, и локальные вычищаются из
+	 * языковых файлов: в md им места нет. Фаза 3 переносит их в json, и этот
+	 * цикл уезжает в репозиторий вместе с правилом разложения.
 	 */
 	function payloadFor(lang: ContentLang): UnitVersion {
 		const data = versionFor(lang);
@@ -124,21 +121,7 @@
 
 		const frontmatter = { ...data.frontmatter };
 		for (const field of FIELDS[type]) {
-			// `only` сильнее `shared`: путь к клону — общий по смыслу (правится
-			// один раз), но в EN ему не место. Сначала вычищаем чужое поле, иначе
-			// шаг ниже вернул бы его обратно из RU.
-			if (field.only && field.only !== lang) {
-				delete frontmatter[field.name];
-				continue;
-			}
-
-			// Остальные общие берём из RU — единственного источника правды. Так в
-			// оба файла попадёт одно значение, даже если EN правили в старой схеме.
-			if (field.shared) {
-				const value = ru?.frontmatter[field.name];
-				if (value === undefined || value === "") delete frontmatter[field.name];
-				else frontmatter[field.name] = value;
-			}
+			if (field.scope !== "translatable") delete frontmatter[field.name];
 		}
 
 		return { frontmatter, body: data.body };

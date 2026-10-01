@@ -1,30 +1,27 @@
 // @vitest-environment node
 
 import { describe, expect, it } from "vitest";
-import { FIELDS } from "@ku6epxboctuk/content-core/shared";
+import {
+	editableFields,
+	fieldsByScope,
+} from "@ku6epxboctuk/content-core/shared";
 import { fieldRows } from "./groups.ts";
 
-function fieldsFor(type: "post" | "article" | "project", lang: "ru" | "en") {
-	return FIELDS[type].filter(
-		(field) =>
-			!field.hidden &&
-			!field.auto &&
-			!field.shared &&
-			(!field.only || field.only === lang),
-	);
-}
+type Type = "post" | "article" | "project";
 
-function pairRows(type: "post" | "article" | "project") {
-	return fieldRows(type, fieldsFor(type, "ru"), fieldsFor(type, "en"));
+const translatable = (type: Type) => fieldsByScope(type, "translatable");
+
+function pairRows(type: Type) {
+	return fieldRows(type, translatable(type), translatable(type));
 }
 
 /** Переводимые поля: парами RU | EN. */
-function fieldRowList(type: "post" | "article" | "project") {
+function fieldRowList(type: Type) {
 	return pairRows(type).translated.filter((row) => !row.title);
 }
 
 /** Общие поля: по одному на поле, без пары. */
-function sharedRowList(type: "post" | "article" | "project") {
+function sharedRowList(type: Type) {
 	return pairRows(type).shared.filter((row) => !row.title);
 }
 
@@ -86,7 +83,7 @@ describe("разметка полей", () => {
 					.filter((name): name is string => Boolean(name)),
 			);
 
-			for (const field of fieldsFor(type, "ru")) {
+			for (const field of translatable(type)) {
 				if (!got.has(field.name)) missing.push(`${type}.${field.name}`);
 			}
 		}
@@ -131,10 +128,13 @@ describe("разделение на переводимое и общее", () =>
 		for (const type of TYPES) {
 			for (const row of fieldRowList(type)) {
 				const names = [row.ru?.name, row.en?.name].filter(Boolean);
-				const shared = names.filter(
-					(name) => FIELDS[type].find((f) => f.name === name)?.shared,
+				const notTranslated = names.filter((name) =>
+					fieldsByScope(type, "translatable").every(
+						(field) => field.name !== name,
+					),
 				);
-				if (shared.length > 0) leaked.push(`${type}.${shared.join(",")}`);
+				if (notTranslated.length > 0)
+					leaked.push(`${type}.${notTranslated.join(",")}`);
 			}
 		}
 
@@ -142,22 +142,18 @@ describe("разделение на переводимое и общее", () =>
 	});
 
 	it("общие поля показаны один раз и без пары", () => {
-		for (const type of TYPES) {
-			const rows = sharedRowList(type);
+		const bad: string[] = [];
 
-			for (const row of rows) {
-				expect(row.shared, `${type}: строка без поля`).toBeDefined();
+		for (const type of TYPES) {
+			for (const row of sharedRowList(type)) {
+				if (!row.shared) bad.push(`${type}: строка без поля`);
 				// Общее поле рисуется один раз: ни ru, ни en напротив нет.
-				expect(
-					row.ru,
-					`${type}.${row.shared?.name}: лишняя RU`,
-				).toBeUndefined();
-				expect(
-					row.en,
-					`${type}.${row.shared?.name}: лишняя EN`,
-				).toBeUndefined();
+				if (row.ru) bad.push(`${type}.${row.shared?.name}: лишняя RU`);
+				if (row.en) bad.push(`${type}.${row.shared?.name}: лишняя EN`);
 			}
 		}
+
+		expect(bad).toEqual([]);
 	});
 
 	it("каждое поле схемы попало либо в пару, либо в общий блок", () => {
@@ -173,8 +169,7 @@ describe("разделение на переводимое и общее", () =>
 					.filter((n): n is string => Boolean(n)),
 			]);
 
-			for (const field of FIELDS[type]) {
-				if (field.hidden || field.auto) continue;
+			for (const field of editableFields(type)) {
 				if (!seen.has(field.name)) lost.push(`${type}.${field.name}`);
 			}
 		}
@@ -182,12 +177,11 @@ describe("разделение на переводимое и общее", () =>
 		expect(lost).toEqual([]);
 	});
 
-	it("теги, ссылки и статус помечены общими, заголовок и описание — нет", () => {
-		const project = FIELDS.project;
-		// Проверяем «общее» vs «не общее», а не конкретное значение флага: у
-		// переводимых полей флаг просто не выставлен, это `undefined`.
-		const isShared = (name: string) =>
-			Boolean(project.find((f) => f.name === name)?.shared);
+	it("теги, ссылки и статус общие, заголовок и описание переводимые", () => {
+		const shared = fieldsByScope("project", "shared").map((f) => f.name);
+		const translated = fieldsByScope("project", "translatable").map(
+			(f) => f.name,
+		);
 
 		for (const name of [
 			"tags",
@@ -196,23 +190,28 @@ describe("разделение на переводимое и общее", () =>
 			"status",
 			"order",
 			"draft",
+			"image",
 		]) {
-			expect(isShared(name), `${name} должен быть общим`).toBe(true);
+			expect(shared, `${name} должен быть общим`).toContain(name);
 		}
 
-		for (const name of ["title", "subtitle", "description", "image"]) {
-			expect(isShared(name), `${name} должен переводиться`).toBe(false);
+		for (const name of ["title", "subtitle", "description"]) {
+			expect(translated, `${name} должен переводиться`).toContain(name);
 		}
 	});
 
-	it("shared и only вместе — это path: правится один раз, пишется в RU", () => {
-		// Раньше это считалось противоречием. На деле `shared` отвечает за то,
-		// сколько раз поле рисуется, а `only` — в какой файл попадёт значение.
-		// Путь к клону именно такой: одна форма ввода, ноль копий в EN.
-		const both = FIELDS.project.filter((f) => f.shared && f.only);
-
-		expect(both.map((f) => f.name)).toEqual(["path"]);
-		expect(both[0]?.only).toBe("ru");
+	it("path — local: не общий и не переводимый", () => {
+		// Раньше `path` тащил два флага сразу, `shared` и `only`. Теперь у него
+		// один `scope`, и места у него ровно одно.
+		expect(fieldsByScope("project", "local").map((f) => f.name)).toEqual([
+			"path",
+		]);
+		expect(fieldsByScope("project", "shared").map((f) => f.name)).not.toContain(
+			"path",
+		);
+		expect(
+			fieldsByScope("project", "translatable").map((f) => f.name),
+		).not.toContain("path");
 	});
 
 	it("общие поля идут раньше переводимых", () => {

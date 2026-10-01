@@ -98,23 +98,13 @@ function resolve(plan: FieldGroup[], fields: FieldDef[]): ResolvedGroup[] {
 		.filter((group) => group.fields.length > 0);
 }
 
-function unclaimed(
-	plan: FieldGroup[],
-	fields: FieldDef[],
-	claimed: Set<string>,
-): FieldDef[] {
-	const listed = new Set(plan.flatMap((group) => group.fields));
-	return fields.filter(
-		(field) => !listed.has(field.name) && !claimed.has(field.name),
-	);
-}
-
 /**
  * Разметка формы: общие поля сверху одним списком, переводимые ниже парами.
  *
- * `only`-поля в общий блок попадают: `path` есть только в RU, но он не переводится
- * и правится один раз. `only` при этом продолжает решать, в какой файл попадёт
- * значение, а `shared` — рисуется ли поле один раз или дважды.
+ * План ниже задаёт только порядок и заголовки блоков. В какой список попадёт
+ * поле, решает `scope` у самого поля, а не место в плане: иначе `image` из блока
+ * «Картинка» нарисовался бы парой с двумя пустыми ячейками, а новое поле из
+ * `fields.ts` уехало бы в общий блок с ложной подписью.
  */
 export function fieldRows(
 	type: ContentType,
@@ -125,44 +115,49 @@ export function fieldRows(
 	const byName = (list: FieldDef[], name: string) =>
 		list.find((field) => field.name === name);
 
-	const sharedFields = FIELDS[type].filter(
-		(field) => field.shared && !field.hidden && !field.auto,
+	// Общие и локальные поля вызывающий не передаёт, они живут вне языковых
+	// колонок. Добираем из схемы, иначе они не попадут ни в одну строку.
+	const offLang = FIELDS[type].filter(
+		(field) => field.scope !== "translatable" && !field.hidden && !field.auto,
 	);
 
-	// Порядок берём из объединения, по одному вхождению на поле: иначе поле,
-	// общее у двух языков, попало бы в блок дважды.
 	const union: FieldDef[] = [];
-	for (const field of ruFields.concat(enFields).concat(sharedFields)) {
+	for (const field of ruFields.concat(enFields).concat(offLang)) {
 		if (!union.some((item) => item.name === field.name)) union.push(field);
 	}
 
-	const claimed = new Set(plan.shared.flatMap((g) => g.fields));
-
 	const sharedRows: FieldRow[] = [];
-	for (const group of resolve(plan.shared, union)) {
-		sharedRows.push({ title: group.title });
-		for (const field of group.fields) sharedRows.push({ shared: field });
-	}
+	const translatedRows: FieldRow[] = [];
+
+	const emit = (group: ResolvedGroup) => {
+		const isPair = group.fields.some((field) => field.scope === "translatable");
+		const bucket = isPair ? translatedRows : sharedRows;
+		const title = { title: group.title };
+		const rows = group.fields.map((field) =>
+			field.scope === "translatable"
+				? {
+						ru: byName(ruFields, field.name),
+						en: byName(enFields, field.name),
+					}
+				: { shared: field },
+		);
+		bucket.push(title, ...rows);
+	};
+
+	for (const group of resolve(plan.shared, union)) emit(group);
+	for (const group of resolve(plan.translated, union)) emit(group);
 
 	// Новое поле в схеме не должно молча пропасть из формы.
-	const leftovers = unclaimed(plan.translated, union, claimed).filter(
-		(field) => !field.shared,
+	const claimed = new Set(
+		plan.shared
+			.flatMap((g) => g.fields)
+			.concat(plan.translated.flatMap((g) => g.fields)),
+	);
+	const leftovers = union.filter(
+		(field) => !claimed.has(field.name) && !field.hidden && !field.auto,
 	);
 	if (leftovers.length > 0) {
-		sharedRows.push({ title: "Прочее" });
-		for (const field of leftovers) sharedRows.push({ shared: field });
-	}
-
-	const translatedRows: FieldRow[] = [];
-	for (const group of resolve(plan.translated, union)) {
-		translatedRows.push({ title: group.title });
-		for (const field of group.fields) {
-			const name = field.name;
-			translatedRows.push({
-				ru: byName(ruFields, name),
-				en: byName(enFields, name),
-			});
-		}
+		emit({ title: "Прочее", fields: leftovers });
 	}
 
 	return { shared: sharedRows, translated: translatedRows };

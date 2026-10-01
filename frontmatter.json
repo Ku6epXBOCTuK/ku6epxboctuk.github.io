@@ -1,4 +1,5 @@
 {
+	"$comment": "Только переводимые поля: своё значение на язык, лежит в index.<lang>.md. Общие и локальные описаны в content.schema.json и в frontmatter быть не должны. Набор обязан совпадать с packages/content-core/src/fields.ts. Тип weekly генерируется из git-логов, руками не редактируется.",
 	"$schema": "https://frontmatter.codes/frontmatter.schema.json",
 	"frontMatter.taxonomy.contentTypes": [
 		{
@@ -13,42 +14,10 @@
 					"required": true
 				},
 				{
-					"title": "Date",
-					"name": "date",
-					"type": "datetime",
-					"default": "{{now}}",
-					"required": true
-				},
-				{
-					"title": "Tags",
-					"name": "tags",
-					"type": "tags"
-				},
-				{
-					"title": "Image",
-					"name": "image",
-					"type": "image"
-				},
-				{
-					"title": "Link",
-					"name": "link",
-					"type": "string"
-				},
-				{
 					"title": "Needs translation",
 					"name": "needs_translation",
 					"type": "boolean",
 					"default": false
-				},
-				{
-					"title": "Draft",
-					"name": "draft",
-					"type": "boolean"
-				},
-				{
-					"title": "Is mock",
-					"name": "isMock",
-					"type": "boolean"
 				}
 			]
 		},
@@ -64,37 +33,10 @@
 					"required": true
 				},
 				{
-					"title": "Date",
-					"name": "date",
-					"type": "datetime",
-					"default": "{{now}}",
-					"required": true
-				},
-				{
-					"title": "Tags",
-					"name": "tags",
-					"type": "tags"
-				},
-				{
-					"title": "Image",
-					"name": "image",
-					"type": "image"
-				},
-				{
 					"title": "Needs translation",
 					"name": "needs_translation",
 					"type": "boolean",
 					"default": false
-				},
-				{
-					"title": "Draft",
-					"name": "draft",
-					"type": "boolean"
-				},
-				{
-					"title": "Is mock",
-					"name": "isMock",
-					"type": "boolean"
 				}
 			]
 		},
@@ -121,58 +63,10 @@
 					"required": true
 				},
 				{
-					"title": "Tags",
-					"name": "tags",
-					"type": "tags"
-				},
-				{
-					"title": "Image",
-					"name": "image",
-					"type": "image"
-				},
-				{
-					"title": "Repo",
-					"name": "repo",
-					"type": "string",
-					"required": true
-				},
-				{
-					"title": "Path",
-					"name": "path",
-					"type": "string"
-				},
-				{
-					"title": "Homepage",
-					"name": "homepage",
-					"type": "string"
-				},
-				{
-					"title": "Status",
-					"name": "status",
-					"type": "choice",
-					"choices": ["raw", "ready", "need_review"],
-					"default": "raw"
-				},
-				{
-					"title": "Order",
-					"name": "order",
-					"type": "number"
-				},
-				{
 					"title": "Needs translation",
 					"name": "needs_translation",
 					"type": "boolean",
 					"default": false
-				},
-				{
-					"title": "Draft",
-					"name": "draft",
-					"type": "boolean"
-				},
-				{
-					"title": "Is mock",
-					"name": "isMock",
-					"type": "boolean"
 				}
 			]
 		},
@@ -187,13 +81,6 @@
 					"type": "string"
 				},
 				{
-					"title": "Date",
-					"name": "date",
-					"type": "datetime",
-					"default": "{{now}}",
-					"required": true
-				},
-				{
 					"title": "Excerpt",
 					"name": "excerpt",
 					"type": "string",
@@ -204,16 +91,6 @@
 					"name": "needs_translation",
 					"type": "boolean",
 					"default": false
-				},
-				{
-					"title": "Draft",
-					"name": "draft",
-					"type": "boolean"
-				},
-				{
-					"title": "Is mock",
-					"name": "isMock",
-					"type": "boolean"
 				}
 			]
 		}

@@ -4,7 +4,17 @@ import * as fs from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { FIELDS, defaultsFor, fieldNames } from "./fields.ts";
+import {
+	ALL_FIELDS,
+	FIELDS,
+	defaultsFor,
+	editableFields,
+	fieldNames,
+	fieldsByScope,
+	fieldsForType,
+	fieldsWithScope,
+	type FieldScope,
+} from "./fields.ts";
 import { formatUnit, isFormatted } from "./format.ts";
 import {
 	SLUG_PATTERN,
@@ -31,32 +41,92 @@ interface CmsType {
 	fields: CmsField[];
 }
 
-describe("схема совпадает с frontmatter.json", () => {
+interface ContentSchema {
+	types: Record<string, { shared?: CmsField[]; local?: CmsField[] }>;
+}
+
+const readCms = (): CmsType[] => {
 	const config = JSON.parse(
 		fs.readFileSync(join(repoRoot(), "frontmatter.json"), "utf8"),
 	) as Record<string, CmsType[]>;
+	return config["frontMatter.taxonomy.contentTypes"] ?? [];
+};
 
-	const types = config["frontMatter.taxonomy.contentTypes"] ?? [];
+const readContentSchema = (): ContentSchema =>
+	JSON.parse(
+		fs.readFileSync(join(repoRoot(), "content.schema.json"), "utf8"),
+	) as ContentSchema;
 
-	it.each(CONTENT_TYPES)("%s: набор полей идентичен", (type) => {
-		const cms = types.find((item) => item.name === type);
-		expect(cms).toBeDefined();
+// Раскладка для сверки со схемой: `needs_translation` помечен `auto` и в форме
+// его нет, но в frontmatter.json он обязан быть.
+const scopeNames = (type: string, scope: FieldScope): string[] =>
+	fieldsWithScope(type, scope)
+		.map((field) => field.name)
+		.sort();
 
-		expect([...fieldNames(type)].sort()).toEqual(
-			(cms?.fields ?? []).map((field) => field.name).sort(),
+describe("схема разделена по месту хранения", () => {
+	const cms = readCms();
+	const schema = readContentSchema();
+	const ALL = Object.keys(ALL_FIELDS);
+
+	it.each(ALL)("%s: translatable совпадает с frontmatter.json", (type) => {
+		const declared = cms.find((item) => item.name === type);
+		expect(declared, `${type}: нет в frontmatter.json`).toBeDefined();
+
+		expect(scopeNames(type, "translatable")).toEqual(
+			(declared?.fields ?? []).map((field) => field.name).sort(),
 		);
 	});
 
-	it("weekly остаётся в схеме, но не редактируется руками", () => {
-		expect(types.map((item) => item.name)).toContain("weekly");
-		expect(CONTENT_TYPES).not.toContain("weekly");
+	it.each(ALL)("%s: shared и local совпадают с content.schema.json", (type) => {
+		const declared = schema.types[type];
+		expect(declared, `${type}: нет в content.schema.json`).toBeDefined();
+
+		expect(scopeNames(type, "shared")).toEqual(
+			(declared?.shared ?? []).map((field) => field.name).sort(),
+		);
+		expect(scopeNames(type, "local")).toEqual(
+			(declared?.local ?? []).map((field) => field.name).sort(),
+		);
 	});
 
-	it("isMock скрыт из формы, но присутствует в схеме", () => {
-		for (const type of CONTENT_TYPES) {
-			expect(fieldNames(type)).toContain("isMock");
-			expect(FIELDS[type].find((f) => f.name === "isMock")?.hidden).toBe(true);
+	it.each(ALL)("%s: поле объявлено ровно одним scope", (type) => {
+		const declared = new Set(
+			(scopeNames(type, "translatable") as string[]).concat(
+				scopeNames(type, "shared"),
+				scopeNames(type, "local"),
+			),
+		);
+		const actual = ALL_FIELDS[type].map((field) => field.name);
+
+		expect([...declared].sort()).toEqual([...new Set(actual)].sort());
+	});
+
+	it.each(ALL)("%s: shared-поле не попало в frontmatter.json", (type) => {
+		const declared = new Set(
+			(cms.find((item) => item.name === type)?.fields ?? []).map(
+				(field) => field.name,
+			),
+		);
+
+		for (const name of scopeNames(type, "shared")) {
+			expect(declared.has(name), `${type}.${name}`).toBe(false);
 		}
+		for (const name of scopeNames(type, "local")) {
+			expect(declared.has(name), `${type}.${name}`).toBe(false);
+		}
+	});
+
+	it("weekly остаётся в схеме, но не редактируется руками", () => {
+		expect(cms.map((item) => item.name)).toContain("weekly");
+		expect(schema.types).toHaveProperty("weekly");
+		expect(CONTENT_TYPES).not.toContain("weekly");
+		expect(FIELDS).not.toHaveProperty("weekly");
+	});
+
+	it("выход за CONTENT_TYPES не ломает fieldsForType", () => {
+		expect(fieldsForType("weekly")).toHaveLength(ALL_FIELDS.weekly.length);
+		expect(fieldsForType("nope")).toEqual([]);
 	});
 
 	it.each(CONTENT_TYPES)(
@@ -79,6 +149,62 @@ describe("схема совпадает с frontmatter.json", () => {
 			expect(defaultsFor(type).date).toBe(
 				new Date().toISOString().slice(0, 10),
 			);
+		}
+	});
+
+	it("path — единственное local-поле, и только у project", () => {
+		const wrong: string[] = [];
+
+		for (const type of ALL) {
+			const local = scopeNames(type, "local");
+			const expected = type === "project" ? ["path"] : [];
+			if (local.join(",") !== expected.join(",")) {
+				wrong.push(`${type}: ${local.join(",") || "пусто"}`);
+			}
+		}
+
+		expect(wrong).toEqual([]);
+	});
+});
+
+describe("скелет поля по scope", () => {
+	it("fieldsByScope отдаёт только поля своего места хранения", () => {
+		expect(scopeNames("post", "translatable")).toEqual([
+			"needs_translation",
+			"title",
+		]);
+		expect(scopeNames("post", "shared")).toEqual([
+			"date",
+			"draft",
+			"image",
+			"link",
+			"tags",
+		]);
+	});
+
+	it("fieldsByScope не отдаёт поля, ставящиеся кодом", () => {
+		expect(fieldsByScope("post", "translatable").map((f) => f.name)).toEqual([
+			"title",
+		]);
+	});
+
+	it("editableFields — это FIELDS минус auto", () => {
+		const expected = FIELDS.post.filter((f) => !f.auto).map((f) => f.name);
+		expect(editableFields("post").map((f) => f.name)).toEqual(expected);
+	});
+
+	it("каждое видимое поле попадает ровно в один scope", () => {
+		for (const type of Object.keys(ALL_FIELDS)) {
+			const counts = new Map<string, number>();
+			for (const scope of ["translatable", "shared", "local"] as const) {
+				for (const field of fieldsWithScope(type, scope)) {
+					counts.set(field.name, (counts.get(field.name) ?? 0) + 1);
+				}
+			}
+
+			for (const field of fieldsForType(type)) {
+				expect(counts.get(field.name), `${type}.${field.name}`).toBe(1);
+			}
 		}
 	});
 });
@@ -319,10 +445,11 @@ describe("двуязычность", () => {
 
 			const en = readUnit("post", slug, "en");
 			expect(en?.body).toBe("");
-			// frontmatter переезжает, иначе EN-форма откроется пустой и Rulebook
-			// отправит всё в теги.
+			// Переезжает только переводимое: `date` и `tags` общие, им в
+			// языковом файле места нет. Фаза 3 положит их в json.
 			expect(en?.frontmatter.title).toBe("Фикстура");
-			expect(en?.frontmatter.tags).toEqual(["test"]);
+			expect(en?.frontmatter.date).toBeUndefined();
+			expect(en?.frontmatter.tags).toBeUndefined();
 			expect(en?.frontmatter.needs_translation).toBe(true);
 		} finally {
 			deleteUnit("post", slug);
@@ -347,24 +474,22 @@ describe("двуязычность", () => {
 		}
 	});
 
-	it("не тащит поля `only: ru` в перевод", async () => {
+	it("path в frontmatter больше не участвует", async () => {
+		// Флаг `only` ушёл вместе с новой раскладкой: `path` стал `local` и в
+		// фазе 3 уедет в `<type>s.local.json`, а из frontmatter вычищается
+		// полностью. Пока репозиторий старый — проверяем новое имя поля.
 		const slug = "vitest-ensure-only";
 		await createUnit("project", slug, "ru", {
-			frontmatter: {
-				title: "Проект",
-				description: "Описание.",
-				repo: "https://github.com/o/n",
-				path: "../brul",
-			},
+			frontmatter: { title: "Проект", description: "Описание." },
 			body: "Тело.",
 		});
 		try {
 			await ensureUnit("project", slug);
 
 			const en = readUnit("project", slug, "en");
+			expect(en?.frontmatter.title).toBe("Проект");
 			expect(en?.frontmatter.path).toBeUndefined();
-			expect(en?.frontmatter.repo).toBe("https://github.com/o/n");
-			expect(readUnit("project", slug, "ru")?.frontmatter.path).toBe("../brul");
+			expect(en?.frontmatter.repo).toBeUndefined();
 		} finally {
 			deleteUnit("project", slug);
 		}
@@ -373,9 +498,13 @@ describe("двуязычность", () => {
 
 describe("валидация", () => {
 	const REPO = "https://github.com/Ku6epXBOCTuK/brul";
-	const ARTICLE = ["title: Статья", "date: 2026-09-30"];
-	const POST = ["title: Пост", "date: 2026-09-30"];
-	const PROJECT = ["title: Проект", "description: Описание", `repo: ${REPO}`];
+	const ARTICLE = ["title: Статья"];
+	const POST = ["title: Пост"];
+	const PROJECT = ["title: Проект", "description: Описание"];
+
+	// Фронтматтер с `date` раньше был валиден. Теперь `date` общее поле и в md
+	// ему не место — это ровно та проверка, что модель не поехала назад.
+	const POST_SHARED_IN_MD = ["title: Пост", "date: 2026-09-30"];
 
 	const roots: string[] = [];
 
@@ -428,12 +557,21 @@ describe("валидация", () => {
 			...pair("projects/ok", PROJECT, PROJECT),
 			...pair(
 				"weekly/2026-09-22",
-				["title: Неделя", "date: 2026-09-22", "excerpt: Итог"],
-				["title: Week", "date: 2026-09-22", "excerpt: Summary"],
+				["title: Неделя", "excerpt: Итог"],
+				["title: Week", "excerpt: Summary"],
 			),
 		});
 		expect(report.errors).toEqual([]);
 		expect(report.warnings).toEqual([]);
+	});
+
+	it("общее поле в frontmatter — ошибка", () => {
+		const report = tree({
+			...pair("posts/date-in-md", POST_SHARED_IN_MD, POST_SHARED_IN_MD),
+		});
+		expect(
+			report.errors.some((line) => /unknown field "date"/.test(line)),
+		).toBe(true);
 	});
 
 	const errors: Array<[string, Record<string, string>, RegExp]> = [
@@ -449,17 +587,18 @@ describe("валидация", () => {
 		],
 		[
 			"неверный тип поля",
-			pair("posts/x", [...POST, "draft: да"], POST),
-			/field "draft" must be a boolean/,
+			pair("posts/x", [...POST, "needs_translation: да"], POST),
+			/field "needs_translation" must be a boolean/,
 		],
 		[
-			"tags не массив",
+			// Типы shared-полей проверяются на json, а не на md. Фаза 4.
+			"тег не строка",
 			pair("posts/x", [...POST, "tags: нет"], POST),
-			/field "tags" must be an array/,
+			/unknown field "tags"/,
 		],
 		[
 			"не ISO дата",
-			pair("posts/x", ["title: T", "date: 30.09.2026"], POST),
+			pair("weekly/x", ["title: T", "date: 30.09.2026"], ["title: T"]),
 			/must be ISO YYYY-MM-DD/,
 		],
 		[
@@ -479,7 +618,7 @@ describe("валидация", () => {
 		],
 		[
 			"draft разошёлся",
-			pair("posts/x", [...POST, "draft: true"], POST),
+			pair("weekly/x", ["title: T", "draft: true"], ["title: T"]),
 			/draft must match between/,
 		],
 		[

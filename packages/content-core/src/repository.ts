@@ -115,9 +115,11 @@ export async function ensureUnit(
 	for (const lang of missing) {
 		const frontmatter: Frontmatter = {};
 
+		// Общие и локальные поля в языковых файлах не живут. Фаза 3 увезёт их в
+		// json, а пока ensureUnit перестаёт их тащить.
 		for (const [key, value] of Object.entries(source?.frontmatter ?? {})) {
 			const field = FIELDS[type].find((item) => item.name === key);
-			if (field?.only && field.only !== lang) continue;
+			if (field && field.scope !== "translatable") continue;
 			if (value === undefined || value === null || value === "") continue;
 			frontmatter[key] = value;
 		}
