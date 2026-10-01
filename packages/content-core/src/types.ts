@@ -1,8 +1,14 @@
 // `weekly` генерируется автоматически и не редактируется руками, поэтому в
-// CONTENT_TYPES его нет. В frontmatter.json тип остаётся.
+// CONTENT_TYPES его нет. Но схема и файлы у него есть, поэтому есть отдельный
+// список: SCHEMA_TYPES — «у чего есть раскладка на диске», CONTENT_TYPES —
+// «что редактор правит руками».
+export const SCHEMA_TYPES = ["post", "article", "project", "weekly"] as const;
+
+export type SchemaType = (typeof SCHEMA_TYPES)[number];
+
 export const CONTENT_TYPES = ["post", "article", "project"] as const;
 
-export type ContentType = (typeof CONTENT_TYPES)[number];
+export type ContentType = Exclude<SchemaType, "weekly">;
 
 export const CONTENT_LANGS = ["ru", "en"] as const;
 
@@ -12,6 +18,10 @@ export const DEFAULT_LANG: ContentLang = "ru";
 
 export function isContentType(value: string): value is ContentType {
 	return (CONTENT_TYPES as readonly string[]).includes(value);
+}
+
+export function isSchemaType(value: string): value is SchemaType {
+	return (SCHEMA_TYPES as readonly string[]).includes(value);
 }
 
 export function isContentLang(value: string): value is ContentLang {

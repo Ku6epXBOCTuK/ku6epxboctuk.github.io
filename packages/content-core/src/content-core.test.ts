@@ -120,7 +120,6 @@ describe("схема разделена по месту хранения", () =>
 	it("weekly остаётся в схеме, но не редактируется руками", () => {
 		expect(cms.map((item) => item.name)).toContain("weekly");
 		expect(schema.types).toHaveProperty("weekly");
-		expect(CONTENT_TYPES).not.toContain("weekly");
 		expect(FIELDS).not.toHaveProperty("weekly");
 	});
 

@@ -12,6 +12,9 @@ coverage
 # Generated mocks (npm run gen-mocks)
 src/content-mocks
 
+# Local-only content data: пути к клонам на этой машине
+src/content/*.local.json
+
 # OS
 .DS_Store
 Thumbs.db

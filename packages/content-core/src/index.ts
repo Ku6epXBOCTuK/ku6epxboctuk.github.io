@@ -1,5 +1,6 @@
 export * from "./fields.ts";
 export * from "./format.ts";
+export * from "./json.ts";
 export * from "./paths.ts";
 export * from "./project-paths.ts";
 export * from "./repository.ts";
