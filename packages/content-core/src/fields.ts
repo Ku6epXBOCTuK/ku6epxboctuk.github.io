@@ -1,4 +1,4 @@
-import type { ContentType } from "./types.ts";
+import type { ContentType, SchemaType } from "./types.ts";
 
 // Виды редактора не совпадают с типами Frontmatter CMS: там `string`,
 // здесь `text` для многострочного ввода и `markdown` для тела поста.
@@ -38,21 +38,28 @@ export interface FieldDef {
 	/** Скрыть из формы, но оставить в схеме. */
 	hidden?: boolean;
 	help?: string;
-	choices?: string[];
+	choices?: readonly string[];
 	default?: string | boolean;
 	/** Ставится кодом, в форме не редактируется. */
 	auto?: boolean;
 }
 
-const DRAFT: FieldDef = {
+/*
+ * Дальше схема объявлена через `as const`, и это не косметика: из неё выводятся
+ * имена полей, и `Entry` типизируется конкретными ключами, а не
+ * `Record<string, unknown>`. Ручные интерфейсы полей продублировали бы схему и
+ * разошлись бы с ней на первой же правке.
+ */
+
+const DRAFT = {
 	name: "draft",
 	kind: "boolean",
 	label: "Черновик",
 	required: false,
 	scope: "shared",
-};
+} as const;
 
-const IMAGE: FieldDef = {
+const IMAGE = {
 	name: "image",
 	kind: "image",
 	label: "Обложка",
@@ -60,9 +67,9 @@ const IMAGE: FieldDef = {
 	// Сейчас одна картинка на оба языка: так проще. Если понадобится своя
 	// картинка для перевода, меняется только эта строка.
 	scope: "shared",
-};
+} as const;
 
-const NEEDS_TRANSLATION: FieldDef = {
+const NEEDS_TRANSLATION = {
 	name: "needs_translation",
 	kind: "boolean",
 	label: "Нужен перевод",
@@ -70,34 +77,40 @@ const NEEDS_TRANSLATION: FieldDef = {
 	auto: true,
 	scope: "translatable",
 	help: "Ставится кнопкой «Скопировать из RU». Убрать, когда переведёшь.",
-};
+} as const;
 
-const TAGS: FieldDef = {
+const TAGS = {
 	name: "tags",
 	kind: "string[]",
 	label: "Теги",
 	required: false,
 	scope: "shared",
-};
+} as const;
 
-const TITLE: FieldDef = {
+const TITLE = {
 	name: "title",
 	kind: "string",
 	label: "Заголовок",
 	required: true,
 	scope: "translatable",
-};
+} as const;
 
-const DATE: FieldDef = {
+const DATE = {
 	name: "date",
 	kind: "date",
 	label: "Дата",
 	required: true,
 	default: "today",
 	scope: "shared",
-};
+} as const;
 
-export const FIELDS: Record<ContentType, FieldDef[]> = {
+/**
+ * Литеральная схема, приватная. Из неё выводятся имена полей для типов, а
+ * наружу отдаётся `readonly FieldDef[]`: `as const` не оставляет у записи
+ * необязательные свойства (`auto`, `default`, `help`), и любое их чтение
+ * требовало бы каста в каждом месте.
+ */
+const SCHEMA = {
 	post: [
 		TITLE,
 		DATE,
@@ -195,51 +208,58 @@ export const FIELDS: Record<ContentType, FieldDef[]> = {
 		DRAFT,
 		NEEDS_TRANSLATION,
 	],
-};
+	/**
+	 * `weekly` генерируется из git-логов, руками не редактируется и типа в
+	 * `FIELDS` не имеет. Схема ему всё равно нужна: файлы есть, и валидация их
+	 * читает.
+	 */
+	weekly: [
+		{
+			name: "title",
+			kind: "string",
+			label: "Заголовок",
+			required: false,
+			scope: "translatable",
+		},
+		{
+			name: "excerpt",
+			kind: "text",
+			label: "Отрывок",
+			required: true,
+			scope: "translatable",
+		},
+		DATE,
+		TAGS,
+		DRAFT,
+		NEEDS_TRANSLATION,
+	],
+} as const satisfies Record<SchemaType, readonly FieldDef[]>;
 
-/**
- * `weekly` генерируется из git-логов, руками не редактируется и типа в
- * `CONTENT_TYPES` не имеет. Схема ему всё равно нужна: файлы есть, и валидация
- * их читает.
- */
-const WEEKLY: FieldDef[] = [
-	{
-		name: "title",
-		kind: "string",
-		label: "Заголовок",
-		required: false,
-		scope: "translatable",
-	},
-	{
-		name: "excerpt",
-		kind: "text",
-		label: "Отрывок",
-		required: true,
-		scope: "translatable",
-	},
-	DATE,
-	{
-		name: "tags",
-		kind: "string[]",
-		label: "Теги",
-		required: false,
-		scope: "shared",
-	},
-	DRAFT,
-	NEEDS_TRANSLATION,
-];
+export type FieldsOf<T extends SchemaType> = (typeof SCHEMA)[T];
+
+export type FieldsByScope<T extends SchemaType, S extends FieldScope> = Extract<
+	FieldsOf<T>[number],
+	{ scope: S }
+>;
+
+/** Имена полей места хранения — выведены из схемы, рукописных списков нет. */
+export type FieldNames<
+	T extends SchemaType,
+	S extends FieldScope,
+> = FieldsByScope<T, S>["name"];
 
 /** Типы, которые редактор правит руками. */
-export const EDITABLE_FIELDS = FIELDS;
-
-/** Все типы, у которых есть схема, включая генерируемый `weekly`. */
-export const ALL_FIELDS: Record<string, FieldDef[]> = {
-	...FIELDS,
-	weekly: WEEKLY,
+export const FIELDS: Record<ContentType, readonly FieldDef[]> = {
+	post: SCHEMA.post,
+	article: SCHEMA.article,
+	project: SCHEMA.project,
 };
 
-export function fieldsForType(type: string): FieldDef[] {
-	return ALL_FIELDS[type] ?? [];
+/** Все типы, у которых есть схема, включая генерируемый `weekly`. */
+export const ALL_FIELDS: Record<SchemaType, readonly FieldDef[]> = SCHEMA;
+
+export function fieldsForType(type: string): readonly FieldDef[] {
+	return (ALL_FIELDS as Record<string, readonly FieldDef[]>)[type] ?? [];
 }
 
 export function fieldNames(type: ContentType): string[] {
@@ -292,9 +312,4 @@ export function fieldsByScope(type: string, scope: FieldScope): FieldDef[] {
 /** Поля, которые редактор показывает: всё, кроме скрытых и ставящихся кодом. */
 export function editableFields(type: string): FieldDef[] {
 	return fieldsForType(type).filter((field) => !field.hidden && !field.auto);
-}
-
-/** Поля, о которых знает схема, включая скрытые и ставящиеся кодом. */
-export function allFields(type: string): FieldDef[] {
-	return fieldsForType(type);
 }

@@ -33,13 +33,16 @@ export interface ParsedUnit {
 }
 
 export function parseUnit(raw: string): ParsedUnit {
-	const text = raw.replace(/^\uFEFF/, "");
-	const match = /^---\r?\n([\s\S]*?)\r?\n---[ \t]*\r?\n?/.exec(text);
+	const text = raw.replace(/^\\uFEFF/, "");
+	// Блок может быть пустым: `---\n---` читается как «полей нет». Раньше
+	// требовалась непустая строка между разделителями, и такой файл отдавался
+	// целиком в тело вместе с самими `---`.
+	const match = /^---[ \t]*\r?\n([\s\S]*?)---[ \t]*\r?\n?/.exec(text);
 
 	if (!match) return { frontmatter: {}, body: normalizeBody(text) };
 
 	const block = match[1] ?? "";
-	const data = yaml.load(block) as unknown;
+	const data = block.trim() === "" ? undefined : (yaml.load(block) as unknown);
 	const frontmatter: Frontmatter =
 		data && typeof data === "object" && !Array.isArray(data)
 			? (data as Frontmatter)

@@ -1,3 +1,5 @@
+export * from "./entries.ts";
+export * from "./entry-types.ts";
 export * from "./fields.ts";
 export * from "./format.ts";
 export * from "./json.ts";
