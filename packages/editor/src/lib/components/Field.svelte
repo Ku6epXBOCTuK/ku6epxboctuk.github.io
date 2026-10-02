@@ -103,6 +103,37 @@
 				<option value={choice}>{choice}</option>
 			{/each}
 		</select>
+	{:else if field.kind === "icon"}
+		<!-- Глифы показываются теми же символами, какие попадут в текст: иначе
+		     приходится запоминать, как `⬡` выглядит в коде. -->
+		<div class="icon-grid" role="radiogroup" aria-labelledby={controlId}>
+			{#each field.choices ?? [] as glyph (glyph)}
+				<button
+					type="button"
+					class="glyph"
+					class:on={scalar === glyph}
+					role="radio"
+					aria-checked={scalar === glyph}
+					aria-label={`иконка ${glyph}`}
+					{disabled}
+					onclick={() => text(glyph)}
+				>
+					{glyph}
+				</button>
+			{/each}
+			<button
+				type="button"
+				class="glyph clear"
+				class:on={scalar === ""}
+				role="radio"
+				aria-checked={scalar === ""}
+				aria-label="без иконки"
+				{disabled}
+				onclick={() => text("")}
+			>
+				—
+			</button>
+		</div>
 	{:else if field.kind === "number"}
 		<input
 			id={controlId}
@@ -223,6 +254,61 @@
 		width: 16px;
 		height: 16px;
 		accent-color: var(--accent);
+	}
+
+	/*
+	 * Пикер глифа: сетка квадратов с самими символами. Кнопка, а не select,
+	 * потому что выбирается картинка, а не название картинки.
+	 */
+	.icon-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+		gap: 4px;
+		max-width: 340px;
+	}
+
+	.glyph {
+		font: inherit;
+		font-size: 16px;
+		line-height: 1;
+		aspect-ratio: 1;
+		display: grid;
+		place-items: center;
+		padding: 0;
+		color: var(--text-dim);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
+		cursor: pointer;
+		transition:
+			color 100ms,
+			border-color 100ms,
+			background 100ms;
+	}
+
+	.glyph:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
+	.glyph:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 1px;
+	}
+
+	.glyph:hover:not(:disabled) {
+		color: var(--text);
+		border-color: var(--accent);
+	}
+
+	.glyph.on {
+		color: var(--bg);
+		background: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.glyph.clear {
+		color: var(--text-faint);
 	}
 
 	.help {

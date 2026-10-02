@@ -90,6 +90,7 @@ function checkType(value: unknown, field: SchemaField): string | null {
 	switch (field.type) {
 		case "string":
 		case "datetime":
+		case "icon":
 		case "image":
 		case "url":
 			if (typeof value !== "string") {
@@ -304,7 +305,12 @@ function validateUnit(
 		: [];
 
 	if (files.length === 0) {
-		report.errors.push(`[${type}] ${unit}: no index.*.md file found`);
+		// Папка без языковых файлов — это мусор, а не сломанный контент: в git
+		// пустая папка не попадает и на сайт ничего не уносит. Ошибкой это было бы,
+		// если бы запись была видна где-то ещё: в json или в списке.
+		report.warnings.push(
+			`[${type}] ${unit}: папка без index.*.md — удалить или наполнить`,
+		);
 		return;
 	}
 

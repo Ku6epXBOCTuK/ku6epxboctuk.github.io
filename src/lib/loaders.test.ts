@@ -75,10 +75,10 @@ describe("общие поля из json", () => {
 		const loader = createPairLoader({
 			modules: MODULES,
 			shared: SHARED,
-			toItem: (entry, fm) => ({ ...entry, syncedAt: fm.date }),
+			toItem: (entry, fm) => ({ ...entry, link: fm.date }),
 		});
 
-		expect(loader.getItem("hello", "ru")?.syncedAt).toBe("2026-09-30");
+		expect(loader.getItem("hello", "ru")?.link).toBe("2026-09-30");
 	});
 });
 

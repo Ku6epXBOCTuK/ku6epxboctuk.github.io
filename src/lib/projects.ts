@@ -21,7 +21,6 @@ export interface ProjectBase extends ContentEntry {
 	homepage?: string;
 	status?: string;
 	order?: number;
-	syncedAt?: string;
 }
 
 export interface Project extends ProjectBase, LocalizedItem {}
@@ -46,7 +45,6 @@ const loader = createPairLoader<ProjectBase>({
 		homepage: optionalString(fm, "homepage"),
 		status: optionalString(fm, "status"),
 		order: optionalNumber(fm, "order"),
-		syncedAt: optionalString(fm, "synced_at"),
 	}),
 	sortByDate: false,
 });

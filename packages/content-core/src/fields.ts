@@ -12,7 +12,9 @@ export type FieldKind =
 	| "date"
 	| "url"
 	| "image"
-	| "choice";
+	| "choice"
+	/** Глиф из фиксированного набора — не печатается, а выбирается. */
+	| "icon";
 
 /**
  * Куда поле физически лежит. Единственная ось вместо прежних `only` и
@@ -86,6 +88,26 @@ const TAGS = {
 	required: false,
 	scope: "shared",
 } as const;
+
+/**
+ * Глифы для карточки проекта. Набор закрытый: иконка печатается в текст рядом с
+ * названием, и произвольный символ сломал бы вид списка. `color` ограничен так
+ * же — ровно три значения читает `ProjectDetail`.
+ */
+const PROJECT_ICONS = [
+	"◈",
+	"◇",
+	"●",
+	"▲",
+	"✦",
+	"✧",
+	"✿",
+	"❒",
+	"▦",
+	"⬡",
+	"◌",
+	"🐾",
+] as const;
 
 const TITLE = {
 	name: "title",
@@ -177,24 +199,19 @@ const SCHEMA = {
 		},
 		{
 			name: "icon",
-			kind: "string",
+			kind: "icon",
 			label: "Иконка",
 			required: false,
+			choices: PROJECT_ICONS,
 			scope: "shared",
-			help: "Имя иконки для карточки проекта.",
+			help: "Глиф для карточки проекта.",
 		},
 		{
 			name: "color",
-			kind: "string",
+			kind: "choice",
 			label: "Цвет",
 			required: false,
-			scope: "shared",
-		},
-		{
-			name: "synced_at",
-			kind: "date",
-			label: "Синхронизирован",
-			required: false,
+			choices: ["coral", "periwinkle", "sky"],
 			scope: "shared",
 		},
 		{

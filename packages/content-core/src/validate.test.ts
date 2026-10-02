@@ -114,6 +114,41 @@ describe("валидация", () => {
 		expect(result.warnings).toEqual([]);
 	});
 
+	describe("папка без файлов", () => {
+		it("папка без языковых md — предупреждение, а не ошибка", () => {
+			// Папка, в которой нет ни одного `index.*.md`, — это мусор: в git
+			// пустая папка не попадает и на сайт ничего не уносит. Но заметить её
+			// надо: скорее всего единица не доехала при создании.
+			//
+			// Кладём не-md файл, потому что по-настоящему пустую папку через
+			// фикстуру не создать, а по смыслу случай тот же.
+			const result = tree({ files: { "posts/ghost/notes.txt": "мусор" } });
+
+			expect(result.errors).toEqual([]);
+			expect(
+				result.warnings.some((line) => /ghost.*папка без/.test(line)),
+			).toBe(true);
+		});
+
+		it("папка с чужим md — ошибка: языковых файлов нет", () => {
+			const result = tree({ files: { "posts/ghost/README.md": "мусор" } });
+
+			expect(
+				result.errors.some((line) => /missing index\..*\.md/.test(line)),
+			).toBe(true);
+		});
+
+		it("запись в json без папки — ошибка", () => {
+			// Обратная сторона: если запись видна в json, пустая папка её не
+			// оправдывает, иначе на сайте будет карточка без текста.
+			const result = tree({
+				json: { "posts.json": { ghost: { date: "2026-09-30" } } },
+			});
+
+			expect(result.errors.length).toBeGreaterThan(0);
+		});
+	});
+
 	describe("запрет разъезда", () => {
 		it("общее поле в frontmatter называет правильный файл", () => {
 			const result = tree({

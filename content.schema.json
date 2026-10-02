@@ -33,9 +33,17 @@
 					"default": "ready"
 				},
 				{ "name": "order", "type": "number" },
-				{ "name": "icon", "type": "string" },
-				{ "name": "color", "type": "string" },
-				{ "name": "synced_at", "type": "date" },
+				{
+					"name": "icon",
+					"type": "icon",
+					"description": "Глиф из списка PROJECT_ICONS в fields.ts: выбирается, а не вводится."
+				},
+				{
+					"name": "color",
+					"type": "choice",
+					"choices": ["coral", "periwinkle", "sky"],
+					"description": "Ровно эти три значения читает сайт в ProjectDetail."
+				},
 				{ "name": "draft", "type": "boolean" }
 			],
 			"local": [{ "name": "path", "type": "string" }]
