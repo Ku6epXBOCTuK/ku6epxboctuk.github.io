@@ -653,6 +653,27 @@
  * Стрелки лежат между языками, поэтому нажатие читается однозначно: вправо —
  * RU в EN.
  */
+	/*
+	 * Базовые правила кнопки — первыми в файле: селекторы типа элемента должны
+	 * идти раньше более специфичных, иначе stylelint ругается на порядок.
+	 * Каскад от этого не меняется — специфичности для этого достаточно.
+	 */
+	button {
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 6px 12px;
+		color: var(--text-dim);
+		background: var(--surface-2);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
+		cursor: pointer;
+	}
+
+	button:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
 	.pair {
 		/* Ширина колонки стрелок задана явно и используется ещё и в заголовке:
 	   иначе колонка `auto` под метками схлопывалась в ноль и EN уезжал левее
@@ -706,15 +727,32 @@
 		cursor: pointer;
 	}
 
-	.arrows button:hover:not(:disabled) {
-		color: var(--accent);
+	.pair-tools button {
+		font-size: var(--fs-sm);
+		padding: 4px 9px;
+	}
+
+	/*
+	 * Общий hover идёт после всех частных правил кнопки: у него специфичность
+	 * `button:hover:not(:disabled)`, а у `.arrows button:hover` — выше, поэтому
+	 * стрелки перекрашиваются как надо независимо от порядка. stylelint просит
+	 * специфичности не убывать, а этот порядок ещё и читается: сначала база,
+	 * потом частные кнопки, потом состояния.
+	 */
+	button:hover:not(:disabled) {
+		color: var(--text);
 		background: var(--surface-3);
-		border-color: var(--accent-dim);
 	}
 
 	.arrows button:disabled {
 		opacity: 0.4;
 		cursor: default;
+	}
+
+	.arrows button:hover:not(:disabled) {
+		color: var(--accent);
+		background: var(--surface-3);
+		border-color: var(--accent-dim);
 	}
 
 	/* Метки языков. Заголовок — сам элемент трёхколоночной сетки, поэтому без
@@ -759,11 +797,6 @@
 		display: flex;
 		gap: var(--gap-2);
 		margin-left: auto;
-	}
-
-	.pair-tools button {
-		font-size: var(--fs-sm);
-		padding: 4px 9px;
 	}
 
 	.gh-status {
@@ -931,27 +964,6 @@
 
 	.bad {
 		color: var(--danger);
-	}
-
-	button {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 6px 12px;
-		color: var(--text-dim);
-		background: var(--surface-2);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		cursor: pointer;
-	}
-
-	button:disabled {
-		opacity: 0.45;
-		cursor: default;
-	}
-
-	button:hover:not(:disabled) {
-		color: var(--text);
-		background: var(--surface-3);
 	}
 
 	button.primary {

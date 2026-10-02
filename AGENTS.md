@@ -15,13 +15,30 @@ before writing, and shows the result of `lint:content` for the edited unit.
 Types: `post`, `article`, `project`. `weekly` is generated automatically and is
 not editable here.
 
-Full guide: `docs/writing.md`. `frontmatter.json` is the source of truth for
-allowed fields — `npm run lint:content` errors on anything not in it, and
-`packages/content-core/src/fields.ts` is kept in sync with it by a test.
+Full guide: `docs/writing.md`.
 
-Layout: `packages/content-core` owns all content logic (read, write, validate);
-`packages/editor` is a SvelteKit app on top of it that renders the form. The
-site itself stays static and is not touched.
+Two schemas are the source of truth for allowed fields, split by where a field
+physically lives: `frontmatter.json` declares only `translatable` fields,
+`content.schema.json` declares `shared` and `local`. `npm run lint:content`
+errors on anything not in them, and `packages/content-core/src/fields.ts` is
+kept in sync with both by a test.
+
+A unit is up to five files, and only `scope` in `fields.ts` decides which is
+which:
+
+```txt
+<type>/<slug>/index.<lang>.md    # translatable
+<type>s.json                     # shared
+<type>s.local.json               # local, gitignored
+```
+
+`packages/content-core` owns all content logic (read, write, validate) and is
+the only thing that knows this layout; `packages/editor` is a SvelteKit app on
+top of it that edits an `Entry` and knows nothing about files. The site reads
+the same layout at build time and merges shared over translatable.
+
+To move a field between files, change its `scope` in `fields.ts` and both schema
+files. No read or write code changes.
 
 ## Critical Rules
 

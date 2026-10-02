@@ -106,25 +106,25 @@
 		cursor: pointer;
 	}
 
+	.actions button:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
 	.actions button:hover:not(:disabled) {
 		color: var(--text);
 		background: var(--surface);
 	}
 
 	.actions button.danger {
-		color: #fff;
-		background: var(--danger);
-		border-color: var(--danger);
+		color: var(--on-danger);
+		background: var(--danger-strong);
+		border-color: var(--danger-strong);
 		font-weight: 600;
 	}
 
 	.actions button.danger:hover:not(:disabled) {
-		background: #e0574f;
-		border-color: #e0574f;
-	}
-
-	.actions button:disabled {
-		opacity: 0.45;
-		cursor: default;
+		background: var(--danger);
+		border-color: var(--danger);
 	}
 </style>

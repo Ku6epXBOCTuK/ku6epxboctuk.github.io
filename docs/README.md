@@ -23,21 +23,29 @@ packages/
 
 `content-core` — единственный источник правды о контенте. Его читают и
 `scripts/lint-content.ts`, и редактор, поэтому правила валидации у них общие.
-Вход `./shared` (`types.ts`, `fields.ts`, `slug.ts`) не тянет `node:fs` и
-безопасен для браузера; всё остальное — только для сервера.
+Вход `./shared` (`types.ts`, `fields.ts`, `slug.ts`, `entry-types.ts`) не тянет
+`node:fs` и безопасен для браузера; всё остальное — только для сервера.
 
 ## Контент
 
 ```txt
 src/content/
-  posts/<slug>/index.{ru,en}.md
+  posts/<slug>/index.{ru,en}.md        # переводимое: заголовок, текст
   articles/<slug>/index.{ru,en}.md
   projects/<slug>/index.{ru,en}.md
   weekly/<YYYY-MM-DD>/index.{ru,en}.md
+  <type>s.json                          # общее: дата, теги, обложка, draft
+  <type>s.local.json                    # локальное: путь к клону (в гитигноре)
 ```
 
+Куда уходит поле, решает `scope` в `packages/content-core/src/fields.ts`:
+`translatable` — в `index.<lang>.md`, `shared` — в `<type>s.json`, `local` — в
+`<type>s.local.json`. Раскладку по файлам делает репозиторий, потребители знают
+только `Entry`.
+
 Загрузчики в `src/lib/{posts,articles,projects,weekly}.ts` собирают всё через
-`import.meta.glob` на этапе сборки. Черновики (`draft: true`) фильтруются в
+`import.meta.glob` на этапе сборки: md — за переводимым, `<type>s.json` — за
+общим, и склеивают их в одну карту. Черновики (`draft: true`) фильтруются в
 production.
 
 Редактор запускается локально и пишет файлы напрямую, в git он не коммитит.
@@ -48,10 +56,9 @@ production.
 `weekly` редактор не правит: отчёты генерируются из git-логов, план в
 [docs/plan-weekly.md](plan-weekly.md).
 
-**План переноса данных из frontmatter в json —
-[docs/plan-split-content.md](plan-split-content.md).** Переводимое остаётся в
-`index.<lang>.md`, общее уходит в `<type>s.json`, пути к репозиториям — в
-`<type>s.local.json`. Плана нет: раскладка пока старая.
+Перенос данных из frontmatter в json закончен: раскладка, репозиторий,
+валидация, редактор и сайт работают по новой модели. Как это устроено и почему
+так — [docs/plan-split-content.md](plan-split-content.md).
 
 ## Скрипты
 
