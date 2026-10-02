@@ -1,3 +1,14 @@
+import {
+	CONTENT_LANGS,
+	entryFromFlat,
+	fieldScope,
+	serializeUnit,
+	splitEntry,
+	writeJsonRecord,
+	type ContentLang,
+	type Entry,
+	type SchemaType,
+} from "@ku6epxboctuk/content-core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -303,127 +314,175 @@ const weekly: WeeklyMock[] = [
 	},
 ];
 
-function yamlStr(value: string): string {
-	return /[:#[\]{},&*!|>'"%@`]/.test(value) ? JSON.stringify(value) : value;
-}
+const MOCK_ROOT = "src/content-mocks";
+const META_FILE: Record<SchemaType, string> = {
+	post: "posts.json",
+	article: "articles.json",
+	project: "projects.json",
+	weekly: "weekly.json",
+};
 
-function frontmatter(fields: Array<[string, unknown]>): string {
-	const lines = fields
-		.map(([key, value]) => present(key, value))
-		.filter(Boolean);
-	return `---\n${lines.join("\n")}\n---`;
-}
-
-function present(key: string, value: unknown): string {
-	if (value === undefined || value === null) return "";
-	if (typeof value === "boolean") return `${key}: ${value}`;
-	if (Array.isArray(value)) {
-		if (value.length === 0) return "";
-		const tags = value as string[];
-		return `${key}:\n${tags.map((t) => `  - ${yamlStr(t)}`).join("\n")}`;
-	}
-	return `${key}: ${yamlStr(String(value))}`;
-}
-
-function write(dir: string, file: string, content: string): void {
-	fs.mkdirSync(dir, { recursive: true });
-	fs.writeFileSync(path.join(dir, file), content + "\n", "utf8");
-}
-
-function writePost(p: PostMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content-mocks/posts", p.slug);
-	const fields: Array<[string, unknown]> = [
-		["title", p.title],
-		["date", p.date],
-		["tags", p.tags],
-	];
-	if (p.link) fields.push(["link", p.link]);
-	fields.push(["draft", true]);
-	fields.push(["isMock", true]);
-	if (lang === "en") fields.push(["needs_translation", true]);
-	const body = lang === "en" ? "перевод в работе." : p.body;
-	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n${body}`);
-}
-
-function writeArticle(a: ArticleMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content-mocks/articles", a.slug);
-	const fields: Array<[string, unknown]> = [
-		["title", a.title],
-		["date", a.date],
-		["tags", a.tags],
-	];
-	fields.push(["draft", true]);
-	fields.push(["isMock", true]);
-	if (lang === "en") fields.push(["needs_translation", true]);
-	const body =
-		lang === "en"
-			? "перевод в работе.\n\n<!--more-->"
-			: `${a.intro}\n\n<!--more-->\n\n${a.body}`;
-	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n${body}`);
-}
+const FOLDER: Record<SchemaType, string> = {
+	post: "posts",
+	article: "articles",
+	project: "projects",
+	weekly: "weekly",
+};
 
 const TRANSLATION_PENDING = "translation in progress.";
 
-function writeProject(p: ProjectMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content-mocks/projects", p.slug);
-	const fields: Array<[string, unknown]> = [
-		["title", p.title],
-		["subtitle", lang === "en" ? TRANSLATION_PENDING : p.subtitle],
-		["description", lang === "en" ? TRANSLATION_PENDING : p.description],
-		["tags", p.tags],
-		["repo", p.repo],
-	];
-	if (p.homepage) fields.push(["homepage", p.homepage]);
-	fields.push(
-		["icon", p.icon],
-		["color", p.color],
-		["status", p.status],
-		["draft", true],
-		["isMock", true],
-	);
-	if (lang === "en") fields.push(["needs_translation", true]);
-	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n`);
+/*
+ * Моки пишутся через `splitEntry` — тот же разбор, что и в редакторе.
+ *
+ * Раньше здесь был свой `frontmatter()`, который складывал все поля в md. Как
+ * только схема разъехалась по трём файлам, моки остались в старой раскладке:
+ * валидация бы их не увидела (она смотрит только в `src/content`), а сайт читал
+ * из них даты и теги, которых там уже не было. Своей сериализации здесь больше
+ * нет — `serializeUnit` и `writeJsonRecord` тоже из content-core.
+ */
+
+interface MockSource {
+	slug: string;
+	/** Плоская карта: `scope` сам разложит её по корзинам. */
+	flat: Record<string, unknown>;
+	/** Переводимое, у которого есть значение своё на язык. */
+	perLang?: Partial<Record<ContentLang, Record<string, unknown>>>;
+	/** Тело markdown на язык. */
+	bodies: Record<ContentLang, string>;
 }
 
-function writeWeekly(w: WeeklyMock, lang: "ru" | "en"): void {
-	const dir = path.join("src/content-mocks/weekly", w.slug);
-	const fields: Array<[string, unknown]> = [
-		["title", w.title],
-		["date", w.date],
-		["excerpt", lang === "en" ? TRANSLATION_PENDING : w.excerpt],
-		["isMock", true],
-		["draft", true],
-	];
-	if (lang === "en") fields.push(["needs_translation", true]);
-	const rows = w.changes
-		.map(([project, changes]) => `- **${project}** — ${changes}`)
-		.join("\n");
-	const body = lang === "en" ? TRANSLATION_PENDING : rows;
-	write(dir, `index.${lang}.md`, `${frontmatter(fields)}\n${body}`);
+const sharedByType = new Map<SchemaType, Record<string, unknown>>();
+
+function unitDir(type: SchemaType, slug: string): string {
+	return path.join(MOCK_ROOT, FOLDER[type], slug);
 }
 
-for (const p of posts) {
-	writePost(p, "ru");
-	writePost(p, "en");
-}
-for (const a of articles) {
-	writeArticle(a, "ru");
-	writeArticle(a, "en");
-}
-for (const p of projects) {
-	writeProject(p, "ru");
-	writeProject(p, "en");
-}
-for (const w of weekly) {
-	writeWeekly(w, "ru");
-	writeWeekly(w, "en");
+function toEntryMock(type: SchemaType, mock: MockSource): Entry {
+	const entry = entryFromFlat(type, mock.slug, mock.flat);
+
+	for (const lang of CONTENT_LANGS) {
+		const version = entry.versions[lang];
+		version.body = mock.bodies[lang];
+
+		for (const [name, value] of Object.entries(mock.perLang?.[lang] ?? {})) {
+			// `entryFromFlat` уже разложил плоскую карту; здесь довыставляется
+			// значение, специфичное для языка.
+			if (fieldScope(type, name) === "translatable") {
+				(version.frontmatter as Record<string, unknown>)[name] = value;
+			}
+		}
+
+		// Перевод не сделан: у EN это единственный язык, где флаг правдив.
+		if (lang === "en") {
+			(version.frontmatter as Record<string, unknown>).needs_translation = true;
+		}
+	}
+
+	return entry;
 }
 
+function emit(type: SchemaType, mocks: MockSource[]): void {
+	let shared = sharedByType.get(type);
+	if (!shared) sharedByType.set(type, (shared = {}));
+
+	for (const mock of mocks) {
+		const entry = toEntryMock(type, mock);
+		const split = splitEntry(type, entry);
+
+		// Пустой объект в git не нужен: запись без общих полей просто не пишется.
+		if (Object.keys(split.shared).length > 0) shared[mock.slug] = split.shared;
+
+		for (const lang of CONTENT_LANGS) {
+			fs.mkdirSync(unitDir(type, mock.slug), { recursive: true });
+			fs.writeFileSync(
+				path.join(unitDir(type, mock.slug), `index.${lang}.md`),
+				serializeUnit(split.frontmatter[lang], split.bodies[lang]),
+				"utf8",
+			);
+		}
+	}
+}
+
+// Черновик — общее поле, поэтому едет в json, а не в языковой файл.
+const DRAFT = { draft: true };
+
+emit(
+	"post",
+	posts.map((p) => ({
+		slug: p.slug,
+		flat: {
+			title: p.title,
+			tags: p.tags,
+			date: p.date,
+			...(p.link ? { link: p.link } : {}),
+			...DRAFT,
+		},
+		bodies: { ru: p.body, en: "перевод в работе." },
+	})),
+);
+
+emit(
+	"article",
+	articles.map((a) => ({
+		slug: a.slug,
+		flat: { title: a.title, tags: a.tags, date: a.date, ...DRAFT },
+		bodies: {
+			ru: `${a.intro}\n\n<!--more-->\n\n${a.body}`,
+			en: "перевод в работе.\n\n<!--more-->",
+		},
+	})),
+);
+
+emit(
+	"project",
+	projects.map((p) => ({
+		slug: p.slug,
+		flat: {
+			title: p.title,
+			tags: p.tags,
+			repo: p.repo,
+			icon: p.icon,
+			color: p.color,
+			status: p.status,
+			...(p.homepage ? { homepage: p.homepage } : {}),
+			...DRAFT,
+		},
+		perLang: {
+			ru: { subtitle: p.subtitle, description: p.description },
+			en: { subtitle: TRANSLATION_PENDING, description: TRANSLATION_PENDING },
+		},
+		bodies: { ru: "", en: "" },
+	})),
+);
+
+emit(
+	"weekly",
+	weekly.map((w) => ({
+		slug: w.slug,
+		flat: { title: w.title, date: w.date, ...DRAFT },
+		perLang: {
+			ru: { excerpt: w.excerpt },
+			en: { excerpt: TRANSLATION_PENDING },
+		},
+		bodies: {
+			ru: w.changes
+				.map(([project, changes]) => `- **${project}** — ${changes}`)
+				.join("\n"),
+			en: TRANSLATION_PENDING,
+		},
+	})),
+);
+
+for (const [type, shared] of sharedByType) {
+	fs.mkdirSync(MOCK_ROOT, { recursive: true });
+	writeJsonRecord(path.join(MOCK_ROOT, META_FILE[type]), shared);
+}
+
+const total = posts.length + articles.length + projects.length + weekly.length;
 console.log(
 	"mocks:",
-	posts.length * 2 +
-		articles.length * 2 +
-		projects.length * 2 +
-		weekly.length * 2,
-	"files",
+	total * 2,
+	"файлов md и",
+	sharedByType.size,
+	"общих json",
 );

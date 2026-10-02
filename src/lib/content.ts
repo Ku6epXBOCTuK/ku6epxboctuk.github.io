@@ -8,6 +8,13 @@ export interface MarkdownModule<
 	frontmatter: TFrontmatter;
 }
 
+export type Frontmatter = Record<string, unknown>;
+
+/**
+ * Плоская запись `<type>s.json`: ключ — slug, значение — общие поля.
+ */
+export type SharedRecord = Record<string, Frontmatter>;
+
 export interface ContentEntry {
 	slug: string;
 	title: string;
@@ -15,6 +22,14 @@ export interface ContentEntry {
 	tags: string[];
 	draft: boolean;
 	image?: string;
+	/**
+	 * Общие поля из json, поверх которых лежит frontmatter языкового файла.
+	 *
+	 * Сайту не нужно знать, что `date` лежит в json, а `title` в md: он читает
+	 * одну склеенную карту. Языковой файл поверх — потому что именно он
+	 * переводимый, и именно его правит редактор.
+	 */
+	frontmatter: Frontmatter;
 	module: MarkdownModule;
 }
 
@@ -72,10 +87,26 @@ export function fileLang(path: string): ContentLang {
 	return match?.[1] === "en" ? "en" : "ru";
 }
 
-export function toEntry(path: string, module: MarkdownModule): ContentEntry {
+export function slugOf(path: string): string {
 	const segments = path.split("/");
-	const slug = segments[segments.length - 2] ?? "";
-	const fm = module.frontmatter;
+	return segments[segments.length - 2] ?? "";
+}
+
+/**
+ * Склейка общего json с языковым frontmatter.
+ *
+ * Обратная сторона `splitEntry` на стороне записи: там scope раскладывает поля
+ * по файлам, здесь они снова собираются в одну карту. Сайт не должен знать
+ * раскладку — это дело репозитория и схемы.
+ */
+export function toEntry(
+	path: string,
+	module: MarkdownModule,
+	shared: SharedRecord = {},
+): ContentEntry {
+	const slug = slugOf(path);
+	const fm: Frontmatter = { ...shared[slug], ...module.frontmatter };
+
 	return {
 		slug,
 		title: stringValue(fm.title) || slug,
@@ -83,6 +114,7 @@ export function toEntry(path: string, module: MarkdownModule): ContentEntry {
 		tags: tagsValue(fm.tags),
 		draft: fm.draft === true,
 		image: optionalValue(fm.image),
+		frontmatter: fm,
 		module,
 	};
 }

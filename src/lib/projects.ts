@@ -4,6 +4,7 @@ import {
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
+	type SharedRecord,
 } from "$lib/content";
 import {
 	createPairLoader,
@@ -11,6 +12,7 @@ import {
 	type LocalizedItem,
 	optionalString,
 } from "$lib/loaders";
+import { mergeShared, sharedFrom } from "$lib/shared";
 
 const modules = {
 	...import.meta.glob<MarkdownModule>(
@@ -22,6 +24,21 @@ const modules = {
 		{ eager: true },
 	),
 };
+
+const shared = mergeShared(
+	sharedFrom(
+		import.meta.glob<SharedRecord>("/src/content/projects.json", {
+			eager: true,
+			import: "default",
+		}),
+	),
+	sharedFrom(
+		import.meta.glob<SharedRecord>("/src/content-mocks/projects.json", {
+			eager: true,
+			import: "default",
+		}),
+	),
+);
 
 export interface ProjectBase extends ContentEntry {
 	subtitle?: string;
@@ -46,6 +63,7 @@ const UNORDERED = Number.MAX_SAFE_INTEGER;
 
 const loader = createPairLoader<ProjectBase>({
 	modules,
+	shared,
 	toItem: (entry, fm) => ({
 		...entry,
 		subtitle: optionalString(fm, "subtitle"),

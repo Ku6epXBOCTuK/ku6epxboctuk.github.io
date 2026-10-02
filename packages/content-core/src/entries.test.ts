@@ -194,6 +194,38 @@ describe("репозиторий", () => {
 			expect(split.shared).toEqual({ date: "2026-09-30" });
 			expect(entryExists(TYPE, SLUG, fixture())).toBe(false);
 		});
+
+		it("переводимое поле одного языка не размазывается на другой", () => {
+			// `needs_translation` правдив только у EN. Если он попадёт в baseline
+			// «на оба языка», RU-файл на диске будет врать, а редактор этого не
+			// покажет: он отдал ровно то, что хотел.
+			const input = entry();
+			input.versions.ru.frontmatter.title = "Заголовок";
+			input.versions.en.frontmatter = {
+				title: "Title",
+				needs_translation: true,
+			};
+
+			const split = splitEntry(TYPE, input);
+			expect(split.frontmatter.ru).toEqual({ title: "Заголовок" });
+			expect(split.frontmatter.en).toEqual({
+				title: "Title",
+				needs_translation: true,
+			});
+		});
+
+		it("переводимое в общей корзине всё-таки читается как «на оба языка»", () => {
+			// Обратная сторона предыдущего правила: значение, положенное не в свой
+			// файл, применяется к обоим языкам, иначе спасательное правило было бы
+			// бессмысленным.
+			const input = entry();
+			input.shared = { date: "2026-09-30", title: "Один на всех" };
+
+			const split = splitEntry(TYPE, input);
+			expect(split.frontmatter.ru).toEqual({ title: "Один на всех" });
+			expect(split.frontmatter.en).toEqual({ title: "Один на всех" });
+			expect(split.shared).toEqual({ date: "2026-09-30" });
+		});
 	});
 
 	describe("языковые файлы", () => {

@@ -4,12 +4,14 @@ import {
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
+	type SharedRecord,
 } from "$lib/content";
 import {
 	createPairLoader,
 	optionalString,
 	type LocalizedItem,
 } from "$lib/loaders";
+import { mergeShared, sharedFrom } from "$lib/shared";
 
 const modules = {
 	...import.meta.glob<MarkdownModule>(
@@ -22,6 +24,21 @@ const modules = {
 	),
 };
 
+const shared = mergeShared(
+	sharedFrom(
+		import.meta.glob<SharedRecord>("/src/content/weekly.json", {
+			eager: true,
+			import: "default",
+		}),
+	),
+	sharedFrom(
+		import.meta.glob<SharedRecord>("/src/content-mocks/weekly.json", {
+			eager: true,
+			import: "default",
+		}),
+	),
+);
+
 export interface WeeklyReportBase extends ContentEntry {
 	excerpt?: string;
 }
@@ -30,6 +47,7 @@ export interface WeeklyReport extends WeeklyReportBase, LocalizedItem {}
 
 const loader = createPairLoader<WeeklyReportBase>({
 	modules,
+	shared,
 	toItem: (entry, fm) => ({
 		...entry,
 		excerpt: optionalString(fm, "excerpt"),

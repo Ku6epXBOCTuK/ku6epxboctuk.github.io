@@ -164,6 +164,10 @@ export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 
 	// Поле вне схемы не знает, где ему жить, поэтому просто не попадает ни в
 	// один файл. Об этом сообщает валидация, а не отказ сохранять.
+	//
+	// Спасательное правило: значение, найденное не в своей корзине, всё равно
+	// едет в свой файл. Общее поле, забытое в языковом frontmatter, должно
+	// уехать в json, а не потеряться.
 	const flat: Record<string, unknown> = { ...entry.local, ...entry.shared };
 	for (const lang of CONTENT_LANGS) {
 		for (const [key, value] of Object.entries(
@@ -173,10 +177,11 @@ export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 		}
 	}
 
-	// Переводимое, лежащее в общей или локальной корзине, читается как «одно
-	// значение на оба языка». Языковой frontmatter поверх перекрывает его — так
-	// правило «правит свой язык» работает даже если значение положили не туда.
-	const baseline = pick(flat, translatable);
+	// Переводимое значение «на оба языка» берётся только из корзин, а не из
+	// языковых frontmatter. Иначе `needs_translation`, который правдив лишь у EN,
+	// размазывается на RU — а фронтmatter на диске становится не тем, что
+	// редактор прислал.
+	const baseline = pick({ ...entry.local, ...entry.shared }, translatable);
 
 	const frontmatter = {} as Record<ContentLang, Record<string, unknown>>;
 	const bodies = {} as Record<ContentLang, string>;

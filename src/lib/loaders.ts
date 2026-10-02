@@ -7,12 +7,14 @@ import {
 	toEntry,
 	type ContentEntry,
 	type ContentLang,
+	type Frontmatter,
 	type MarkdownModule,
+	type SharedRecord,
 } from "$lib/content";
 
 export type ModuleMap = Record<string, MarkdownModule>;
 
-export type Frontmatter = Record<string, unknown>;
+export type { Frontmatter };
 
 export function optionalString(
 	fm: Frontmatter,
@@ -48,15 +50,18 @@ interface FlatFile<T extends ContentEntry> {
 
 export function createFlatLoader<T extends ContentEntry>(options: {
 	modules: ModuleMap;
+	/** Общие поля из `<type>s.json`; ключ — slug. */
+	shared?: SharedRecord;
 	toItem: (_entry: ContentEntry, _fm: Frontmatter) => T;
 	sortByDate?: boolean;
 }): FlatLoader<T> {
+	const shared = options.shared ?? {};
 	const grouped = collectByFolder<FlatFile<T>>(
 		Object.entries(options.modules).map(([path, module]) => {
-			const entry = toEntry(path, module);
+			const entry = toEntry(path, module, shared);
 			return {
 				lang: fileLang(path),
-				item: options.toItem(entry, module.frontmatter),
+				item: options.toItem(entry, entry.frontmatter),
 			};
 		}),
 		(file) => file.item.slug,
@@ -115,16 +120,19 @@ interface PairFile<T extends ContentEntry> {
 
 export function createPairLoader<T extends ContentEntry>(options: {
 	modules: ModuleMap;
+	/** Общие поля из `<type>s.json`; ключ — slug. */
+	shared?: SharedRecord;
 	toItem: (_entry: ContentEntry, _fm: Frontmatter) => T;
 	sortByDate?: boolean;
 }): PairLoader<T & LocalizedItem> {
+	const shared = options.shared ?? {};
 	const grouped = collectByFolder<PairFile<T>>(
 		Object.entries(options.modules).map(([path, module]) => {
-			const entry = toEntry(path, module);
+			const entry = toEntry(path, module, shared);
 			return {
 				lang: fileLang(path),
 				entry,
-				item: options.toItem(entry, module.frontmatter),
+				item: options.toItem(entry, entry.frontmatter),
 			};
 		}),
 		(file) => file.entry.slug,

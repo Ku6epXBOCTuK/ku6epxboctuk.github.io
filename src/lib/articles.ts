@@ -5,8 +5,10 @@ import {
 	type ContentEntry,
 	type ContentLang,
 	type MarkdownModule,
+	type SharedRecord,
 } from "$lib/content";
 import { createPairLoader, type LocalizedItem } from "$lib/loaders";
+import { mergeShared, sharedFrom } from "$lib/shared";
 
 const WORDS_PER_MINUTE = 200;
 
@@ -51,6 +53,21 @@ const minutesBySlugLang = new Map(
 	}),
 );
 
+const shared = mergeShared(
+	sharedFrom(
+		import.meta.glob<SharedRecord>("/src/content/articles.json", {
+			eager: true,
+			import: "default",
+		}),
+	),
+	sharedFrom(
+		import.meta.glob<SharedRecord>("/src/content-mocks/articles.json", {
+			eager: true,
+			import: "default",
+		}),
+	),
+);
+
 export interface Article extends ContentEntry, LocalizedItem {
 	readingTime?: number;
 }
@@ -62,6 +79,7 @@ function withReadingTime(item: Article): Article {
 
 const loader = createPairLoader<ContentEntry>({
 	modules,
+	shared,
 	toItem: (entry) => entry,
 });
 
