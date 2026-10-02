@@ -1,34 +1,29 @@
-import type {
-	ContentLang,
-	ContentType,
-	UnitSummary,
-} from "@ku6epxboctuk/content-core/shared";
-
-export interface UnitVersion {
-	frontmatter: Record<string, unknown>;
-	body: string;
-}
+import type { Entry, UnitSummary } from "@ku6epxboctuk/content-core/shared";
 
 export interface ValidationReport {
 	errors: string[];
 	warnings: string[];
 }
 
-export interface UnitDetail {
-	summary: UnitSummary;
-	ru: UnitVersion | null;
-	en: UnitVersion | null;
+/**
+ * Данные страницы правки: сама единица и разбор валидации.
+ *
+ * Раньше здесь лежали `ru` и `en` с общими полями, продублированными в оба
+ * frontmatter. Теперь форма правит ровно то, что лежит в `Entry`, и ничего не
+ * знает про раскладку по файлам — этим занят репозиторий.
+ */
+export interface EntryDetail {
+	entry: Entry;
 	validation: ValidationReport;
 }
 
 export interface SaveResult {
 	ok: true;
 	validation: ValidationReport;
-	created?: string;
-	saved?: string;
-	slug?: string;
 }
 
-export type Editable = Record<ContentLang, UnitVersion | null>;
+export interface CreateResult extends SaveResult {
+	slug: string;
+}
 
-export type EditorType = ContentType;
+export type EditorUnits = UnitSummary[];

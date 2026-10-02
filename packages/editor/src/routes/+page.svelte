@@ -5,7 +5,9 @@
 		CONTENT_TYPES,
 		defaultsFor,
 		draftSlug,
+		entryFromFlat,
 		type ContentType,
+		type Entry,
 		type UnitSummary,
 	} from "@ku6epxboctuk/content-core/shared";
 	import type { GitHubProjectPayload } from "./api/github-project/+server";
@@ -31,26 +33,33 @@
 		}
 	}
 
+	async function createEntry(type: ContentType, slug: string, entry: Entry) {
+		const res = await fetch(`/api/entries/${type}/${slug}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(entry),
+		});
+		if (!res.ok) {
+			errorText =
+				((await readJson(res)) as { error?: string }).error ??
+				`HTTP ${res.status}`;
+			return false;
+		}
+		await goto(`/${type}/${slug}`);
+		return true;
+	}
+
 	async function createPlain(type: ContentType) {
 		const slug = draftSlug(type);
 		creating = true;
 		errorText = "";
 		try {
-			const res = await fetch(`/api/entries/${type}/${slug}`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					ru: { frontmatter: defaultsFor(type), body: "" },
-					en: { frontmatter: {}, body: "" },
-				}),
-			});
-			if (!res.ok) {
-				errorText =
-					((await readJson(res)) as { error?: string }).error ??
-					`HTTP ${res.status}`;
-				return;
-			}
-			await goto(`/${type}/${slug}`);
+			// `defaultsFor` отдаёт плоскую карту; корзины расставляет `scope`.
+			await createEntry(
+				type,
+				slug,
+				entryFromFlat(type, slug, defaultsFor(type)),
+			);
 		} catch (err) {
 			errorText = (err as Error).message;
 		} finally {
@@ -79,24 +88,14 @@
 
 			ghNotes = json.notes ?? [];
 
-			const saved = await fetch(`/api/entries/project/${json.slug}`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					ru: {
-						frontmatter: { ...defaultsFor("project"), ...json.frontmatter },
-						body: json.body ?? "",
-					},
-					en: { frontmatter: {}, body: "" },
-				}),
+			// GitHub присылает поля вперемешку, `scope` раскладывает их по корзинам.
+			const entry = entryFromFlat("project", json.slug, {
+				...defaultsFor("project"),
+				...json.frontmatter,
 			});
-			if (!saved.ok) {
-				errorText =
-					((await readJson(saved)) as { error?: string }).error ??
-					`HTTP ${saved.status}`;
-				return;
-			}
-			await goto(`/project/${json.slug}`);
+			entry.versions.ru.body = json.body ?? "";
+
+			await createEntry("project", json.slug, entry);
 		} catch (err) {
 			errorText = (err as Error).message;
 		} finally {

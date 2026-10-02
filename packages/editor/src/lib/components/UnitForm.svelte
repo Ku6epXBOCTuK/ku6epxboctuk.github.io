@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import {
-		FIELDS,
+		fieldScope,
 		fieldsByScope,
 		isValidSlug,
 		slugFromTitle,
 		type ContentLang,
 		type ContentType,
+		type Entry,
 		type FieldDef,
 	} from "@ku6epxboctuk/content-core/shared";
-	import type { UnitDetail, UnitVersion, ValidationReport } from "$lib/types";
+	import type { EntryDetail, ValidationReport } from "$lib/types";
 	import { fieldRows } from "$lib/groups";
 	import type { GitHubProjectPayload } from "../../routes/api/github-project/+server";
 	import Field from "./Field.svelte";
@@ -20,16 +21,14 @@
 	interface Props {
 		type: ContentType;
 		slug: string;
-		detail: UnitDetail;
+		detail: EntryDetail;
 	}
 
 	let { type, slug, detail }: Props = $props();
 
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
-	const LANGS: ContentLang[] = ["ru", "en"];
 
-	let ru = $state<UnitVersion | null>(null);
-	let en = $state<UnitVersion | null>(null);
+	let entry = $state<Entry | null>(null);
 	let report = $state<ValidationReport | null>(null);
 	let status = $state("");
 	let ghStatus = $state("");
@@ -48,8 +47,24 @@
 	$effect(() => {
 		if (seeded === slug) return;
 		seeded = slug;
-		ru = detail.ru;
-		en = detail.en;
+		// Глубокая копия: `detail` принадлежит загрузке страницы, и правка формы
+		// не должна расходиться с ней до сохранения.
+		const source = detail.entry;
+		entry = {
+			...source,
+			shared: { ...source.shared },
+			local: { ...source.local },
+			versions: {
+				ru: {
+					...source.versions.ru,
+					frontmatter: { ...source.versions.ru.frontmatter },
+				},
+				en: {
+					...source.versions.en,
+					frontmatter: { ...source.versions.en.frontmatter },
+				},
+			},
+		};
 		report = detail.validation;
 		renameFrom = slug;
 		renameTo = slug;
@@ -66,66 +81,47 @@
 		return fieldsByScope(type, "translatable");
 	}
 
-	const sharedFields = $derived(
-		FIELDS[type].filter(
-			(field) => field.scope !== "translatable" && !field.hidden && !field.auto,
-		),
-	);
-
 	const rows = $derived(fieldRows(type, fieldsFor(), fieldsFor()));
 
+	const metaFileName = $derived(`${type}s.json`);
+	const localFileName = $derived(`${type}s.local.json`);
+
 	/**
-	 * Общие поля живут в одном состоянии на оба языка. Берём из RU: он есть
-	 * всегда, и первым делом должен быть правдой для всех.
+	 * Корзина, в которой поле лежит: `scope` решает, а не язык. Возвращается
+	 * карта, потому что форма обходит поля по именам из схемы, а не по
+	 * литеральным ключам, — типизация `Entry` остаётся на границе.
 	 */
-	function sharedValue(name: string): unknown {
-		return ru?.frontmatter[name];
+	function bucketOf(name: string, lang: ContentLang): Record<string, unknown> {
+		const current = entry;
+		if (!current) return {};
+
+		switch (fieldScope(type, name)) {
+			case "shared":
+				return current.shared as Record<string, unknown>;
+			case "local":
+				return current.local as Record<string, unknown>;
+			default:
+				return current.versions[lang].frontmatter as Record<string, unknown>;
+		}
 	}
 
-	function setShared(name: string, value: unknown) {
+	function valueOf(name: string, lang: ContentLang): unknown {
+		return bucketOf(name, lang)[name];
+	}
+
+	function setValue(name: string, lang: ContentLang, value: unknown) {
+		const bucket = bucketOf(name, lang);
 		const empty =
 			value === undefined ||
 			value === "" ||
 			(Array.isArray(value) && value.length === 0);
 
-		for (const lang of LANGS) {
-			const data = versionFor(lang);
-			if (!data) continue;
-			const frontmatter = { ...data.frontmatter };
-			if (empty) delete frontmatter[name];
-			else frontmatter[name] = value;
-			setVersion(lang, { ...data, frontmatter });
-		}
+		if (empty) delete bucket[name];
+		else bucket[name] = value;
 	}
 
 	const slugOk = $derived(isValidSlug(renameTo));
 	const renameChanged = $derived(renameTo !== renameFrom && slugOk);
-
-	function versionFor(lang: ContentLang): UnitVersion | null {
-		return lang === "ru" ? ru : en;
-	}
-
-	function setVersion(lang: ContentLang, next: UnitVersion) {
-		if (lang === "ru") ru = next;
-		else en = next;
-	}
-
-	/**
-	 * Пока поля лежат в frontmatter, поэтому и общие, и локальные вычищаются из
-	 * языковых файлов: в md им места нет. Фаза 3 переносит их в json, и этот
-	 * цикл уезжает в репозиторий вместе с правилом разложения.
-	 */
-	function payloadFor(lang: ContentLang): UnitVersion {
-		const data = versionFor(lang);
-		if (!data) throw new Error(`Нет версии ${lang}`);
-
-		const frontmatter = { ...data.frontmatter };
-		for (const field of FIELDS[type]) {
-			if (field.scope !== "translatable") delete frontmatter[field.name];
-		}
-
-		return { frontmatter, body: data.body };
-	}
 
 	async function readJson(res: Response) {
 		try {
@@ -135,23 +131,8 @@
 		}
 	}
 
-	function setField(lang: ContentLang, key: string, value: unknown) {
-		const data = versionFor(lang);
-		if (!data) return;
-		const next = { ...data.frontmatter };
-		const empty =
-			value === undefined ||
-			value === "" ||
-			(Array.isArray(value) && value.length === 0);
-		if (empty) delete next[key];
-		else next[key] = value;
-		setVersion(lang, { ...data, frontmatter: next });
-	}
-
 	function setBody(lang: ContentLang, body: string) {
-		const data = versionFor(lang);
-		if (!data) return;
-		setVersion(lang, { ...data, body });
+		if (entry) entry.versions[lang].body = body;
 	}
 
 	/**
@@ -160,41 +141,22 @@
 	 * осознанное действие, поэтому кнопка на каждое поле своя и подписана.
 	 */
 	function copyField(name: string, from: ContentLang, to: ContentLang) {
-		const source = versionFor(from);
-		const target = versionFor(to);
-		if (!source || !target) return;
+		const source = bucketOf(name, from);
+		const target = bucketOf(name, to);
+		const value = source[name];
 
-		const frontmatter = { ...target.frontmatter };
-		const value = source.frontmatter[name];
+		if (value === undefined) delete target[name];
+		else target[name] = value;
 
-		if (value === undefined) delete frontmatter[name];
-		else frontmatter[name] = value;
-
-		setVersion(to, { ...target, frontmatter });
 		status = `${fieldLabel(name)}: ${LANG_LABEL[from]} → ${LANG_LABEL[to]}`;
 	}
 
 	function fieldLabel(name: string): string {
-		return FIELDS[type].find((field) => field.name === name)?.label ?? name;
-	}
-
-	/**
-	 * Копия общего поля не нужна: оно и так одно. А вот расхождение на диске,
-	 * оставшееся от старой схемы, надо свести к одному значению.
-	 */
-	async function alignShared() {
-		const stale: string[] = [];
-		for (const field of sharedFields) {
-			const value = ru?.frontmatter[field.name];
-			const other = en?.frontmatter[field.name];
-			if (JSON.stringify(value) !== JSON.stringify(other)) {
-				stale.push(field.label);
-				setShared(field.name, value);
-			}
-		}
-		if (stale.length === 0) return;
-		await saveBoth();
-		status = `Сведено в оба файла: ${stale.join(", ")}`;
+		return (
+			fieldsByScope(type, "translatable")
+				.concat(fieldsByScope(type, "shared"), fieldsByScope(type, "local"))
+				.find((field) => field.name === name)?.label ?? name
+		);
 	}
 
 	/**
@@ -202,15 +164,12 @@
 	 * в цели пусто.
 	 */
 	function canCopyText(to: ContentLang): boolean {
-		const target = versionFor(to);
-		return !target || target.body.trim() === "";
+		return !entry || entry.versions[to].body.trim() === "";
 	}
 
 	function copyText(from: ContentLang, to: ContentLang) {
-		const source = versionFor(from);
-		const target = versionFor(to);
-		if (!source || !target || !canCopyText(to)) return;
-		setBody(to, source.body);
+		if (!entry || !canCopyText(to)) return;
+		entry.versions[to].body = entry.versions[from].body;
 		clearing = null;
 		status = `${LANG_LABEL[from]} → ${LANG_LABEL[to]}`;
 	}
@@ -221,17 +180,18 @@
 
 	function doClear() {
 		const lang = clearing;
-		if (!lang) return;
-		setBody(lang, "");
+		if (!lang || !entry) return;
+		entry.versions[lang].body = "";
 		clearing = null;
 		status = `${LANG_LABEL[lang]} очищен.`;
 	}
 
 	/**
-	 * Одно сохранение на единицу: оба языка уезжают одним запросом. Сохранение
-	 * по языку означало бы, что вторая версия молча осталась старой.
+	 * Одно сохранение на единицу: `Entry` уезжает целиком, а раскладывать его по
+	 * трём файлам — дело репозитория.
 	 */
 	async function saveBoth() {
+		if (!entry) return;
 		busy = true;
 		status = "";
 		try {
@@ -239,8 +199,9 @@
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					ru: { frontmatter: payloadFor("ru").frontmatter, body: ru?.body },
-					en: { frontmatter: payloadFor("en").frontmatter, body: en?.body },
+					shared: entry.shared,
+					local: entry.local,
+					versions: entry.versions,
 				}),
 			});
 			const json = await readJson(res);
@@ -298,7 +259,9 @@
 	}
 
 	function suggestSlug() {
-		const guess = slugFromTitle(String(ru?.frontmatter.title ?? ""));
+		const guess = slugFromTitle(
+			String(entry?.versions.ru.frontmatter.title ?? ""),
+		);
 		if (guess) renameTo = guess;
 	}
 
@@ -307,9 +270,8 @@
 	 * а что не тронули — говорим, чтобы не было сюрпризов.
 	 */
 	async function pullFromGithub(lang: ContentLang) {
-		const data = versionFor(lang);
-		const url = String(data?.frontmatter.repo ?? "").trim();
-		if (!data || !url) {
+		const url = String(entry?.shared.repo ?? "").trim();
+		if (!entry || !url) {
 			ghStatus = `${LANG_LABEL[lang]}: впиши ссылку на репозиторий.`;
 			return;
 		}
@@ -320,7 +282,7 @@
 			const res = await fetch("/api/github-project", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ url, image: !data.frontmatter.image }),
+				body: JSON.stringify({ url, image: !entry.shared.image }),
 			});
 			const json = (await readJson(res)) as GitHubProjectPayload & {
 				error?: string;
@@ -332,13 +294,12 @@
 
 			const filled: string[] = [];
 			const skipped: string[] = [];
-			const next = { ...data.frontmatter };
 
 			for (const [key, incoming] of Object.entries(json.frontmatter)) {
 				if (incoming === undefined || incoming === null || incoming === "")
 					continue;
 
-				const existing = next[key];
+				const existing = valueOf(key, lang);
 				const empty =
 					existing === undefined ||
 					existing === null ||
@@ -346,7 +307,7 @@
 					(Array.isArray(existing) && existing.length === 0);
 
 				if (empty) {
-					next[key] = incoming;
+					setValue(key, lang, incoming);
 					filled.push(key);
 				} else {
 					skipped.push(key);
@@ -358,8 +319,9 @@
 				return;
 			}
 
-			const body = data.body.trim() ? data.body : json.body;
-			setVersion(lang, { frontmatter: next, body });
+			if (!entry.versions[lang].body.trim()) {
+				entry.versions[lang].body = json.body ?? "";
+			}
 
 			const parts = [`заполнено: ${filled.join(", ")}`];
 			if (skipped.length > 0) parts.push(`не тронуто: ${skipped.join(", ")}`);
@@ -407,9 +369,7 @@
 	<section class="shared">
 		<div class="shared-head">
 			<h2>Общее</h2>
-			<button type="button" disabled={busy} onclick={alignShared}
-				>свести в оба файла</button
-			>
+			<span class="file-name">{metaFileName}</span>
 		</div>
 		<div class="shared-body">
 			{#each rows.shared as row, index (index)}
@@ -419,7 +379,7 @@
 					<Field
 						field={row.shared}
 						scope="shared"
-						value={sharedValue(row.shared.name)}
+						value={valueOf(row.shared.name, "ru")}
 						disabled={busy}
 						{slug}
 						actionLabel={row.shared.name === "repo"
@@ -428,12 +388,40 @@
 						onaction={row.shared.name === "repo"
 							? () => pullFromGithub("ru")
 							: undefined}
-						onchange={(next) => setShared(row.shared?.name ?? "", next)}
+						onchange={(next) => setValue(row.shared?.name ?? "", "ru", next)}
 					/>
 				{/if}
 			{/each}
 		</div>
 	</section>
+
+	{#if rows.local.length > 0}
+		<section class="shared">
+			<div class="shared-head">
+				<h2>Локальное</h2>
+				<span class="file-name">{localFileName}</span>
+			</div>
+			<p class="local-note">
+				Файл не в гите: путь к клону есть только на этой машине.
+			</p>
+			<div class="shared-body">
+				{#each rows.local as row, index (index)}
+					{#if row.title}
+						<h3 class="shared-group">{row.title}</h3>
+					{:else if row.shared}
+						<Field
+							field={row.shared}
+							scope="local"
+							value={valueOf(row.shared.name, "ru")}
+							disabled={busy}
+							{slug}
+							onchange={(next) => setValue(row.shared?.name ?? "", "ru", next)}
+						/>
+					{/if}
+				{/each}
+			</div>
+		</section>
+	{/if}
 
 	<div class="pair">
 		{#snippet fieldCell(field: FieldDef | undefined, lang: ContentLang)}
@@ -442,16 +430,10 @@
 					<Field
 						{field}
 						scope={lang}
-						value={versionFor(lang)?.frontmatter[field.name]}
+						value={valueOf(field.name, lang)}
 						disabled={busy}
 						{slug}
-						actionLabel={field.name === "repo"
-							? "подтянуть с GitHub"
-							: undefined}
-						onaction={field.name === "repo"
-							? () => pullFromGithub(lang)
-							: undefined}
-						onchange={(next) => setField(lang, field.name, next)}
+						onchange={(next) => setValue(field.name, lang, next)}
 					/>
 				{/if}
 			</div>
@@ -524,7 +506,7 @@
 						</div>
 					</div>
 					<MarkdownField
-						value={versionFor(lang)?.body ?? ""}
+						value={entry?.versions[lang].body ?? ""}
 						disabled={busy}
 						{slug}
 						needsMoreMarker={type === "article"}
@@ -828,10 +810,20 @@
 		color: var(--accent);
 	}
 
-	.shared-head button {
+	/* Имя файла рядом с заголовком: блок «Общее» правит не поля вообще, а
+	   конкретный json, и без подписи это читается как «общее где-то». */
+	.file-name {
 		margin-left: auto;
+		font-family: var(--font-mono);
 		font-size: var(--fs-sm);
-		padding: 4px 10px;
+		color: var(--text-faint);
+	}
+
+	.local-note {
+		margin: 0;
+		font-size: var(--fs-sm);
+		line-height: 1.6;
+		color: var(--text-faint);
 	}
 
 	.shared-body {

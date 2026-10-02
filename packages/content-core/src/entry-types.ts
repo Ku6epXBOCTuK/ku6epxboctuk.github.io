@@ -1,5 +1,6 @@
+import { fieldScope } from "./fields.ts";
 import type { FieldNames, FieldScope } from "./fields.ts";
-import type { ContentLang, SchemaType } from "./types.ts";
+import { CONTENT_LANGS, type ContentLang, type SchemaType } from "./types.ts";
 
 /*
  * Форма единицы контента — то, что видит потребитель: редактор, сайт, weekly.
@@ -94,6 +95,78 @@ export function emptyEntry<T extends SchemaType>(
 			en: emptyVersion<T>(),
 		},
 	};
+}
+
+type Bag = Record<string, unknown>;
+
+function asBag(raw: unknown): Bag {
+	if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+	return raw as Bag;
+}
+
+/**
+ * Разбор плоской карты в `Entry` по `scope` поля.
+ *
+ * Нужна там, где значения ещё не разложены: `defaultsFor` отдаёт одну карту, и
+ * GitHub тоже присылает поля вперемешку. Поле вне схемы не попадает ни в одну
+ * корзину — про него скажет валидация, а не отказ работать.
+ */
+export function entryFromFlat<T extends SchemaType>(
+	type: T,
+	slug: string,
+	flat: Bag,
+): Entry<T> {
+	const entry = emptyEntry(type, slug);
+
+	for (const [name, value] of Object.entries(flat)) {
+		switch (fieldScope(type, name)) {
+			case "shared":
+				(entry.shared as Bag)[name] = value;
+				break;
+			case "local":
+				(entry.local as Bag)[name] = value;
+				break;
+			case "translatable":
+				for (const lang of CONTENT_LANGS) {
+					(entry.versions[lang].frontmatter as Bag)[name] = value;
+				}
+				break;
+		}
+	}
+
+	return entry;
+}
+
+/**
+ * Приведение произвольного JSON к `Entry`.
+ *
+ * Единственная точка, где недоверенный вход превращается в запись: всё, чего
+ * нет или что не объект, заменяется пустым. Чистить пустые значения не нужно —
+ * это делает `splitEntry` при раскладке по файлам.
+ */
+export function entryFromInput<T extends SchemaType>(
+	type: T,
+	slug: string,
+	raw: unknown,
+): Entry<T> {
+	const source = asBag(raw);
+	const versions = asBag(source.versions);
+
+	const entry = emptyEntry(type, slug);
+	entry.shared = asBag(source.shared) as Entry<T>["shared"];
+	entry.local = asBag(source.local) as Entry<T>["local"];
+
+	for (const lang of CONTENT_LANGS) {
+		const version = asBag(versions[lang]);
+		entry.versions[lang] = {
+			frontmatter: asBag(
+				version.frontmatter,
+			) as Entry<T>["versions"][typeof lang]["frontmatter"],
+			body: typeof version.body === "string" ? version.body : "",
+		};
+	}
+
+	return entry;
 }
 
 /**

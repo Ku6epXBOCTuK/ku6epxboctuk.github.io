@@ -296,6 +296,14 @@ export function fieldsWithScope(type: string, scope: FieldScope): FieldDef[] {
 }
 
 /**
+ * Где поле должно лежать. `undefined` — поля нет в схеме: и репозиторий, и
+ * редактор такое значение молча игнорируют, а сообщает про него валидация.
+ */
+export function fieldScope(type: string, name: string): FieldScope | undefined {
+	return fieldsForType(type).find((field) => field.name === name)?.scope;
+}
+
+/**
  * Разбивка полей по месту хранения. Единственное место, где живёт знание о том,
  * что переводится, что общее и что локальное; репозиторий берёт готовые списки и
  * не разбирает поля по именам.

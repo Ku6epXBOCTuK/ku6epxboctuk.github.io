@@ -46,6 +46,7 @@ export interface FieldRow {
 
 interface Plan {
 	shared: FieldGroup[];
+	local: FieldGroup[];
 	translated: FieldGroup[];
 }
 
@@ -55,6 +56,7 @@ const PLAN: Record<ContentType, Plan> = {
 			{ title: "Публикация", fields: ["date", "link", "draft"] },
 			{ title: "Темы", fields: ["tags"] },
 		],
+		local: [],
 		translated: [
 			{ title: "Заголовок", fields: ["title"] },
 			// Не «Обложка»: под блоком и так стоит поле с этой подписью, и два
@@ -67,6 +69,7 @@ const PLAN: Record<ContentType, Plan> = {
 			{ title: "Публикация", fields: ["date", "draft"] },
 			{ title: "Темы", fields: ["tags"] },
 		],
+		local: [],
 		translated: [
 			{ title: "Заголовок", fields: ["title"] },
 			{ title: "Картинка", fields: ["image"] },
@@ -74,10 +77,13 @@ const PLAN: Record<ContentType, Plan> = {
 	},
 	project: {
 		shared: [
-			{ title: "Ссылки", fields: ["repo", "homepage", "path"] },
+			{ title: "Ссылки", fields: ["repo", "homepage"] },
 			{ title: "Темы", fields: ["tags"] },
 			{ title: "Порядок и статус", fields: ["status", "order", "draft"] },
 		],
+		// Локальное уходит в гитигноренный файл, поэтому показывается отдельно
+		// и с назван��ем файла: иначе непонятно, почему поле не в общем блоке.
+		local: [{ title: "Локальное — projects.local.json", fields: ["path"] }],
 		translated: [
 			{
 				title: "Заголовок и описание",
@@ -110,7 +116,7 @@ export function fieldRows(
 	type: ContentType,
 	ruFields: FieldDef[],
 	enFields: FieldDef[],
-): { shared: FieldRow[]; translated: FieldRow[] } {
+): { shared: FieldRow[]; local: FieldRow[]; translated: FieldRow[] } {
 	const plan = PLAN[type];
 	const byName = (list: FieldDef[], name: string) =>
 		list.find((field) => field.name === name);
@@ -127,11 +133,16 @@ export function fieldRows(
 	}
 
 	const sharedRows: FieldRow[] = [];
+	const localRows: FieldRow[] = [];
 	const translatedRows: FieldRow[] = [];
 
 	const emit = (group: ResolvedGroup) => {
 		const isPair = group.fields.some((field) => field.scope === "translatable");
-		const bucket = isPair ? translatedRows : sharedRows;
+		const bucket = isPair
+			? translatedRows
+			: group.fields.some((field) => field.scope === "local")
+				? localRows
+				: sharedRows;
 		const title = { title: group.title };
 		const rows = group.fields.map((field) =>
 			field.scope === "translatable"
@@ -145,12 +156,14 @@ export function fieldRows(
 	};
 
 	for (const group of resolve(plan.shared, union)) emit(group);
+	for (const group of resolve(plan.local, union)) emit(group);
 	for (const group of resolve(plan.translated, union)) emit(group);
 
 	// Новое поле в схеме не должно молча пропасть из формы.
 	const claimed = new Set(
 		plan.shared
 			.flatMap((g) => g.fields)
+			.concat(plan.local.flatMap((g) => g.fields))
 			.concat(plan.translated.flatMap((g) => g.fields)),
 	);
 	const leftovers = union.filter(
@@ -160,5 +173,5 @@ export function fieldRows(
 		emit({ title: "Прочее", fields: leftovers });
 	}
 
-	return { shared: sharedRows, translated: translatedRows };
+	return { shared: sharedRows, local: localRows, translated: translatedRows };
 }

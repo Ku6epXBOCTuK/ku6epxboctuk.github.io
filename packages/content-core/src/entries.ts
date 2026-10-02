@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import { join } from "node:path";
-import { ALL_FIELDS, fieldsWithScope, type FieldScope } from "./fields.ts";
+import { fieldScope, fieldsWithScope, type FieldScope } from "./fields.ts";
 import { formatUnit } from "./format.ts";
 import { readJsonFile, writeJsonRecord } from "./json.ts";
 import { isValidSlug } from "./slug.ts";
@@ -41,10 +41,6 @@ import { parseUnit, serializeUnit } from "./yaml.ts";
  */
 function assertSlug(slug: string): void {
 	if (!isValidSlug(slug)) throw new Error(`Некорректный slug: ${slug}`);
-}
-
-function scopeOf(type: SchemaType, name: string): FieldScope | undefined {
-	return ALL_FIELDS[type].find((field) => field.name === name)?.scope;
 }
 
 function namesOf(type: SchemaType, scope: FieldScope): string[] {
@@ -173,7 +169,7 @@ export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 		for (const [key, value] of Object.entries(
 			entry.versions[lang]?.frontmatter ?? {},
 		)) {
-			if (scopeOf(type, key)) flat[key] = value;
+			if (fieldScope(type, key)) flat[key] = value;
 		}
 	}
 
@@ -190,7 +186,7 @@ export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 		for (const [key, value] of Object.entries(
 			entry.versions[lang]?.frontmatter ?? {},
 		)) {
-			if (scopeOf(type, key) !== "translatable") continue;
+			if (fieldScope(type, key) !== "translatable") continue;
 			if (isEmptyValue(value)) delete own[key];
 			else own[key] = value;
 		}

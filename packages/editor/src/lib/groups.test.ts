@@ -25,6 +25,11 @@ function sharedRowList(type: Type) {
 	return pairRows(type).shared.filter((row) => !row.title);
 }
 
+/** Локальные поля: тоже по одному, но в своём блоке. */
+function localRowList(type: Type) {
+	return pairRows(type).local.filter((row) => !row.title);
+}
+
 describe("разметка полей", () => {
 	it("каждое поле встречается в строках ровно один раз", () => {
 		const doubled: string[] = [];
@@ -61,16 +66,21 @@ describe("разметка полей", () => {
 		expect(mismatched).toEqual([]);
 	});
 
-	it("path общий, но только для RU", () => {
-		// Путь к клону не переводится и правится один раз — значит общий блок.
-		// Но `only: ru` отвечает за файл, поэтому в EN он не попадёт.
-		const rows = fieldRowList("project");
-		const paired = rows.filter((row) => row.ru?.name === "path");
-
+	it("path локальный, а не общий и не переводимый", () => {
+		// Путь к клону уезжает в гитигноренный файл, поэтому в общем блоке его
+		// быть не должно, а парой он не рисуется ни при каких условиях.
+		const paired = fieldRowList("project").filter(
+			(row) => row.ru?.name === "path",
+		);
 		expect(paired).toEqual([]);
 
-		const shared = sharedRowList("project");
-		expect(shared.some((row) => row.shared?.name === "path")).toBe(true);
+		expect(
+			sharedRowList("project").some((row) => row.shared?.name === "path"),
+		).toBe(false);
+
+		expect(
+			localRowList("project").some((row) => row.shared?.name === "path"),
+		).toBe(true);
 	});
 
 	it("все поля схемы попали в строки", () => {
@@ -156,7 +166,7 @@ describe("разделение на переводимое и общее", () =>
 		expect(bad).toEqual([]);
 	});
 
-	it("каждое поле схемы попало либо в пару, либо в общий блок", () => {
+	it("каждое поле схемы попало либо в пару, либо в общий, либо в локальный", () => {
 		const lost: string[] = [];
 
 		for (const type of TYPES) {
@@ -165,6 +175,9 @@ describe("разделение на переводимое и общее", () =>
 					.map((row) => row.ru?.name)
 					.filter((n): n is string => Boolean(n)),
 				...sharedRowList(type)
+					.map((row) => row.shared?.name)
+					.filter((n): n is string => Boolean(n)),
+				...localRowList(type)
 					.map((row) => row.shared?.name)
 					.filter((n): n is string => Boolean(n)),
 			]);

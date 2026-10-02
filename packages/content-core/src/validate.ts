@@ -1,56 +1,97 @@
 import * as fs from "node:fs";
-import { join, resolve } from "node:path";
-import { repoRoot } from "./paths.ts";
-import type { ContentType, Frontmatter } from "./types.ts";
+import { basename, join, resolve } from "node:path";
+import { contentDir, metaFile, repoRoot } from "./paths.ts";
+import { SCHEMA_TYPES, type SchemaType } from "./types.ts";
 import { parseUnit } from "./yaml.ts";
 
-interface FmField {
+/*
+ * Валидация проверяет две схемы, потому что данные лежат в двух файлах.
+ * `frontmatter.json` описывает переводимое (его читает фронтматтер в
+ * редакторе), `content.schema.json` — общее и локальное.
+ *
+ * Отдельная проверка важна не ради удобства: если не запретить общие поля в
+ * frontmatter явно, кто-нибудь рано или поздно туда вернёт `date`, и разъезд
+ * двух файлов заметит только сравнение глазом.
+ */
+
+interface SchemaField {
 	name: string;
 	type: string;
 	required?: boolean;
+	choices?: string[];
+	default?: unknown;
 }
 
-interface SchemaType {
+interface FmType {
 	name: string;
-	fields: FmField[];
+	fields: SchemaField[];
 }
 
-interface Target {
-	dir: string;
-	schema: string;
+interface ContentSchema {
+	types: Record<string, { shared?: SchemaField[]; local?: SchemaField[] }>;
 }
 
-const TARGETS: Target[] = [
-	{ dir: "articles", schema: "article" },
-	{ dir: "posts", schema: "post" },
-	{ dir: "projects", schema: "project" },
-	{ dir: "weekly", schema: "weekly" },
-];
-
-const FOLDER: Record<ContentType, string> = {
-	post: "posts",
-	article: "articles",
-	project: "projects",
-};
-
-const TEASER_FROM_BODY = new Set(["articles", "posts"]);
-
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-const LANG_FILE = /^index\.(ru|en)\.md$/;
+interface TypeRules {
+	/** Переводимое: frontmatter `index.<lang>.md`. */
+	translatable: SchemaField[];
+	/** Общее: `<type>s.json`. */
+	shared: SchemaField[];
+	/** Локальное: `<type>s.local.json`, в гитигноре. */
+	local: SchemaField[];
+}
 
 export interface Report {
 	errors: string[];
 	warnings: string[];
 }
 
-function checkFieldType(value: unknown, expected: string): string | null {
+const TEASER_FROM_BODY = new Set(["posts", "articles"]);
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+const LANG_FILE = /^index\.(ru|en)\.md$/;
+
+const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+function targetOf(type: SchemaType): string {
+	return type === "weekly" ? "weekly" : `${type}s`;
+}
+
+export function loadSchema(root = repoRoot()): Map<string, TypeRules> {
+	const config = JSON.parse(
+		fs.readFileSync(join(root, "frontmatter.json"), "utf8"),
+	) as Record<string, FmType[]>;
+	const content = JSON.parse(
+		fs.readFileSync(join(root, "content.schema.json"), "utf8"),
+	) as ContentSchema;
+
+	const translatable = new Map(
+		(config["frontMatter.taxonomy.contentTypes"] ?? []).map((type) => [
+			type.name,
+			type.fields,
+		]),
+	);
+
+	return new Map(
+		SCHEMA_TYPES.map((type) => [
+			type,
+			{
+				translatable: translatable.get(type) ?? [],
+				shared: content.types[type]?.shared ?? [],
+				local: content.types[type]?.local ?? [],
+			},
+		]),
+	);
+}
+
+function checkType(value: unknown, field: SchemaField): string | null {
 	if (value == null) return null;
 
-	switch (expected) {
+	switch (field.type) {
 		case "string":
 		case "datetime":
 		case "image":
+		case "url":
 			if (typeof value !== "string") {
 				return `must be a string, got ${Array.isArray(value) ? "array" : typeof value}`;
 			}
@@ -60,74 +101,139 @@ function checkFieldType(value: unknown, expected: string): string | null {
 				return `must be a boolean, got ${typeof value}`;
 			}
 			break;
+		case "number":
+			if (typeof value !== "number") {
+				return `must be a number, got ${typeof value}`;
+			}
+			break;
+		case "tags":
+		case "string[]":
+			if (!Array.isArray(value)) {
+				return `must be an array, got ${typeof value}`;
+			}
+			for (const item of value) {
+				if (typeof item !== "string") {
+					return "items must be strings";
+				}
+			}
+			break;
+		case "choice":
+			if (typeof value !== "string") {
+				return `must be a string, got ${typeof value}`;
+			}
+			if (field.choices && !field.choices.includes(value)) {
+				return `must be one of ${field.choices.join(", ")}, got "${value}"`;
+			}
+			break;
+	}
+
+	if (
+		field.name === "date" &&
+		typeof value === "string" &&
+		!ISO_DATE.test(value)
+	) {
+		return `must be ISO YYYY-MM-DD, got "${value}"`;
 	}
 
 	return null;
 }
 
-function lintFile(
-	type: string,
-	schema: SchemaType | undefined,
+function checkRecord(
+	display: string,
+	data: Record<string, unknown>,
+	rules: SchemaField[],
 	report: Report,
-	displayUnit: string,
-	unitAbs: string,
-	file: string,
-	lang: "ru" | "en",
+	/** Ключи, о которых уже сказано иначе — чтобы не сообщать дважды. */
+	skip: Set<string> = new Set(),
 ): void {
-	const display = join(displayUnit, file);
-	const { frontmatter, body } = parseUnit(
-		fs.readFileSync(join(unitAbs, file), "utf8"),
-	);
-	const data = frontmatter;
+	const allowed = new Map(rules.map((field) => [field.name, field]));
 
-	if (schema) {
-		const allowed = new Set(schema.fields.map((f) => f.name));
-
-		for (const key of Object.keys(data)) {
-			if (!allowed.has(key)) {
-				report.errors.push(
-					`${display}: unknown field "${key}" (not in schema)`,
-				);
-			}
+	for (const key of Object.keys(data)) {
+		if (skip.has(key)) continue;
+		if (!allowed.has(key)) {
+			report.errors.push(`${display}: unknown field "${key}" (not in schema)`);
 		}
+	}
 
-		for (const field of schema.fields) {
-			const val = data[field.name];
-
-			if (field.required && (val == null || val === "")) {
+	for (const field of rules) {
+		const value = data[field.name];
+		if (value == null || value === "") {
+			if (field.required) {
 				report.errors.push(
 					`${display}: missing required field "${field.name}"`,
 				);
-				continue;
 			}
-
-			if (val != null) {
-				const err = checkFieldType(val, field.type);
-				if (err) {
-					report.errors.push(`${display}: field "${field.name}" ${err}`);
-				}
-			}
+			continue;
 		}
+		const err = checkType(value, field);
+		if (err) report.errors.push(`${display}: field "${field.name}" ${err}`);
 	}
+}
 
-	if (typeof data.date === "string" && !ISO_DATE.test(data.date)) {
+/**
+ * Общие и локальные поля в языковом frontmatter — главный запрет новой модели.
+ * Сообщение называет правильный файл: «unknown field» оставило бы вопрос, куда
+ * девать значение.
+ *
+ * Возвращает множество ключей, о которых уже сказано, чтобы проверка типов не
+ * продублировала то же самое общим словом про неизвестное поле.
+ */
+function reportForeignFields(
+	display: string,
+	frontmatter: Record<string, unknown>,
+	rules: TypeRules,
+	sharedFile: string,
+	localFile: string,
+	report: Report,
+): Set<string> {
+	const translatable = new Set(rules.translatable.map((f) => f.name));
+	const shared = new Set(rules.shared.map((f) => f.name));
+	const local = new Set(rules.local.map((f) => f.name));
+	const reported = new Set<string>();
+
+	for (const key of Object.keys(frontmatter)) {
+		if (translatable.has(key)) continue;
+
+		const target = shared.has(key)
+			? sharedFile
+			: local.has(key)
+				? localFile
+				: "";
+		if (!target) continue;
+
+		reported.add(key);
 		report.errors.push(
-			`${display}: field "date" must be ISO YYYY-MM-DD, got "${data.date}"`,
+			`${display}: field "${key}" is not translatable — belongs in ${target}, not in frontmatter`,
 		);
 	}
 
-	if (data.tags !== undefined) {
-		if (!Array.isArray(data.tags)) {
-			report.errors.push(`${display}: field "tags" must be an array`);
-		} else {
-			for (const tag of data.tags) {
-				if (typeof tag !== "string") {
-					report.errors.push(`${display}: field "tags" items must be strings`);
-					break;
-				}
-			}
-		}
-	}
+	return reported;
+}
+
+function lintMdFile(
+	type: string,
+	rules: TypeRules,
+	report: Report,
+	display: string,
+	unitAbs: string,
+	file: string,
+	lang: "ru" | "en",
+	sharedFile: string,
+	localFile: string,
+): void {
+	const { frontmatter, body } = parseUnit(
+		fs.readFileSync(join(unitAbs, file), "utf8"),
+	);
+
+	const reported = reportForeignFields(
+		display,
+		frontmatter,
+		rules,
+		sharedFile,
+		localFile,
+		report,
+	);
+	checkRecord(display, frontmatter, rules.translatable, report, reported);
 
 	if (type === "articles" && !body.includes("<!--more-->")) {
 		report.errors.push(
@@ -141,81 +247,70 @@ function lintFile(
 		);
 	}
 
-	if (type === "projects") {
-		if ("type" in data) {
-			report.errors.push(
-				`${display}: field "type" is removed for projects (use tags)`,
-			);
-		}
-		if ("url" in data) {
-			report.errors.push(`${display}: field "url" is renamed to "repo"`);
-		}
-	}
-
-	if (TEASER_FROM_BODY.has(type) && "excerpt" in data) {
+	if (TEASER_FROM_BODY.has(type) && "excerpt" in frontmatter) {
 		report.errors.push(
 			`${display}: field "excerpt" is not used for ${type.replace(/s$/, "")} (teaser is taken from body)`,
 		);
 	}
 
-	if (data.isMock === true && data.draft !== true) {
-		report.errors.push(
-			`${display}: "isMock: true" требует "draft: true" (mock-контент не должен попасть на прод)`,
-		);
-	}
-
-	if (data.draft === true && data.isMock !== true) {
-		report.warnings.push(`${display}: "draft: true" — снять перед публикацией`);
-	}
-
-	if (lang === "ru" && "needs_translation" in data && data.isMock !== true) {
+	if (lang === "ru" && frontmatter.needs_translation === true) {
 		report.errors.push(
 			`${display}: field "needs_translation" is only allowed in index.en.md`,
 		);
 	}
 }
 
-function draftOf(file: string): unknown {
-	return parseUnit(fs.readFileSync(file, "utf8")).frontmatter.draft;
+function readJson(file: string): Record<string, unknown> | undefined {
+	if (!fs.existsSync(file)) return undefined;
+	try {
+		return JSON.parse(fs.readFileSync(file, "utf8")) as Record<string, unknown>;
+	} catch (err) {
+		return { __broken: String(err) };
+	}
 }
 
-export function loadSchema(root = repoRoot()): Map<string, SchemaType> {
-	const raw = fs.readFileSync(join(root, "frontmatter.json"), "utf8");
-	const config = JSON.parse(raw) as Record<string, SchemaType[]>;
-	const types = config["frontMatter.taxonomy.contentTypes"] ?? [];
-	return new Map(types.map((type) => [type.name, type]));
-}
-
-function validateEntryIn(
-	dir: string,
-	schema: SchemaType | undefined,
+function checkJsonRecord(
+	display: string,
+	record: unknown,
+	rules: SchemaField[],
 	report: Report,
-	displayUnit: string,
+): void {
+	if (!record || typeof record !== "object" || Array.isArray(record)) {
+		report.errors.push(`${display}: record must be an object`);
+		return;
+	}
+	checkRecord(display, record as Record<string, unknown>, rules, report);
+}
+
+function validateUnit(
+	schemaType: SchemaType,
+	rules: TypeRules,
+	root: string,
+	report: Report,
 	unitAbs: string,
+	displayUnit: string,
 	unit: string,
 ): void {
-	const files = fs.readdirSync(unitAbs).filter((file) => file.endsWith(".md"));
+	const type = targetOf(schemaType);
+	// Имя файла берём из настоящего пути, а не собираем из имени папки: из
+	// `posts` так получалось `postss.json`.
+	const sharedName = basename(metaFile(schemaType, root));
+	const localName = basename(
+		metaFile(schemaType, root).replace(/\.json$/, ".local.json"),
+	);
+
+	const files = fs.existsSync(unitAbs)
+		? fs.readdirSync(unitAbs).filter((file) => file.endsWith(".md"))
+		: [];
 
 	if (files.length === 0) {
-		report.errors.push(`[${dir}] ${unit}: no index.*.md file found`);
+		report.errors.push(`[${type}] ${unit}: no index.*.md file found`);
 		return;
 	}
 
-	if (!files.includes("index.ru.md")) {
-		report.errors.push(`[${dir}] ${unit}: missing index.ru.md`);
-	}
-
-	if (!files.includes("index.en.md")) {
-		report.errors.push(`[${dir}] ${unit}: missing index.en.md`);
-	}
-
-	if (files.includes("index.ru.md") && files.includes("index.en.md")) {
-		const ru = draftOf(join(unitAbs, "index.ru.md"));
-		const en = draftOf(join(unitAbs, "index.en.md"));
-		if (ru !== en) {
-			report.errors.push(
-				`[${dir}] ${unit}: draft must match between index.ru.md and index.en.md`,
-			);
+	for (const lang of ["ru", "en"]) {
+		if (!files.includes(`index.${lang}.md`)) {
+			report.errors.push(`[${type}] ${unit}: missing index.${lang}.md`);
 		}
 	}
 
@@ -223,26 +318,99 @@ function validateEntryIn(
 		const match = LANG_FILE.exec(file);
 		if (!match) {
 			report.warnings.push(
-				`[${dir}] ${unit}: unexpected file "${file}" (expected index.ru.md / index.en.md)`,
+				`[${type}] ${unit}: unexpected file "${file}" (expected index.ru.md / index.en.md)`,
 			);
 			continue;
 		}
-		lintFile(
-			dir,
-			schema,
+		lintMdFile(
+			type,
+			rules,
 			report,
-			displayUnit,
+			join(displayUnit, file),
 			unitAbs,
 			file,
 			match[1] as "ru" | "en",
+			sharedName,
+			localName,
+		);
+	}
+
+	// Общие поля лежат в json типа, а не в папке: запись без них не значит, что
+	// полей нет, но запись о них без папки — мусор.
+	const meta = readJson(metaFile(schemaType, root)) ?? {};
+	const shared = meta[unit];
+	if (shared && typeof shared === "object" && !Array.isArray(shared)) {
+		checkJsonRecord(
+			join(displayUnit, sharedName),
+			shared,
+			rules.shared,
+			report,
+		);
+		if ((shared as Record<string, unknown>).draft === true) {
+			report.warnings.push(
+				`[${type}] ${unit}: "draft: true" — снять перед публикацией`,
+			);
+		}
+	}
+
+	const local = readJson(localFileFor(schemaType, root)) ?? {};
+	if (unit in local) {
+		checkJsonRecord(
+			join(displayUnit, localName),
+			local[unit],
+			rules.local,
+			report,
 		);
 	}
 }
 
-function targetFor(type: ContentType): Target {
-	const found = TARGETS.find((item) => item.dir === FOLDER[type]);
-	if (!found) throw new Error(`Нет правил валидации для типа ${type}`);
-	return found;
+function localFileFor(type: SchemaType, root: string): string {
+	return metaFile(type, root).replace(/\.json$/, ".local.json");
+}
+
+function checkFolderConsistency(
+	type: string,
+	schemaType: SchemaType,
+	rules: TypeRules,
+	root: string,
+	report: Report,
+	displayBase: string,
+): void {
+	const absDir = resolve(root, displayBase, targetOf(schemaType));
+	const folders = fs.existsSync(absDir)
+		? fs
+				.readdirSync(absDir, { withFileTypes: true })
+				.filter((entry) => entry.isDirectory())
+				.map((entry) => entry.name)
+		: [];
+
+	const meta = readJson(metaFile(schemaType, root)) ?? {};
+	const local = readJson(localFileFor(schemaType, root)) ?? {};
+	const sharedName = basename(metaFile(schemaType, root));
+	const localName = basename(localFileFor(schemaType, root));
+
+	for (const slug of Object.keys(meta)) {
+		if (folders.includes(slug)) continue;
+		report.errors.push(
+			`[${type}] ${slug}: есть запись в ${sharedName}, но нет папки`,
+		);
+	}
+
+	for (const slug of Object.keys(local)) {
+		if (folders.includes(slug)) continue;
+		report.errors.push(
+			`[${type}] ${slug}: есть запись в ${localName}, но нет папки`,
+		);
+	}
+
+	// Ключ обязан совпадать с именем папки: иначе переименование папки оставит
+	// общие поля под старым slug, и единица станет невидимой в списке.
+	for (const slug of folders) {
+		if (!SLUG_RE.test(slug)) {
+			report.errors.push(`[${type}] ${slug}: недопустимое имя папки`);
+		}
+	}
+	void rules;
 }
 
 export function validateContent(root = repoRoot()): Report {
@@ -250,28 +418,26 @@ export function validateContent(root = repoRoot()): Report {
 	const schemas = loadSchema(root);
 	const displayBase = join("src", "content");
 
-	for (const { dir, schema: schemaName } of TARGETS) {
-		const displayDir = join(displayBase, dir);
-		const absDir = resolve(root, displayBase, dir);
+	for (const schemaType of SCHEMA_TYPES) {
+		const type = targetOf(schemaType);
+		const rules = schemas.get(schemaType);
+		if (!rules) continue;
 
-		if (!fs.existsSync(absDir) || !fs.statSync(absDir).isDirectory()) {
-			continue;
-		}
+		checkFolderConsistency(type, schemaType, rules, root, report, displayBase);
 
-		const schema = schemas.get(schemaName);
-		const units = fs
-			.readdirSync(absDir, { withFileTypes: true })
-			.filter((entry) => entry.isDirectory())
-			.map((entry) => entry.name);
+		const absDir = contentDir(schemaType, root);
+		if (!fs.existsSync(absDir) || !fs.statSync(absDir).isDirectory()) continue;
 
-		for (const unit of units) {
-			validateEntryIn(
-				dir,
-				schema,
+		for (const unit of fs.readdirSync(absDir, { withFileTypes: true })) {
+			if (!unit.isDirectory()) continue;
+			validateUnit(
+				schemaType,
+				rules,
+				root,
 				report,
-				join(displayDir, unit),
-				join(absDir, unit),
-				unit,
+				join(absDir, unit.name),
+				join(displayBase, type, unit.name),
+				unit.name,
 			);
 		}
 	}
@@ -284,29 +450,25 @@ export function validateContent(root = repoRoot()): Report {
  * гоняет всё дерево и не выковыривает свои строки из общего отчёта.
  */
 export function validateEntry(
-	type: ContentType,
+	type: SchemaType,
 	slug: string,
 	root = repoRoot(),
 ): Report {
 	const report: Report = { errors: [], warnings: [] };
-	const { dir, schema: schemaName } = targetFor(type);
-	const displayUnit = join("src", "content", dir, slug);
-	const unitAbs = resolve(root, "src", "content", dir, slug);
+	const schemas = loadSchema(root);
+	const rules = schemas.get(type);
+	if (!rules) return report;
 
-	if (!fs.existsSync(unitAbs)) {
-		report.errors.push(`[${dir}] ${slug}: no index.*.md file found`);
-		return report;
-	}
-
-	validateEntryIn(
-		dir,
-		loadSchema(root).get(schemaName),
+	const folder = targetOf(type);
+	validateUnit(
+		type,
+		rules,
+		root,
 		report,
-		displayUnit,
-		unitAbs,
+		contentDir(type, root) + `/${slug}`,
+		join("src", "content", folder, slug),
 		slug,
 	);
+
 	return report;
 }
-
-export type { Frontmatter };

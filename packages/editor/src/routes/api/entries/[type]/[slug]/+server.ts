@@ -1,5 +1,6 @@
 import {
 	deleteEntry,
+	entryFromInput,
 	loadEntry,
 	renameEntry,
 	saveEntry,
@@ -7,44 +8,7 @@ import {
 } from "@ku6epxboctuk/content-core";
 import { json } from "@sveltejs/kit";
 import { readSlug, readType } from "$lib/server/params.ts";
-import {
-	cleanRecord,
-	fromEntryView,
-	toEntryView,
-	type EntryView,
-} from "$lib/server/entry-view.ts";
 import type { RequestHandler } from "./$types";
-
-interface Payload {
-	ru?: unknown;
-	en?: unknown;
-}
-
-function readVersion(raw: unknown): {
-	frontmatter: Record<string, unknown>;
-	body: string;
-} {
-	if (!raw || typeof raw !== "object") return { frontmatter: {}, body: "" };
-	const { frontmatter, body } = raw as {
-		frontmatter?: unknown;
-		body?: unknown;
-	};
-	const clean =
-		frontmatter &&
-		typeof frontmatter === "object" &&
-		!Array.isArray(frontmatter)
-			? cleanRecord(frontmatter as Record<string, unknown>)
-			: {};
-	return { frontmatter: clean, body: typeof body === "string" ? body : "" };
-}
-
-function readView(payload: Payload | null): EntryView {
-	return {
-		slug: "",
-		ru: readVersion(payload?.ru),
-		en: readVersion(payload?.en),
-	};
-}
 
 export const GET: RequestHandler = async (event) => {
 	const type = readType(event);
@@ -55,36 +19,30 @@ export const GET: RequestHandler = async (event) => {
 		return json({ error: `Не найдено: ${type}/${slug}` }, { status: 404 });
 	}
 
-	return json({
-		...toEntryView(entry),
-		validation: validateEntry(type, slug),
-	});
+	return json({ entry, validation: validateEntry(type, slug) });
 };
 
 /**
  * Одно сохранение на единицу, а не по языку: RU и EN лежат в одной записи и
  * расходятся только если разошлись на диске. Сохранение одной языковой версии
  * означало бы, что вторая молча осталась старой.
+ *
+ * На входе — `Entry` целиком, без проекции: приводит к записи `entryFromInput`,
+ * раскладывает по файлам репозиторий.
  */
 export const PUT: RequestHandler = async (event) => {
 	const type = readType(event);
 	const slug = readSlug(event);
 
-	const payload = (await event.request
-		.json()
-		.catch(() => null)) as Payload | null;
+	const payload = await event.request.json().catch(() => null);
 
 	try {
 		const { entry } = await saveEntry(
 			type,
 			slug,
-			fromEntryView(type, slug, readView(payload)),
+			entryFromInput(type, slug, payload),
 		);
-		return json({
-			ok: true,
-			...toEntryView(entry),
-			validation: validateEntry(type, slug),
-		});
+		return json({ ok: true, entry, validation: validateEntry(type, slug) });
 	} catch (err) {
 		return json({ error: (err as Error).message }, { status: 400 });
 	}
