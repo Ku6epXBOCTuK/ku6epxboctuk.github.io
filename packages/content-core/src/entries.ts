@@ -4,7 +4,14 @@ import { ALL_FIELDS, fieldsWithScope, type FieldScope } from "./fields.ts";
 import { formatUnit } from "./format.ts";
 import { readJsonFile, writeJsonRecord } from "./json.ts";
 import { isValidSlug } from "./slug.ts";
-import { contentDir, localFile, metaFile, unitDir, unitFile } from "./paths.ts";
+import {
+	contentDir,
+	localFile,
+	metaFile,
+	repoRoot,
+	unitDir,
+	unitFile,
+} from "./paths.ts";
 import {
 	emptyEntry,
 	flattenEntry,
@@ -29,16 +36,9 @@ import { parseUnit, serializeUnit } from "./yaml.ts";
  * ради чего схема и вынесена отдельно.
  */
 
-export class UnknownFieldError extends Error {
-	constructor(
-		readonly type: string,
-		readonly field: string,
-	) {
-		super(`Поле "${field}" не описано в схеме типа "${type}"`);
-		this.name = "UnknownFieldError";
-	}
-}
-
+/**
+ * Корень передаётся явно: тесты пишут в фикстуру, а не в рабочее дерево.
+ */
 function assertSlug(slug: string): void {
 	if (!isValidSlug(slug)) throw new Error(`Некорректный slug: ${slug}`);
 }
@@ -72,8 +72,8 @@ function pick(
  * Плоские записи по типам. Файл один на тип, поэтому читается целиком и
  * меняется в памяти, а на диск пишется снова весь.
  */
-function readMeta<T>(type: SchemaType): Record<string, unknown> {
-	const file = metaFile(type);
+function readMeta<T>(type: SchemaType, root: string): Record<string, unknown> {
+	const file = metaFile(type, root);
 	const record = (readJsonFile<Record<string, T>>(file) ?? {}) as Record<
 		string,
 		T
@@ -81,8 +81,8 @@ function readMeta<T>(type: SchemaType): Record<string, unknown> {
 	return { ...record };
 }
 
-function readLocal(type: SchemaType): Record<string, unknown> {
-	const file = localFile(type);
+function readLocal(type: SchemaType, root: string): Record<string, unknown> {
+	const file = localFile(type, root);
 	return {
 		...((readJsonFile<LocalRecord>(file) ?? {}) as Record<string, unknown>),
 	};
@@ -92,8 +92,9 @@ function readVersion(
 	type: SchemaType,
 	slug: string,
 	lang: ContentLang,
+	root: string,
 ): Version {
-	const file = unitFile(type, slug, lang);
+	const file = unitFile(type, slug, lang, root);
 	if (!fs.existsSync(file)) return { frontmatter: {}, body: "" };
 
 	const { frontmatter, body } = parseUnit(fs.readFileSync(file, "utf8"));
@@ -116,17 +117,21 @@ async function writeIfChanged(file: string, raw: string): Promise<boolean> {
 	return true;
 }
 
-export function loadEntry(type: SchemaType, slug: string): Entry | undefined {
+export function loadEntry(
+	type: SchemaType,
+	slug: string,
+	root: string = repoRoot(),
+): Entry | undefined {
 	assertSlug(slug);
 
-	const meta = readMeta(type);
-	const local = readLocal(type);
+	const meta = readMeta(type, root);
+	const local = readLocal(type, root);
 	const entry = emptyEntry(type, slug);
 
-	if (!fs.existsSync(unitDir(type, slug))) return undefined;
+	if (!fs.existsSync(unitDir(type, slug, root))) return undefined;
 
 	for (const lang of CONTENT_LANGS) {
-		entry.versions[lang] = readVersion(type, slug, lang);
+		entry.versions[lang] = readVersion(type, slug, lang, root);
 	}
 
 	entry.shared = (meta[slug] ?? {}) as Entry["shared"];
@@ -134,9 +139,13 @@ export function loadEntry(type: SchemaType, slug: string): Entry | undefined {
 	return entry;
 }
 
-export function entryExists(type: SchemaType, slug: string): boolean {
+export function entryExists(
+	type: SchemaType,
+	slug: string,
+	root: string = repoRoot(),
+): boolean {
 	assertSlug(slug);
-	return fs.existsSync(unitDir(type, slug));
+	return fs.existsSync(unitDir(type, slug, root));
 }
 
 export interface SplitEntry {
@@ -157,22 +166,15 @@ export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 	const shared = namesOf(type, "shared");
 	const local = namesOf(type, "local");
 
-	const known = new Set([...translatable, ...shared, ...local]);
-
+	// Поле вне схемы не знает, где ему жить, поэтому просто не попадает ни в
+	// один файл. Об этом сообщает валидация, а не отказ сохранять.
 	const flat: Record<string, unknown> = { ...entry.local, ...entry.shared };
 	for (const lang of CONTENT_LANGS) {
 		for (const [key, value] of Object.entries(
 			entry.versions[lang]?.frontmatter ?? {},
 		)) {
-			if (!known.has(key)) throw new UnknownFieldError(type, key);
-			flat[key] = value;
+			if (scopeOf(type, key)) flat[key] = value;
 		}
-	}
-	for (const key of Object.keys(entry.shared)) {
-		if (!known.has(key)) throw new UnknownFieldError(type, key);
-	}
-	for (const key of Object.keys(entry.local)) {
-		if (!known.has(key)) throw new UnknownFieldError(type, key);
 	}
 
 	// Переводимое, лежащее в общей или локальной корзине, читается как «одно
@@ -208,6 +210,7 @@ export async function saveEntry(
 	type: SchemaType,
 	slug: string,
 	input: EntryInput,
+	root: string = repoRoot(),
 ): Promise<SaveResult> {
 	assertSlug(slug);
 
@@ -215,23 +218,23 @@ export async function saveEntry(
 	const written: string[] = [];
 
 	for (const lang of CONTENT_LANGS) {
-		const file = unitFile(type, slug, lang);
+		const file = unitFile(type, slug, lang, root);
 		const raw = serializeUnit(split.frontmatter[lang], split.bodies[lang]);
 		if (await writeIfChanged(file, raw)) written.push(file);
 	}
 
-	const meta = readMeta(type);
-	const local = readLocal(type);
+	const meta = readMeta(type, root);
+	const local = readLocal(type, root);
 
 	const nextMeta = { ...meta };
 	if (Object.keys(split.shared).length === 0) delete nextMeta[slug];
 	else nextMeta[slug] = split.shared as never;
-	writeRecords(metaFile(type), nextMeta);
+	writeRecords(metaFile(type, root), nextMeta);
 
 	const nextLocal = { ...local };
 	if (Object.keys(split.local).length === 0) delete nextLocal[slug];
 	else nextLocal[slug] = split.local as never;
-	writeRecords(localFile(type), nextLocal);
+	writeRecords(localFile(type, root), nextLocal);
 
 	return { entry: loadEntry(type, slug) as Entry, written };
 }
@@ -260,10 +263,13 @@ function writeRecords(file: string, records: Record<string, unknown>): void {
 	writeJsonRecord(file, filled);
 }
 
-export function listEntries(type: SchemaType): EntrySummary[] {
-	const meta = readMeta(type);
-	const local = readLocal(type);
-	const dir = contentDir(type);
+export function listEntries(
+	type: SchemaType,
+	root: string = repoRoot(),
+): EntrySummary[] {
+	const meta = readMeta(type, root);
+	const local = readLocal(type, root);
+	const dir = contentDir(type, root);
 
 	const slugs = new Set([
 		...Object.keys(meta),
@@ -274,9 +280,9 @@ export function listEntries(type: SchemaType): EntrySummary[] {
 	const out: EntrySummary[] = [];
 	for (const slug of slugs) {
 		if (!isValidSlug(slug)) continue;
-		const entry = loadEntry(type, slug);
+		const entry = loadEntry(type, slug, root);
 		if (!entry) continue;
-		out.push(summarize(type, slug, entry));
+		out.push(summarize(type, slug, entry, root));
 	}
 
 	return out.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -290,7 +296,12 @@ function safeDirNames(dir: string): string[] {
 		.map((entry) => entry.name);
 }
 
-function summarize(type: SchemaType, slug: string, entry: Entry): EntrySummary {
+function summarize(
+	type: SchemaType,
+	slug: string,
+	entry: Entry,
+	root: string,
+): EntrySummary {
 	const langs = CONTENT_LANGS.filter(
 		(lang) =>
 			entry.versions[lang].body.trim() !== "" ||
@@ -299,7 +310,7 @@ function summarize(type: SchemaType, slug: string, entry: Entry): EntrySummary {
 
 	let updatedAt = "";
 	for (const lang of CONTENT_LANGS) {
-		const file = unitFile(type, slug, lang);
+		const file = unitFile(type, slug, lang, root);
 		if (!fs.existsSync(file)) continue;
 		const mtime = fs.statSync(file).mtime.toISOString();
 		if (mtime > updatedAt) updatedAt = mtime;
@@ -322,23 +333,28 @@ export async function createEntry(
 	type: SchemaType,
 	slug: string,
 	input: EntryInput,
+	root: string = repoRoot(),
 ): Promise<Entry> {
 	assertSlug(slug);
-	if (entryExists(type, slug)) {
+	if (entryExists(type, slug, root)) {
 		throw new Error(`Единица уже существует: ${type}/${slug}`);
 	}
-	await saveEntry(type, slug, input);
-	return loadEntry(type, slug) as Entry;
+	await saveEntry(type, slug, input, root);
+	return loadEntry(type, slug, root) as Entry;
 }
 
-export function deleteEntry(type: SchemaType, slug: string): boolean {
+export function deleteEntry(
+	type: SchemaType,
+	slug: string,
+	root: string = repoRoot(),
+): boolean {
 	assertSlug(slug);
-	const dir = unitDir(type, slug);
+	const dir = unitDir(type, slug, root);
 	if (!fs.existsSync(dir)) return false;
 
 	fs.rmSync(dir, { recursive: true, force: true });
 
-	for (const file of [metaFile(type), localFile(type)]) {
+	for (const file of [metaFile(type, root), localFile(type, root)]) {
 		const record = readJsonFile<Record<string, unknown>>(file);
 		if (!record || !(slug in record)) continue;
 		delete record[slug];
@@ -357,20 +373,21 @@ export function renameEntry(
 	type: SchemaType,
 	slug: string,
 	next: string,
+	root: string = repoRoot(),
 ): boolean {
 	assertSlug(slug);
 	assertSlug(next);
 	if (slug === next) return false;
 
-	const from = unitDir(type, slug);
+	const from = unitDir(type, slug, root);
 	if (!fs.existsSync(from)) return false;
-	if (entryExists(type, next)) {
+	if (entryExists(type, next, root)) {
 		throw new Error(`Единица уже существует: ${type}/${next}`);
 	}
 
-	fs.renameSync(from, unitDir(type, next));
+	fs.renameSync(from, unitDir(type, next, root));
 
-	for (const file of [metaFile(type), localFile(type)]) {
+	for (const file of [metaFile(type, root), localFile(type, root)]) {
 		const record = readJsonFile<Record<string, unknown>>(file);
 		if (!record || !(slug in record)) continue;
 		const { [slug]: value, ...rest } = record;
