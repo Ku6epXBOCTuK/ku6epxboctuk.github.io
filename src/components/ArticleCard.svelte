@@ -28,6 +28,9 @@
 					{t.minRead}{/if}
 			</span>
 		</div>
+		{#if article.teaser}
+			<p class="article-teaser">{article.teaser}</p>
+		{/if}
 		{#if article.tags.length}
 			<div class="article-tags">
 				{#each article.tags as tag (tag)}
@@ -80,6 +83,23 @@
 		display: flex;
 		gap: 8px;
 		flex-wrap: wrap;
+	}
+
+	/*
+	 * Тизер — текст до `<!--more-->`. Он ограничен по длине тремя строками:
+	 * карточка должна оставаться карточкой, а не пересказом статьи. Многоточие
+	 * не рисуется — обрезка по трём строкам читается ровнее.
+	 */
+	.article-teaser {
+		margin: 0;
+		color: var(--muted-foreground);
+		font-size: 13px;
+		line-height: 1.55;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 	}
 
 	.tag {
