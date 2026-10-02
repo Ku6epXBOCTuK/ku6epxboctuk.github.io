@@ -135,21 +135,6 @@
 		}
 	}
 
-	async function saveLang(lang: ContentLang): Promise<boolean> {
-		const res = await fetch(`/api/units/${type}/${slug}/${lang}`, {
-			method: "PUT",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(payloadFor(lang)),
-		});
-		const json = await readJson(res);
-		if (!res.ok) {
-			status = `${LANG_LABEL[lang]}: ${json.error ?? `HTTP ${res.status}`}`;
-			return false;
-		}
-		report = json.validation;
-		return true;
-	}
-
 	function setField(lang: ContentLang, key: string, value: unknown) {
 		const data = versionFor(lang);
 		if (!data) return;
@@ -243,18 +228,28 @@
 	}
 
 	/**
-	 * Единица — это два файла, а не два независимых документа. Сохраняются
-	 * вместе: кнопка «сохранить RU» была ловушкой, где перевод остаётся на
-	 * диске старым, а человек уверен, что работа ушла в git.
+	 * Одно сохранение на единицу: оба языка уезжают одним запросом. Сохранение
+	 * по языку означало бы, что вторая версия молча осталась старой.
 	 */
 	async function saveBoth() {
 		busy = true;
 		status = "";
 		try {
-			const results: boolean[] = [];
-			for (const lang of LANGS) results.push(await saveLang(lang));
-
-			if (results.every(Boolean)) status = "Сохранено.";
+			const res = await fetch(`/api/entries/${type}/${slug}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					ru: { frontmatter: payloadFor("ru").frontmatter, body: ru?.body },
+					en: { frontmatter: payloadFor("en").frontmatter, body: en?.body },
+				}),
+			});
+			const json = await readJson(res);
+			if (!res.ok) {
+				status = json.error ?? `HTTP ${res.status}`;
+				return;
+			}
+			report = json.validation;
+			status = "Сохранено.";
 		} catch (err) {
 			status = (err as Error).message;
 		} finally {
@@ -266,7 +261,7 @@
 		if (!renameChanged) return;
 		busy = true;
 		try {
-			const res = await fetch(`/api/units/${type}/${renameFrom}`, {
+			const res = await fetch(`/api/entries/${type}/${renameFrom}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ slug: renameTo }),
@@ -287,7 +282,7 @@
 	async function doDelete() {
 		busy = true;
 		try {
-			const res = await fetch(`/api/units/${type}/${slug}`, {
+			const res = await fetch(`/api/entries/${type}/${slug}`, {
 				method: "DELETE",
 			});
 			if (!res.ok) {

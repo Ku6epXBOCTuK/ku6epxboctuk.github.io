@@ -36,10 +36,13 @@
 		creating = true;
 		errorText = "";
 		try {
-			const res = await fetch(`/api/units/${type}/${slug}/ru`, {
-				method: "POST",
+			const res = await fetch(`/api/entries/${type}/${slug}`, {
+				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ frontmatter: defaultsFor(type), body: "" }),
+				body: JSON.stringify({
+					ru: { frontmatter: defaultsFor(type), body: "" },
+					en: { frontmatter: {}, body: "" },
+				}),
 			});
 			if (!res.ok) {
 				errorText =
@@ -76,12 +79,15 @@
 
 			ghNotes = json.notes ?? [];
 
-			const saved = await fetch(`/api/units/project/${json.slug}/ru`, {
-				method: "POST",
+			const saved = await fetch(`/api/entries/project/${json.slug}`, {
+				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					frontmatter: { ...defaultsFor("project"), ...json.frontmatter },
-					body: json.body ?? "",
+					ru: {
+						frontmatter: { ...defaultsFor("project"), ...json.frontmatter },
+						body: json.body ?? "",
+					},
+					en: { frontmatter: {}, body: "" },
 				}),
 			});
 			if (!saved.ok) {

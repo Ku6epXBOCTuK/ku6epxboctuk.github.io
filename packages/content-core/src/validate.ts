@@ -186,7 +186,7 @@ export function loadSchema(root = repoRoot()): Map<string, SchemaType> {
 	return new Map(types.map((type) => [type.name, type]));
 }
 
-function validateUnitIn(
+function validateEntryIn(
 	dir: string,
 	schema: SchemaType | undefined,
 	report: Report,
@@ -265,7 +265,7 @@ export function validateContent(root = repoRoot()): Report {
 			.map((entry) => entry.name);
 
 		for (const unit of units) {
-			validateUnitIn(
+			validateEntryIn(
 				dir,
 				schema,
 				report,
@@ -283,7 +283,7 @@ export function validateContent(root = repoRoot()): Report {
  * Проверка одной единицы: редактор зовёт её после каждого сохранения, а не
  * гоняет всё дерево и не выковыривает свои строки из общего отчёта.
  */
-export function validateUnit(
+export function validateEntry(
 	type: ContentType,
 	slug: string,
 	root = repoRoot(),
@@ -298,7 +298,7 @@ export function validateUnit(
 		return report;
 	}
 
-	validateUnitIn(
+	validateEntryIn(
 		dir,
 		loadSchema(root).get(schemaName),
 		report,

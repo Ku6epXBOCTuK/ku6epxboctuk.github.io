@@ -17,6 +17,7 @@ import {
 import { emptyEntry, type Entry } from "./entry-types.ts";
 import { localFile, metaFile, unitFile } from "./paths.ts";
 import { parseUnit } from "./yaml.ts";
+import { isFormatted } from "./format.ts";
 import type { ContentLang, SchemaType } from "./types.ts";
 import { CONTENT_LANGS } from "./types.ts";
 
@@ -110,6 +111,33 @@ describe("раскладка по scope", () => {
 	it("локальное в .local.json, а не в md", async () => {
 		await saveEntry(TYPE, SLUG, entry());
 		expect(fs.existsSync(localFile(TYPE))).toBe(false);
+	});
+
+	it("файлы после записи устойчивы к prettier", async () => {
+		// Иначе `prettier --check` в CI спорил бы с редактором: каждый проход
+		// переформатировал бы файл заново и правка жила бы вечно.
+		const input = entry();
+		input.versions.ru.frontmatter.title = "Заголовок";
+		input.versions.ru.body =
+			"Очень длинный абзац, который точно превышает ширину печати и будет перенесён prettier при записи, иначе проверка не пройдёт.";
+		input.shared = { date: "2026-09-30", tags: ["a"] };
+
+		await saveEntry(TYPE, SLUG, input);
+
+		for (const lang of CONTENT_LANGS) {
+			const raw = readFile(TYPE, SLUG, lang);
+			expect(raw).not.toBe("");
+			expect(await isFormatted(raw)).toBe(true);
+		}
+	});
+
+	it("пустой блок frontmatter читается как «полей нет»", async () => {
+		await saveEntry(TYPE, SLUG, entry());
+		const raw = readFile(TYPE, SLUG, "en");
+
+		expect(raw).toContain("---");
+		expect(readFrontmatter(TYPE, SLUG, "en")).toEqual({});
+		expect(readBody(TYPE, SLUG, "en")).toBe("");
 	});
 
 	it("общее поле в языковом frontmatter уезжает в json, а не теряется", async () => {

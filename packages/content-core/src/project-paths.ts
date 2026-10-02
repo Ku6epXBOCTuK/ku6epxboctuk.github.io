@@ -1,14 +1,13 @@
 import { existsSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
+import { listEntries, loadEntry } from "./entries.ts";
 import { repoRoot } from "./paths.ts";
-import { listUnits, readUnit } from "./repository.ts";
-import type { ContentLang, ProjectPathReport } from "./types.ts";
+import type { ProjectPathReport } from "./types.ts";
 
 /**
- * Путь к локальному клону лежит в frontmatter проекта, относительно корня
- * сайта: `path: ../brul`. Так в git попадает `../brul`, а не `C:\Users\...`.
- * Абсолютные пути тоже работают, но в репозиторий утекает структура диска,
- * поэтому форма подсказывает относительные.
+ * Путь к локальному клону лежит в `<type>s.local.json` — файле, который в
+ * гитигноре, относительно корня сайта: `path: ../brul`. Так в git не попадает
+ * ни `C:\Users\...`, ни вообще структура диска.
  */
 export function resolveProjectPath(
 	declared: string | undefined,
@@ -52,12 +51,9 @@ export function checkProjectPaths(
 ): ProjectPathReport[] {
 	const base = options.base ?? repoRoot();
 
-	return listUnits("project").map((summary) => {
-		const lang: ContentLang = summary.langs.includes("ru")
-			? "ru"
-			: (summary.langs[0] ?? "ru");
-		const unit = readUnit("project", summary.slug, lang);
-		const declared = unit?.frontmatter.path;
+	return listEntries("project").map((summary) => {
+		const entry = loadEntry("project", summary.slug);
+		const declared = entry?.local.path;
 
 		return {
 			slug: summary.slug,

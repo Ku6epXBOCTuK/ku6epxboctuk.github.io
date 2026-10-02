@@ -1,12 +1,9 @@
-import {
-	isContentLang,
-	isContentType,
-	type ContentLang,
-	type ContentType,
-} from "@ku6epxboctuk/content-core";
+import { isContentType, type ContentType } from "@ku6epxboctuk/content-core";
 import { error, type RequestEvent } from "@sveltejs/kit";
 
 // weekly в CONTENT_TYPES нет, поэтому редактор физически не может его править.
+// Язык в маршруте тоже не нужен: единица живёт обоими файлами сразу, а
+// `/api/entries/[type]/[slug]/[lang]` означал бы сохранение одной половины.
 
 const BAD_REQUEST = 400;
 
@@ -24,12 +21,4 @@ export function readSlug(event: RequestEvent): string {
 		error(BAD_REQUEST, "Не указан slug");
 	}
 	return slug;
-}
-
-export function readLang(event: RequestEvent): ContentLang {
-	const { lang } = event.params;
-	if (typeof lang !== "string" || !isContentLang(lang)) {
-		error(BAD_REQUEST, `Неизвестный язык: ${String(lang)}`);
-	}
-	return lang;
 }

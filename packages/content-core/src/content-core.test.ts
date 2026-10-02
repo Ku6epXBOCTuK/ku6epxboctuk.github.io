@@ -16,21 +16,13 @@ import {
 	type FieldScope,
 } from "./fields.ts";
 import { formatUnit, isFormatted } from "./format.ts";
-import {
-	SLUG_PATTERN,
-	createUnit,
-	deleteUnit,
-	ensureUnit,
-	isValidSlug,
-	readUnit,
-	renameUnit,
-	writeUnit,
-} from "./repository.ts";
 import { draftSlug } from "./slug.ts";
-import { CONTENT_TYPES, type ContentType } from "./types.ts";
+import { CONTENT_TYPES } from "./types.ts";
 import { type Report, validateContent } from "./validate.ts";
 import { needsQuotes, parseUnit, serializeUnit } from "./yaml.ts";
-import { repoRoot, unitFile } from "./paths.ts";
+import { repoRoot } from "./paths.ts";
+import { deleteEntry, loadEntry } from "./entries.ts";
+import { SLUG_PATTERN, isValidSlug } from "./slug.ts";
 
 interface CmsField {
 	name: string;
@@ -333,9 +325,8 @@ describe("slug", () => {
 	});
 
 	it("чтение за пределами каталога бросает ошибку", () => {
-		expect(() => readUnit("post", "../../etc", "ru")).toThrow(
-			/Некорректный slug/,
-		);
+		expect(() => loadEntry("post", "../../etc")).toThrow(/Некорректный slug/);
+		expect(() => deleteEntry("post", "../escape")).toThrow(/Некорректный slug/);
 	});
 
 	describe("draftSlug", () => {
@@ -364,134 +355,6 @@ describe("slug", () => {
 		it("два клика в одну минуту дают разные slug", () => {
 			expect(draftSlug("post", when)).not.toBe(draftSlug("article", when));
 		});
-	});
-});
-
-describe("запись на диск", () => {
-	const type: ContentType = "post";
-	const slug = "vitest-fixture";
-	const content = {
-		frontmatter: { title: "Фикстура", date: "2026-09-30", tags: ["test"] },
-		body: "Тело фикстуры.",
-	};
-
-	it("создаёт, читает, переименовывает и удаляет", async () => {
-		const file = await createUnit(type, slug, "ru", content);
-		expect(fs.existsSync(file)).toBe(true);
-		expect(await isFormatted(fs.readFileSync(file, "utf8"))).toBe(true);
-
-		const read = readUnit(type, slug, "ru");
-		expect(read?.frontmatter).toEqual(content.frontmatter);
-		expect(read?.body).toBe(content.body);
-
-		const next = `${slug}-renamed`;
-		expect(renameUnit(type, slug, next)).toBe(true);
-		expect(readUnit(type, slug, "ru")).toBeUndefined();
-		expect(readUnit(type, next, "ru")?.body).toBe(content.body);
-
-		expect(deleteUnit(type, next)).toBe(true);
-		expect(fs.existsSync(unitFile(type, next, "ru"))).toBe(false);
-	});
-
-	it("не перезаписывает существующий язык молча", async () => {
-		const other = `${slug}-other`;
-		await createUnit(type, other, "ru", content);
-		try {
-			await expect(createUnit(type, other, "ru", content)).rejects.toThrow(
-				/уже существует/,
-			);
-		} finally {
-			deleteUnit(type, other);
-		}
-	});
-
-	it("второй язык создаётся поверх первого", async () => {
-		const pair = `${slug}-pair`;
-		await createUnit(type, pair, "ru", content);
-		try {
-			await createUnit(type, pair, "en", {
-				frontmatter: { ...content.frontmatter, needs_translation: true },
-				body: "перевод в работе.",
-			});
-			expect(readUnit(type, pair, "ru")?.body).toBe(content.body);
-			expect(readUnit(type, pair, "en")?.body).toBe("перевод в работе.");
-		} finally {
-			deleteUnit(type, pair);
-		}
-	});
-
-	it("перезапись через writeUnit разрешена", async () => {
-		const over = `${slug}-over`;
-		await createUnit(type, over, "ru", content);
-		try {
-			await writeUnit(type, over, "ru", { ...content, body: "Другое тело." });
-			expect(readUnit(type, over, "ru")?.body).toBe("Другое тело.");
-		} finally {
-			deleteUnit(type, over);
-		}
-	});
-});
-
-describe("двуязычность", () => {
-	it("добирает отсутствующий язык пустым файлом", async () => {
-		const slug = "vitest-ensure";
-		await createUnit("post", slug, "ru", {
-			frontmatter: { title: "Фикстура", date: "2026-09-30", tags: ["test"] },
-			body: "Тело.",
-		});
-		try {
-			expect(await ensureUnit("post", slug)).toEqual(["en"]);
-
-			const en = readUnit("post", slug, "en");
-			expect(en?.body).toBe("");
-			// Переезжает только переводимое: `date` и `tags` общие, им в
-			// языковом файле места нет. Фаза 3 положит их в json.
-			expect(en?.frontmatter.title).toBe("Фикстура");
-			expect(en?.frontmatter.date).toBeUndefined();
-			expect(en?.frontmatter.tags).toBeUndefined();
-			expect(en?.frontmatter.needs_translation).toBe(true);
-		} finally {
-			deleteUnit("post", slug);
-		}
-	});
-
-	it("не трогает готовую пару", async () => {
-		const slug = "vitest-ensure-full";
-		await createUnit("post", slug, "ru", {
-			frontmatter: { title: "Фикстура", date: "2026-09-30" },
-			body: "Тело.",
-		});
-		await createUnit("post", slug, "en", {
-			frontmatter: { title: "Fixture", date: "2026-09-30" },
-			body: "Body.",
-		});
-		try {
-			expect(await ensureUnit("post", slug)).toEqual([]);
-			expect(readUnit("post", slug, "en")?.body).toBe("Body.");
-		} finally {
-			deleteUnit("post", slug);
-		}
-	});
-
-	it("path в frontmatter больше не участвует", async () => {
-		// Флаг `only` ушёл вместе с новой раскладкой: `path` стал `local` и в
-		// фазе 3 уедет в `<type>s.local.json`, а из frontmatter вычищается
-		// полностью. Пока репозиторий старый — проверяем новое имя поля.
-		const slug = "vitest-ensure-only";
-		await createUnit("project", slug, "ru", {
-			frontmatter: { title: "Проект", description: "Описание." },
-			body: "Тело.",
-		});
-		try {
-			await ensureUnit("project", slug);
-
-			const en = readUnit("project", slug, "en");
-			expect(en?.frontmatter.title).toBe("Проект");
-			expect(en?.frontmatter.path).toBeUndefined();
-			expect(en?.frontmatter.repo).toBeUndefined();
-		} finally {
-			deleteUnit("project", slug);
-		}
 	});
 });
 
