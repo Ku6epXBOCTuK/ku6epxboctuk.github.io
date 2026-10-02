@@ -56,9 +56,39 @@ describe.skipIf(!hasMocks)("таблица глобов", () => {
 		);
 	});
 
-	it("контент виден загрузчикам с общими полями", () => {
-		expect(getPosts("ru")[0]?.date).toMatch(/^20\d\d-\d\d-\d\d$/);
-		expect(getArticles("ru")[0]?.date).toMatch(/^20\d\d-\d\d-\d\d$/);
-		expect(getProjects("ru")[0]?.repo).toMatch(/^https:\/\//);
+	it("контент виден загрузчикам, а общие поля валидны", () => {
+		// Проверяются инварианты, а не наличие значений: запись может быть
+		// недозаполненной, и это нормально. Неверны только невалидные значения.
+		const bad: string[] = [];
+
+		for (const post of getPosts("ru")) {
+			if (post.date && !/^\d{4}-\d{2}-\d{2}$/.test(post.date)) {
+				bad.push(`posts/${post.slug}: дата ${post.date}`);
+			}
+		}
+
+		for (const article of getArticles("ru")) {
+			if (article.date && !/^\d{4}-\d{2}-\d{2}$/.test(article.date)) {
+				bad.push(`articles/${article.slug}: дата ${article.date}`);
+			}
+		}
+
+		for (const project of getProjects("ru")) {
+			if (project.repo && !project.repo.startsWith("https://")) {
+				bad.push(`projects/${project.slug}: repo ${project.repo}`);
+			}
+		}
+
+		for (const entry of [
+			...getPosts("ru"),
+			...getArticles("ru"),
+			...getProjects("ru"),
+		]) {
+			for (const tag of entry.tags) {
+				if (!tag.trim()) bad.push(`${entry.slug}: пустой тег`);
+			}
+		}
+
+		expect(bad).toEqual([]);
 	});
 });
