@@ -3,8 +3,6 @@ import {
 	otherLang,
 	type ContentEntry,
 	type ContentLang,
-	type MarkdownModule,
-	type SharedRecord,
 } from "$lib/content";
 import {
 	createPairLoader,
@@ -12,33 +10,7 @@ import {
 	type LocalizedItem,
 	optionalString,
 } from "$lib/loaders";
-import { mergeShared, sharedFrom } from "$lib/shared";
-
-const modules = {
-	...import.meta.glob<MarkdownModule>(
-		"/src/content/projects/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-	...import.meta.glob<MarkdownModule>(
-		"/src/content-mocks/projects/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-};
-
-const shared = mergeShared(
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content/projects.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content-mocks/projects.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
-);
+import { modulesOf, sharedOf } from "$lib/content-globs";
 
 export interface ProjectBase extends ContentEntry {
 	subtitle?: string;
@@ -62,8 +34,8 @@ function optionalNumber(fm: Frontmatter, key: string): number | undefined {
 const UNORDERED = Number.MAX_SAFE_INTEGER;
 
 const loader = createPairLoader<ProjectBase>({
-	modules,
-	shared,
+	modules: modulesOf("project"),
+	shared: sharedOf("project"),
 	toItem: (entry, fm) => ({
 		...entry,
 		subtitle: optionalString(fm, "subtitle"),

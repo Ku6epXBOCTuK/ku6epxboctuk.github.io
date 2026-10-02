@@ -4,11 +4,9 @@ import {
 	otherLang,
 	type ContentEntry,
 	type ContentLang,
-	type MarkdownModule,
-	type SharedRecord,
 } from "$lib/content";
 import { createPairLoader, type LocalizedItem } from "$lib/loaders";
-import { mergeShared, sharedFrom } from "$lib/shared";
+import { articleRawModules, modulesOf, sharedOf } from "$lib/content-globs";
 
 const WORDS_PER_MINUTE = 200;
 
@@ -18,54 +16,12 @@ export function readingMinutes(raw: string): number {
 	return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
 
-const modules = {
-	...import.meta.glob<MarkdownModule>(
-		"/src/content/articles/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-	...import.meta.glob<MarkdownModule>(
-		"/src/content-mocks/articles/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-};
-
-const rawModules = {
-	...import.meta.glob<string>("/src/content/articles/*/index.{ru,en}.md", {
-		query: "?raw",
-		import: "default",
-		eager: true,
-	}),
-	...import.meta.glob<string>(
-		"/src/content-mocks/articles/*/index.{ru,en}.md",
-		{
-			query: "?raw",
-			import: "default",
-			eager: true,
-		},
-	),
-};
-
 const minutesBySlugLang = new Map(
-	Object.entries(rawModules).map(([path, raw]) => {
+	Object.entries(articleRawModules).map(([path, raw]) => {
 		const segments = path.split("/");
 		const slug = segments[segments.length - 2] ?? "";
 		return [`${slug}:${fileLang(path)}`, readingMinutes(raw)];
 	}),
-);
-
-const shared = mergeShared(
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content/articles.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content-mocks/articles.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
 );
 
 export interface Article extends ContentEntry, LocalizedItem {
@@ -78,8 +34,8 @@ function withReadingTime(item: Article): Article {
 }
 
 const loader = createPairLoader<ContentEntry>({
-	modules,
-	shared,
+	modules: modulesOf("article"),
+	shared: sharedOf("article"),
 	toItem: (entry) => entry,
 });
 

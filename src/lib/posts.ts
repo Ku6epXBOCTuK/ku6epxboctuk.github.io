@@ -3,36 +3,9 @@ import {
 	otherLang,
 	type ContentEntry,
 	type ContentLang,
-	type MarkdownModule,
-	type SharedRecord,
 } from "$lib/content";
 import { createPairLoader, type LocalizedItem } from "$lib/loaders";
-import { mergeShared, sharedFrom } from "$lib/shared";
-
-const modules = {
-	...import.meta.glob<MarkdownModule>("/src/content/posts/*/index.{ru,en}.md", {
-		eager: true,
-	}),
-	...import.meta.glob<MarkdownModule>(
-		"/src/content-mocks/posts/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-};
-
-const shared = mergeShared(
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content/posts.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content-mocks/posts.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
-);
+import { modulesOf, sharedOf } from "$lib/content-globs";
 
 interface PostBase extends ContentEntry {
 	link?: string;
@@ -41,8 +14,8 @@ interface PostBase extends ContentEntry {
 export interface Post extends PostBase, LocalizedItem {}
 
 const loader = createPairLoader<PostBase>({
-	modules,
-	shared,
+	modules: modulesOf("post"),
+	shared: sharedOf("post"),
 	toItem: (entry, fm) => ({
 		...entry,
 		link: typeof fm.link === "string" ? fm.link : undefined,
