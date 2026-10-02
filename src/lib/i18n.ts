@@ -7,6 +7,7 @@ const en = {
 		articles: "articles",
 		projects: "projects",
 		weekly: "weekly",
+		tags: "tags",
 	},
 	footer: {
 		note: "built with attention to detail",
@@ -15,6 +16,11 @@ const en = {
 	draft: "draft",
 	readIn: "read in english",
 	minRead: "min read",
+	tags: {
+		all: "all",
+		empty: "no tags yet",
+		unknown: "nothing tagged",
+	},
 	project: {
 		repo: "sources",
 		homepage: "homepage",
@@ -49,6 +55,7 @@ const ru: UI = {
 		articles: "статьи",
 		projects: "проекты",
 		weekly: "недельники",
+		tags: "теги",
 	},
 	footer: {
 		note: "сделано с вниманием к деталям",
@@ -57,6 +64,11 @@ const ru: UI = {
 	draft: "черновик",
 	readIn: "читать на русском",
 	minRead: "мин чтения",
+	tags: {
+		all: "всё",
+		empty: "тегов пока нет",
+		unknown: "по тегу ничего нет:",
+	},
 	project: {
 		repo: "исходники",
 		homepage: "сайт",

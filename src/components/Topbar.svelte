@@ -11,6 +11,7 @@
 		{ path: "/articles", key: "articles" },
 		{ path: "/projects", key: "projects" },
 		{ path: "/weekly", key: "weekly" },
+		{ path: "/tags", key: "tags" },
 	] as const;
 
 	const lang = $derived(pageLang(page.data.lang));
