@@ -3,8 +3,9 @@
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
 
 	/*
-	 * Поле тегов: чипы выбранных, поиск по уже использованным и добавление
-	 * нового прямо в строке.
+	 * Поле тегов: чипы в одной строке с вводом. Тег добавляется без Enter —
+	 * пробелом или запятой, а Enter берёт первую подсказку. Чипы можно
+	 * перетаскивать, клик по чипу копирует тег в буфер.
 	 */
 
 	interface Props {
@@ -23,23 +24,33 @@
 	 */
 	const HINT_CLOSE_MS = 150;
 
+	/** Сколько чип показывает «скопировано» после клика. */
+	const COPIED_MS = 900;
+
 	let known = $state<string[]>([]);
 	let query = $state("");
 	let open = $state(false);
+	/** Индекс чипа, который сейчас тащат. */
+	let dragging = $state<number | null>(null);
+	/** Тег, скопированный только что: чип ненадолго меняет подпись. */
+	let copied = $state("");
 
 	const chosen = $derived(value);
+	/** Запрос для фильтра и подсветки: теги нечувствительны к регистру. */
+	const needle = $derived(query.trim().toLowerCase());
 
 	/** Из уже использованных — те, что ещё не выбраны и подходят под запрос. */
 	const suggestions = $derived(
 		known.filter(
-			(tag) =>
-				!chosen.includes(tag) &&
-				(query.trim() === "" || tag.includes(query.trim().toLowerCase())),
+			(tag) => !chosen.includes(tag) && (needle === "" || tag.includes(needle)),
 		),
 	);
 
 	const typed = $derived(normalizeTag(query));
 	const typedError = $derived(typed ? tagError(typed) : null);
+
+	/** Совпадения нет: `indexOf` вернул -1. */
+	const NO_MATCH = -1;
 
 	/** Держим ссылку, чтобы вернуть фокус после добавления тега. */
 	let input = $state<HTMLInputElement | null>(null);
@@ -62,11 +73,22 @@
 		void loadKnown();
 	});
 
-	async function add(tag: string) {
-		const clean = normalizeTag(tag);
-		if (!clean || tagError(clean) || chosen.includes(clean)) return;
+	/** Добавить кучей: кусок текста режется на теги пробелами и запятыми. */
+	function commit(parts: string[]) {
+		const next = [...chosen];
+		for (const part of parts) {
+			const tag = normalizeTag(part);
+			if (!tag || tagError(tag) || next.includes(tag)) continue;
+			next.push(tag);
+		}
+		if (next.length !== chosen.length) onchange(next);
+	}
 
-		onchange([...chosen, clean]);
+	async function add(raw: string) {
+		const tag = normalizeTag(raw);
+		if (!tag || tagError(tag) || chosen.includes(tag)) return;
+
+		onchange([...chosen, tag]);
 		query = "";
 
 		/*
@@ -82,57 +104,128 @@
 		onchange(chosen.filter((item) => item !== tag));
 	}
 
+	/*
+	 * Автодобавление: разделитель (пробел, запятая) заканчивает тег прямо по
+	 * мере ввода. Заодно это чинит вставку списка тегов из буфера.
+	 */
+	function onType(event: Event) {
+		const next = event.currentTarget as HTMLInputElement;
+		const text = next.value;
+		if (!/[\s,]/.test(text)) {
+			query = text;
+			return;
+		}
+		const parts = text.split(/[\s,]+/);
+		query = parts.pop() ?? "";
+		commit(parts);
+	}
+
 	function onKeydown(event: KeyboardEvent) {
 		if (event.key === "Enter") {
 			event.preventDefault();
 			// Enter сначала берёт подсказку, если она есть: так подсказка не
 			// остаётся мимо, когда её видно.
-			add(suggestions[0] ?? typed);
+			void add(suggestions[0] ?? typed);
+			return;
+		}
+		if (event.key === "Escape") {
+			open = false;
 			return;
 		}
 		if (event.key === "Backspace" && query === "" && chosen.length > 0) {
 			remove(chosen[chosen.length - 1]);
 		}
 	}
+
+	function dragStart(event: DragEvent, index: number) {
+		dragging = index;
+		if (event.dataTransfer) {
+			event.dataTransfer.effectAllowed = "move";
+			event.dataTransfer.setData("text/plain", chosen[index]);
+		}
+	}
+
+	function drop(event: DragEvent, index: number) {
+		event.preventDefault();
+		const from = dragging;
+		dragging = null;
+		if (from === null || from === index) return;
+
+		const next = [...chosen];
+		const [moved] = next.splice(from, 1);
+		next.splice(index, 0, moved);
+		onchange(next);
+	}
+
+	async function copy(tag: string) {
+		try {
+			await navigator.clipboard.writeText(tag);
+			copied = tag;
+			setTimeout(() => {
+				if (copied === tag) copied = "";
+			}, COPIED_MS);
+		} catch {
+			// Буфер может быть недоступен (права, не secure context) — тег от
+			// этого не ломается, просто не копируется.
+		}
+	}
 </script>
 
 <div class="tags-field">
-	<div class="row">
+	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+	<div class="box" onclick={() => input?.focus()}>
+		{#if chosen.length > 0}
+			<ul class="chips">
+				{#each chosen as tag, index (tag)}
+					<li
+						class:dragging={dragging === index}
+						draggable={disabled ? "false" : "true"}
+						ondragstart={(e) => dragStart(e, index)}
+						ondragover={(e) => e.preventDefault()}
+						ondrop={(e) => drop(e, index)}
+						ondragend={() => (dragging = null)}
+					>
+						<button
+							type="button"
+							class="tag"
+							title="копировать"
+							{disabled}
+							onclick={() => void copy(tag)}
+						>
+							{copied === tag ? "скопировано" : tag}
+						</button>
+						<button
+							type="button"
+							class="x"
+							aria-label="убрать тег {tag}"
+							{disabled}
+							onclick={() => remove(tag)}
+						>
+							×
+						</button>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 		<input
 			bind:this={input}
 			{id}
 			type="text"
 			{disabled}
-			bind:value={query}
-			placeholder="добавить тег"
+			value={query}
+			placeholder={chosen.length === 0 ? "добавить тег" : ""}
 			autocomplete="off"
+			oninput={onType}
 			onfocus={() => (open = true)}
 			onblur={() => setTimeout(() => (open = false), HINT_CLOSE_MS)}
 			onkeydown={onKeydown}
 		/>
 	</div>
 
-	{#if chosen.length > 0}
-		<ul class="chips">
-			{#each chosen as tag (tag)}
-				<li>
-					<span>{tag}</span>
-					<button
-						type="button"
-						aria-label="убрать тег {tag}"
-						{disabled}
-						onclick={() => remove(tag)}
-					>
-						×
-					</button>
-				</li>
-			{/each}
-		</ul>
-	{/if}
-
 	{#if open && suggestions.length > 0}
 		<ul class="hints">
 			{#each suggestions as tag (tag)}
+				{@const at = needle === "" ? NO_MATCH : tag.indexOf(needle)}
 				<li>
 					<button
 						type="button"
@@ -145,7 +238,12 @@
 							void add(tag);
 						}}
 					>
-						{tag}
+						{#if at >= 0}
+							{tag.slice(0, at)}<mark>{tag.slice(at, at + needle.length)}</mark
+							>{tag.slice(at + needle.length)}
+						{:else}
+							{tag}
+						{/if}
 					</button>
 				</li>
 			{/each}
@@ -173,27 +271,85 @@
 	 *
 	 * Порядок — по возрастанию специфичности, иначе stylelint ругается.
 	 */
-	.tags-field input {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 7px 9px;
-		color: var(--text);
+
+	/*
+	 * Вся строка — одно «поле»: рамка у обёртки, а не у input, чтобы чипы
+	 * лежали внутри той же рамки.
+	 */
+	.box {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 4px;
+		padding: 4px 6px;
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
 		border-radius: var(--r-control);
+		cursor: text;
 	}
 
-	.tags-field input::placeholder {
+	.box input {
+		flex: 1;
+		min-width: 90px;
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 3px;
+		color: var(--text);
+		background: transparent;
+		border: none;
+	}
+
+	.box input::placeholder {
 		color: var(--text-faint);
 	}
 
-	.row input {
-		width: 100%;
+	.box:focus-within {
+		border-color: var(--accent);
 	}
 
-	.tags-field input:focus {
+	.box input:focus {
 		outline: none;
-		border-color: var(--accent);
+	}
+
+	.chips {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+		margin: 0;
+		padding: 0;
+	}
+
+	.chips li {
+		display: inline-flex;
+		align-items: center;
+		font-size: var(--fs-sm);
+		background: var(--accent-wash);
+		border: 1px solid var(--accent-dim);
+		border-radius: var(--r-control);
+	}
+
+	.chips li.dragging {
+		opacity: 0.4;
+	}
+
+	.chips button {
+		font: inherit;
+		font-size: var(--fs-sm);
+		background: transparent;
+		border: none;
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	.chips .tag {
+		padding: 2px 0 2px 8px;
+		color: var(--text);
+	}
+
+	.chips .x {
+		padding: 2px 4px;
+		color: var(--text-dim);
 	}
 
 	/*
@@ -231,38 +387,12 @@
 		cursor: pointer;
 	}
 
-	.chips {
-		list-style: none;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
-		margin: 0;
-		padding: 0;
-	}
-
-	.chips li {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		padding: 2px 4px 2px 8px;
-		font-size: var(--fs-sm);
-		background: var(--accent-wash);
-		border: 1px solid var(--accent-dim);
-		border-radius: var(--r-control);
-	}
-
-	.chips button {
-		font: inherit;
-		font-size: var(--fs-sm);
-		padding: 0 4px;
+	.hints mark {
+		color: var(--accent);
 		background: transparent;
-		border: none;
-		color: var(--text-dim);
-		line-height: 1;
-		cursor: pointer;
 	}
 
-	.chips button:hover:not(:disabled) {
+	.chips .x:hover:not(:disabled) {
 		color: var(--danger);
 	}
 
