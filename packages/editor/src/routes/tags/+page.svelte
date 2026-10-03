@@ -3,11 +3,14 @@
 	import ConfirmModal from "$lib/components/ConfirmModal.svelte";
 
 	/*
-	 * Список тегов: что чем помечено, переименование и удаление.
+	 * Теги живут в двух местах:
 	 *
-	 * Отдельного списка тегов не существует — он собирается из контента, поэтому
-	 * и удаление здесь означает «убрать отовсюду». Число в скобках это единиц, а
-	 * не файлов: одна запись может стоять у поста, статьи и проекта.
+	 * - список — какие теги вообще существуют, его можно пополнять заранее;
+	 * - записи — где теги реально стоят.
+	 *
+	 * Поэтому удаление и переименование спрашивают оба места отдельно: убрать
+	 * тег из списка и стереть его из пятидесяти постов — разные вещи, и молча
+	 * делать второе вместо первого нельзя.
 	 */
 
 	interface Unit {
@@ -19,6 +22,8 @@
 		tag: string;
 		count: number;
 		units: Unit[];
+		/** Есть ли тег в списке `tags.json`. */
+		listed: boolean;
 	}
 
 	interface Plan {
@@ -36,11 +41,15 @@
 	let busy = $state(false);
 	let status = $state("");
 
+	let newTag = $state("");
 	let editing = $state("");
 	let draft = $state("");
 	let plan = $state<Plan | null>(null);
 	let pending = $state<TagRow | null>(null);
 	let removing = $state<TagRow | null>(null);
+
+	/** Что удаляем из удаляемой записи: из списка, из контента или и то и другое. */
+	let dropScope = $state<"list" | "content" | "both">("both");
 
 	const visible = $derived(
 		rows.filter((row) =>
@@ -49,6 +58,7 @@
 	);
 
 	const draftError = $derived(draft ? tagError(normalizeTag(draft)) : null);
+	const newTagError = $derived(newTag ? tagError(normalizeTag(newTag)) : null);
 
 	async function load() {
 		try {
@@ -117,6 +127,33 @@
 		return data.changed ?? 0;
 	}
 
+	/** Завести тег заранее, до первого поста с ним. */
+	async function addNew() {
+		const tag = normalizeTag(newTag);
+		if (!tag || tagError(tag)) return;
+		if (rows.some((row) => row.tag === tag)) {
+			status = `«${tag}» уже есть`;
+			return;
+		}
+
+		busy = true;
+		status = "";
+		try {
+			await fetch("/api/tags", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ tag }),
+			});
+			newTag = "";
+			await load();
+			status = `${tag} добавлен`;
+		} catch (err) {
+			status = (err as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
+
 	async function commitRename(row: TagRow) {
 		const target = normalizeTag(draft);
 		if (!target || tagError(target) || target === row.tag) {
@@ -138,7 +175,14 @@
 		busy = true;
 		status = "";
 		try {
-			const changed = await send("PUT", { tag: row.tag, to: target });
+			// Список и записи — вместе: если тег новый, в списке его тоже не
+			// было, а если старый, то он в обоих местах сразу.
+			const changed = await send("PUT", {
+				tag: row.tag,
+				to: target,
+				inList: true,
+				inContent: row.count > 0,
+			});
 			cancelEdit();
 			pending = null;
 			await load();
@@ -163,10 +207,17 @@
 		busy = true;
 		status = "";
 		try {
-			const changed = await send("DELETE", { tag: row.tag });
+			const changed = await send("DELETE", {
+				tag: row.tag,
+				inList: dropScope !== "content",
+				inContent: dropScope !== "list",
+			});
 			removing = null;
 			await load();
-			status = `${row.tag} убран из ${changed}`;
+			status =
+				dropScope === "content"
+					? `${row.tag} убран из ${changed}`
+					: `${row.tag} убран из списка`;
 		} catch (err) {
 			status = (err as Error).message;
 			removing = null;
@@ -179,85 +230,134 @@
 <section class="tags-page">
 	<header>
 		<h1>Теги</h1>
+	</header>
+
+	<div class="adder">
 		<input
 			type="text"
-			bind:value={query}
-			placeholder="найти тег"
-			aria-label="поиск тега"
+			value={newTag}
+			placeholder="новый тег"
+			aria-label="новый тег"
+			aria-invalid={Boolean(newTagError)}
+			disabled={busy}
+			oninput={(e) => (newTag = e.currentTarget.value)}
+			onkeydown={(e) => {
+				if (e.key === "Enter") addNew();
+			}}
 		/>
-	</header>
+		<button
+			type="button"
+			disabled={busy || !newTag || Boolean(newTagError)}
+			onclick={addNew}
+		>
+			добавить в список
+		</button>
+		{#if newTagError}
+			<span class="note bad">{newTagError}</span>
+		{/if}
+	</div>
 
 	{#if rows.length === 0}
 		<p class="empty">Тегов пока нет — добавь их в форме единицы.</p>
-	{:else if visible.length === 0}
-		<p class="empty">Ничего не нашлось.</p>
 	{:else}
-		<ul>
-			{#each visible as row (row.tag)}
-				<li>
-					{#if editing === row.tag}
-						<div class="edit-row">
-							<input
-								type="text"
-								class="edit"
-								value={draft}
-								aria-invalid={Boolean(draftError)}
-								disabled={busy}
-								oninput={(e) => onDraft(e.currentTarget.value)}
-								onkeydown={(e) => {
-									if (e.key === "Enter") commitRename(row);
-									if (e.key === "Escape") cancelEdit();
-								}}
-							/>
+		<div class="filter">
+			<input
+				type="text"
+				bind:value={query}
+				placeholder="найти тег"
+				aria-label="поиск тега"
+			/>
+			{#if query !== ""}
+				<button
+					type="button"
+					class="clear"
+					aria-label="сбросить поиск"
+					title="сбросить"
+					onclick={() => (query = "")}
+				>
+					×
+				</button>
+				<span class="found">
+					{visible.length} из {rows.length}
+				</span>
+			{/if}
+		</div>
+
+		{#if visible.length === 0}
+			<p class="empty">Ничего не нашлось.</p>
+		{:else}
+			<ul>
+				{#each visible as row (row.tag)}
+					<li>
+						{#if editing === row.tag}
+							<div class="edit-row">
+								<input
+									type="text"
+									class="edit"
+									value={draft}
+									aria-invalid={Boolean(draftError)}
+									disabled={busy}
+									oninput={(e) => onDraft(e.currentTarget.value)}
+									onkeydown={(e) => {
+										if (e.key === "Enter") commitRename(row);
+										if (e.key === "Escape") cancelEdit();
+									}}
+								/>
+								<button
+									type="button"
+									disabled={busy}
+									onclick={() => commitRename(row)}
+								>
+									{plan?.merge ? "слить" : "ок"}
+								</button>
+								<button type="button" disabled={busy} onclick={cancelEdit}>
+									отмена
+								</button>
+								{#if draftError}
+									<span class="note bad">{draftError}</span>
+								{:else if plan?.merge}
+									<span class="note">
+										тег «{plan.to}» уже есть — сольются, останется в
+										{plan.resultCount}
+										{plan.resultCount === 1 ? "записи" : "записях"}
+										{#if plan.duplicates > 0}
+											, из них {plan.duplicates} с дублями
+										{/if}
+									</span>
+								{/if}
+							</div>
+						{:else}
 							<button
 								type="button"
+								class="name"
 								disabled={busy}
-								onclick={() => commitRename(row)}
+								onclick={() => startEdit(row)}
+								title="переименовать"
 							>
-								{plan?.merge ? "слить" : "ок"}
+								{row.tag}
 							</button>
-							<button type="button" disabled={busy} onclick={cancelEdit}>
-								отмена
-							</button>
-							{#if draftError}
-								<span class="note bad">{draftError}</span>
-							{:else if plan?.merge}
-								<span class="note">
-									тег «{plan.to}» уже есть — сольются, останется в
-									{plan.resultCount}
-									{plan.resultCount === 1 ? "записи" : "записях"}
-									{#if plan.duplicates > 0}
-										, из них {plan.duplicates} с дублями
-									{/if}
-								</span>
+							<span class="count">{row.count}</span>
+							{#if !row.listed}
+								<span class="tag-note">только в записях</span>
 							{/if}
-						</div>
-					{:else}
-						<button
-							type="button"
-							class="name"
-							disabled={busy}
-							onclick={() => startEdit(row)}
-							title="переименовать"
-						>
-							{row.tag}
-						</button>
-						<span class="count">{row.count}</span>
-						<span class="where">
-							{row.units.map((unit) => `${unit.type}/${unit.slug}`).join(", ")}
-						</span>
-						<button
-							type="button"
-							class="danger"
-							disabled={busy}
-							onclick={() => (removing = row)}
-						>
-							убрать
-						</button>
-					{/if}
-				</li>
-			{/each}
-		</ul>
+							<span class="where">
+								{row.units
+									.map((unit) => `${unit.type}/${unit.slug}`)
+									.join(", ")}
+							</span>
+							<button
+								type="button"
+								class="danger"
+								disabled={busy}
+								onclick={() => (removing = row)}
+							>
+								убрать
+							</button>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	{/if}
 
 	{#if status}
@@ -277,9 +377,28 @@
 {/if}
 
 {#if removing}
+	<div class="scopes">
+		<span>убрать «{removing.tag}»:</span>
+		<label>
+			<input type="radio" bind:group={dropScope} value="list" />
+			из списка
+		</label>
+		{#if removing.count > 0}
+			<label>
+				<input type="radio" bind:group={dropScope} value="content" />
+				из записей ({removing.count})
+			</label>
+		{/if}
+		<label>
+			<input type="radio" bind:group={dropScope} value="both" />
+			отовсюду
+		</label>
+	</div>
 	<ConfirmModal
-		title="Убрать тег везде?"
-		body={`Тег «${removing.tag}» исчезнет из ${removing.count} ${removing.count === 1 ? "записи" : "записей"}.`}
+		title="Убрать тег?"
+		body={dropScope === "list"
+			? `Тег перестанет предлагаться, записи останутся как были.`
+			: `Тег исчезнет из ${removing.count} ${removing.count === 1 ? "записи" : "записей"}.`}
 		confirmLabel="да, убрать"
 		disabled={busy}
 		oncancel={() => (removing = null)}
@@ -308,7 +427,6 @@
 		font-weight: 600;
 	}
 
-	header input,
 	.edit {
 		font: inherit;
 		font-size: var(--fs-md);
@@ -317,14 +435,6 @@
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
 		border-radius: var(--r-control);
-	}
-
-	header input {
-		flex: 1;
-		min-width: 160px;
-	}
-
-	.edit {
 		max-width: 220px;
 	}
 
@@ -431,5 +541,95 @@
 
 	.note.bad {
 		color: var(--danger);
+	}
+
+	.filter {
+		display: flex;
+		align-items: center;
+		gap: var(--gap-2);
+		flex-wrap: wrap;
+		padding: var(--gap-2) 0;
+	}
+
+	.filter input,
+	.adder input {
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 6px 9px;
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
+	}
+
+	.filter input {
+		flex: 1;
+		min-width: 160px;
+	}
+
+	.filter .clear {
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 0 8px;
+		background: transparent;
+		border: none;
+		color: var(--text-faint);
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	.filter .clear:hover {
+		color: var(--danger);
+	}
+
+	.adder input {
+		min-width: 180px;
+	}
+
+	.filter input:focus,
+	.adder input:focus {
+		outline: none;
+		border-color: var(--accent);
+	}
+
+	.adder input[aria-invalid="true"] {
+		border-color: var(--danger);
+	}
+
+	.found {
+		font-family: var(--font-mono);
+		font-size: var(--fs-sm);
+		color: var(--text-faint);
+	}
+
+	.adder {
+		display: flex;
+		align-items: center;
+		gap: var(--gap-2);
+		flex-wrap: wrap;
+	}
+
+	.tag-note {
+		font-size: var(--fs-sm);
+		color: var(--text-faint);
+	}
+
+	.scopes {
+		display: flex;
+		align-items: center;
+		gap: var(--gap-3);
+		flex-wrap: wrap;
+		padding: var(--gap-2) var(--gap-3);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-panel);
+		background: var(--surface-2);
+		font-size: var(--fs-md);
+	}
+
+	.scopes label {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		cursor: pointer;
 	}
 </style>

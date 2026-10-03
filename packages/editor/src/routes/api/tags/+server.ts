@@ -1,6 +1,12 @@
 import {
+	addTagToRegistry,
 	collectTags,
+	normalizeTag,
+	planTagRename,
+	readTagRegistry,
+	removeTagFromRegistry,
 	renameTag,
+	renameTagInRegistry,
 	removeTag,
 	tagError,
 } from "@ku6epxboctuk/content-core";
@@ -8,31 +14,65 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 /*
- * Теги правятся разом по всему контенту: тег лежит в нескольких единицах, и
- * «переименовать» значит «переименовать везде». Списка тегов отдельно нет, он
- * собирается из контента, поэтому разойтись с ним невозможно.
+ * Теги живут в двух местах, и это не дублирование, а разделение вопросов:
+ *
+ * - `tags.json` — словарь: какие теги вообще существуют. Его можно пополнить
+ *   заранее, до первого поста с этим тегом.
+ * - единицы контента — где теги реально стоят.
+ *
+ * Ответ страницы тегов — объединение обоих, с пометкой, чем тег является.
+ * Переименование и удаление умеют действовать и в словаре, и в контенте, и
+ * сразу в обоих.
  */
 
-export const GET: RequestHandler = () => {
-	return json({
-		tags: collectTags().map((entry) => ({
-			tag: entry.tag,
-			count: entry.units.length,
-			units: entry.units,
-		})),
-	});
-};
-
-interface Payload {
-	tag?: unknown;
-	to?: unknown;
+interface Unit {
+	type: string;
+	slug: string;
 }
 
-async function readPayload(request: Request): Promise<Payload> {
+function usageByTag() {
+	return new Map(
+		collectTags().map((entry) => [
+			entry.tag,
+			{ count: entry.units.length, units: entry.units },
+		]),
+	);
+}
+
+interface TagView {
+	tag: string;
+	count: number;
+	units: Unit[];
+	/** Есть ли тег в словаре. */
+	listed: boolean;
+}
+
+export const GET: RequestHandler = () => {
+	const listed = new Set(readTagRegistry());
+	const usage = usageByTag();
+
+	const tags: TagView[] = [
+		// Словарь идёт первым: человек заводит тег заранее, и он должен быть
+		// виден сразу, а не после первой записи с ним.
+		...[...listed].sort((a, b) => a.localeCompare(b)),
+		...[...usage.keys()].filter((tag) => !listed.has(tag)),
+	]
+		.map((tag) => ({
+			tag,
+			count: usage.get(tag)?.count ?? 0,
+			units: usage.get(tag)?.units ?? [],
+			listed: listed.has(tag),
+		}))
+		.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
+	return json({ tags });
+};
+
+async function readPayload(request: Request): Promise<Record<string, unknown>> {
 	try {
 		const body = (await request.json()) as unknown;
 		if (!body || typeof body !== "object" || Array.isArray(body)) return {};
-		return body as Payload;
+		return body as Record<string, unknown>;
 	} catch {
 		return {};
 	}
@@ -42,32 +82,87 @@ function readString(value: unknown): string {
 	return typeof value === "string" ? value : "";
 }
 
-export const PUT: RequestHandler = async ({ request }) => {
-	const { tag, to } = await readPayload(request);
-	const from = readString(tag);
-	const target = readString(to);
+function readBool(value: unknown): boolean {
+	return value === true;
+}
 
-	const error = tagError(from) ?? (target ? tagError(target) : null);
-	if (error) return json({ error }, { status: 400 });
-	if (!target)
-		return json({ error: "Не указано новое имя тега" }, { status: 400 });
+export const POST: RequestHandler = async ({ request }) => {
+	const body = await readPayload(request);
+	const tag = readString(body.tag);
 
 	try {
-		return json({ ok: true, ...(await renameTag(from, target)) });
+		addTagToRegistry(tag);
+		return json({ ok: true, listed: readTagRegistry() });
 	} catch (err) {
 		return json({ error: (err as Error).message }, { status: 400 });
 	}
 };
 
-export const DELETE: RequestHandler = async ({ request }) => {
-	const { tag } = await readPayload(request);
-	const value = readString(tag);
+/**
+ * Переименование: `inContent` — переписать единицы, `inList` — словарь.
+ * Оба по умолчанию: обычно человек хочет и то и другое, а лишний шаг «а теперь
+ * ещё и в контенте» — это как раз тот случай, где что-нибудь забудется.
+ */
+export const PUT: RequestHandler = async ({ request }) => {
+	const body = await readPayload(request);
+	const from = readString(body.tag);
+	const to = readString(body.to);
 
-	const error = tagError(value);
-	if (error) return json({ error }, { status: 400 });
+	if (!to) return json({ error: "Не указано новое имя тега" }, { status: 400 });
+	if (!tagError(normalizeTag(from))) {
+		return json({ error: tagError(normalizeTag(from)) }, { status: 400 });
+	}
+	if (tagError(normalizeTag(to))) {
+		return json({ error: tagError(normalizeTag(to)) }, { status: 400 });
+	}
+
+	const inContent = readBool(body.inContent);
+	const inList = readBool(body.inList);
 
 	try {
-		return json({ ok: true, ...(await removeTag(value)) });
+		let changed = 0;
+		if (inContent) changed = (await renameTag(from, to)).changed;
+		if (inList) renameTagInRegistry(from, to);
+
+		return json({
+			ok: true,
+			changed,
+			merge: planTagRename(from, to).merge,
+			listed: readTagRegistry(),
+		});
+	} catch (err) {
+		return json({ error: (err as Error).message }, { status: 400 });
+	}
+};
+
+/**
+ * Удаление. Из словаря и из контента — разные вещи: убрать тег из словаря
+ * значит лишь перестать предлагать его, а записи останутся как были. Поэтому
+ * флаги запрашиваются явно, а не угадываются.
+ */
+export const DELETE: RequestHandler = async ({ request }) => {
+	const body = await readPayload(request);
+	const tag = readString(body.tag);
+
+	const error = tagError(normalizeTag(tag));
+	if (error) return json({ error }, { status: 400 });
+
+	const inContent = readBool(body.inContent);
+	const inList = readBool(body.inList);
+
+	if (!inContent && !inList) {
+		return json(
+			{ error: "Скажи, что именно удалять: из списка или из записей" },
+			{ status: 400 },
+		);
+	}
+
+	try {
+		let changed = 0;
+		if (inContent) changed = (await removeTag(tag)).changed;
+		if (inList) removeTagFromRegistry(tag);
+
+		return json({ ok: true, changed, listed: readTagRegistry() });
 	} catch (err) {
 		return json({ error: (err as Error).message }, { status: 400 });
 	}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from "svelte";
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
 
 	/*
@@ -40,11 +41,16 @@
 	const typed = $derived(normalizeTag(query));
 	const typedError = $derived(typed ? tagError(typed) : null);
 
+	/** Держим ссылку, чтобы вернуть фокус после добавления тега. */
+	let input = $state<HTMLInputElement | null>(null);
+
 	async function loadKnown() {
 		try {
 			const res = await fetch("/api/tags");
 			if (!res.ok) return;
 			const data = (await res.json()) as { tags: { tag: string }[] };
+			// Словарь и уже использованные — оба. Словарь полезен тем, что в нём
+			// есть теги, которых ещё нигде нет.
 			known = data.tags.map((entry) => entry.tag);
 		} catch {
 			// Список подсказок — удобство, а не условие работы поля: без него
@@ -56,11 +62,20 @@
 		void loadKnown();
 	});
 
-	function add(tag: string) {
+	async function add(tag: string) {
 		const clean = normalizeTag(tag);
 		if (!clean || tagError(clean) || chosen.includes(clean)) return;
+
 		onchange([...chosen, clean]);
 		query = "";
+
+		/*
+		 * Фокус возвращаем после обновления дерева, а не сразу: пока список тегов
+		 * не перерисовался, `input` ещё может быть старым узлом, и фокус встал бы
+		 * в него и тут же потерялся при замене.
+		 */
+		await tick();
+		input?.focus();
 	}
 
 	function remove(tag: string) {
@@ -84,6 +99,7 @@
 <div class="tags-field">
 	<div class="row">
 		<input
+			bind:this={input}
 			{id}
 			type="text"
 			{disabled}
@@ -118,7 +134,17 @@
 		<ul class="hints">
 			{#each suggestions as tag (tag)}
 				<li>
-					<button type="button" {disabled} onmousedown={() => add(tag)}>
+					<button
+						type="button"
+						{disabled}
+						onmousedown={(e) => {
+							// Без `preventDefault` поле успевает потерять фокус, и
+							// вернуть его пришлось бы угадыванием — проще не дать
+							// фокусу уйти вовсе.
+							e.preventDefault();
+							void add(tag);
+						}}
+					>
 						{tag}
 					</button>
 				</li>
@@ -139,8 +165,35 @@
 		position: relative;
 	}
 
+	/*
+	 * Стили поля и кнопок здесь свои: scoped-правила `Field.svelte` до
+	 * внутренностей дочернего компонента не достают, а без них вход рисуется
+	 * браузером — светло-серый с чёрным текстом, то есть нечитаемо на тёмной
+	 * теме.
+	 *
+	 * Порядок — по возрастанию специфичности, иначе stylelint ругается.
+	 */
+	.tags-field input {
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 7px 9px;
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--line-strong);
+		border-radius: var(--r-control);
+	}
+
+	.tags-field input::placeholder {
+		color: var(--text-faint);
+	}
+
 	.row input {
 		width: 100%;
+	}
+
+	.tags-field input:focus {
+		outline: none;
+		border-color: var(--accent);
 	}
 
 	/*
@@ -168,8 +221,14 @@
 		display: block;
 		width: 100%;
 		text-align: left;
+		font: inherit;
+		font-size: var(--fs-md);
+		padding: 5px 9px;
+		color: var(--text-dim);
 		background: transparent;
 		border: none;
+		border-radius: var(--r-control);
+		cursor: pointer;
 	}
 
 	.chips {
@@ -193,11 +252,14 @@
 	}
 
 	.chips button {
+		font: inherit;
+		font-size: var(--fs-sm);
 		padding: 0 4px;
 		background: transparent;
 		border: none;
 		color: var(--text-dim);
 		line-height: 1;
+		cursor: pointer;
 	}
 
 	.chips button:hover:not(:disabled) {
@@ -205,6 +267,7 @@
 	}
 
 	.hints button:hover:not(:disabled) {
+		color: var(--text);
 		background: var(--surface-3);
 	}
 
