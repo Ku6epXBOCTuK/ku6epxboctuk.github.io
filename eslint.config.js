@@ -92,7 +92,7 @@ export default defineConfig(
 	},
 	{
 		files: ["**/*.test.ts", "**/*.spec.ts"],
-		ignores: ["e2e/**"],
+		ignores: ["e2e/**", "packages/editor/e2e/**"],
 		plugins: { vitest },
 		rules: {
 			...vitest.configs.recommended.rules,
@@ -114,7 +114,7 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ["e2e/**/*.spec.ts"],
+		files: ["e2e/**/*.spec.ts", "packages/editor/e2e/**/*.spec.ts"],
 		...playwright.configs["flat/recommended"],
 		rules: {
 			"playwright/require-hook": "warn",

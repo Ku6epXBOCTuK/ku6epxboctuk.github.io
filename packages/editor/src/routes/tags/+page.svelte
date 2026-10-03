@@ -129,6 +129,13 @@
 
 	/** Завести тег заранее, до первого поста с ним. */
 	async function addNew() {
+		/*
+		 * Вход без `busy`: инпут не глушится на время запроса (задизейбленный
+		 * элемент теряет фокус, и следующий тег подряд не ввести), поэтому
+		 * повторный Enter отсекаем здесь.
+		 */
+		if (busy) return;
+
 		const tag = normalizeTag(newTag);
 		if (!tag || tagError(tag)) return;
 		if (rows.some((row) => row.tag === tag)) {
@@ -172,6 +179,9 @@
 	}
 
 	async function applyRename(row: TagRow, target: string) {
+		// Как и в `addNew`: инпут не глушится, повторный Enter отсекаем здесь.
+		if (busy) return;
+
 		busy = true;
 		status = "";
 		try {
@@ -239,7 +249,6 @@
 			placeholder="новый тег"
 			aria-label="новый тег"
 			aria-invalid={Boolean(newTagError)}
-			disabled={busy}
 			oninput={(e) => (newTag = e.currentTarget.value)}
 			onkeydown={(e) => {
 				if (e.key === "Enter") addNew();
@@ -296,7 +305,6 @@
 									class="edit"
 									value={draft}
 									aria-invalid={Boolean(draftError)}
-									disabled={busy}
 									oninput={(e) => onDraft(e.currentTarget.value)}
 									onkeydown={(e) => {
 										if (e.key === "Enter") commitRename(row);
