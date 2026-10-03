@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { tidyTags } from "@ku6epxboctuk/content-core/shared";
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
 	import DirField from "./DirField.svelte";
 	import ImageField from "./ImageField.svelte";
+	import TagsField from "./TagsField.svelte";
 
 	interface Props {
 		field: FieldDef;
@@ -34,8 +36,8 @@
 
 	const controlId = $derived(scope ? `${scope}-${field.name}` : field.name);
 
-	const list = $derived(
-		Array.isArray(value) ? (value as string[]).join(", ") : "",
+	const list2 = $derived(
+		Array.isArray(value) ? tidyTags(value) : ([] as string[]),
 	);
 
 	const scalar = $derived(
@@ -49,15 +51,6 @@
 
 	function text(next: string) {
 		onchange(next);
-	}
-
-	function tags(next: string) {
-		onchange(
-			next
-				.split(",")
-				.map((item) => item.trim().toLowerCase())
-				.filter(Boolean),
-		);
 	}
 
 	function number(next: string) {
@@ -83,14 +76,11 @@
 			onchange={(e) => onchange(e.currentTarget.checked)}
 		/>
 	{:else if field.kind === "string[]"}
-		<input
+		<TagsField
 			id={controlId}
-			type="text"
-			class:mono
 			{disabled}
-			value={list}
-			placeholder="svelte, css"
-			oninput={(e) => tags(e.currentTarget.value)}
+			value={list2}
+			onchange={(next) => onchange(next)}
 		/>
 	{:else if field.kind === "choice"}
 		<select

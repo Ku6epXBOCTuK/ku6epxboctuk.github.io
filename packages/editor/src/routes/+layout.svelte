@@ -13,12 +13,14 @@
 		(page.data.problems as { broken: number } | undefined)?.broken ?? 0,
 	);
 	const onErrors = $derived(page.url.pathname === "/errors");
+	const onTags = $derived(page.url.pathname === "/tags");
 </script>
 
 <div class="app">
 	<header>
 		<a class="mark" href="/">редактор</a>
 		<nav>
+			<a href="/tags" aria-current={onTags || undefined}>теги</a>
 			<a href="/errors" aria-current={onErrors || undefined}>
 				ошибки
 				{#if problems > 0}

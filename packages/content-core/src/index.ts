@@ -7,6 +7,8 @@ export * from "./json.ts";
 export * from "./paths.ts";
 export * from "./project-paths.ts";
 export * from "./slug.ts";
+export * from "./tag-rules.ts";
+export * from "./tags.ts";
 export * from "./types.ts";
 export * from "./validate.ts";
 export * from "./yaml.ts";
