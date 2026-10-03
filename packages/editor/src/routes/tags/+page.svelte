@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
 	import ConfirmModal from "$lib/components/ConfirmModal.svelte";
 	import RemoveScopes from "$lib/components/tags/RemoveScopes.svelte";
@@ -42,7 +43,7 @@
 		}
 	}
 
-	$effect(() => {
+	onMount(() => {
 		void load();
 	});
 

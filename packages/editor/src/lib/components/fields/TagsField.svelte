@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick } from "svelte";
+	import { onMount, tick } from "svelte";
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
 	import TagChip from "./TagChip.svelte";
 	import TagHints from "./TagHints.svelte";
@@ -49,7 +49,7 @@
 		}
 	}
 
-	$effect(() => {
+	onMount(() => {
 		void loadKnown();
 	});
 
