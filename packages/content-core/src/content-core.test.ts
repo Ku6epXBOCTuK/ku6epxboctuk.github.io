@@ -304,7 +304,7 @@ describe("файл после записи устойчив к prettier", () => 
 describe("slug", () => {
 	it.each([
 		["my-slug", true],
-		["brul", true],
+		["example-repo", true],
 		["2026-09-29", true],
 		["My-Slug", false],
 		["my_slug", false],

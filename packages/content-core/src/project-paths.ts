@@ -6,7 +6,7 @@ import type { ProjectPathReport } from "./types.ts";
 
 /**
  * Путь к локальному клону лежит в `<type>s.local.json` — файле, который в
- * гитигноре, относительно корня сайта: `path: ../brul`. Так в git не попадает
+ * гитигноре, относительно корня сайта: `path: ../example-repo`. Так в git не попадает
  * ни `C:\Users\...`, ни вообще структура диска.
  */
 export function resolveProjectPath(

@@ -68,11 +68,11 @@ src/content/projects.local.json           # локальное: путь к кл
 
 Пиши относительно корня сайта:
 
-| проект             | значение                               |
-| ------------------ | -------------------------------------- |
-| brul               | `../brul`                              |
-| twitch-ext         | `../twitch-ext`                        |
-| effect-ts-practice | `../../open_source/effect-ts-practice` |
+| проект       | значение                        |
+| ------------ | ------------------------------- |
+| example-repo | `../example-repo`               |
+| example-cli  | `../example-cli`                |
+| example-lab  | `../../open_source/example-lab` |
 
 Оно лежит в `projects.local.json`, а этот файл в гитигноре — **абсолютный путь
 тоже можно**, в git он не попадёт. Значение нужно только на этой машине, поэтому

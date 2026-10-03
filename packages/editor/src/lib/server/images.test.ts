@@ -52,13 +52,13 @@ describe("обложка приводится к 1200×630", () => {
 			buffer: await makePng(3000, 2000),
 			mimeType: "image/png",
 			kind: "banner",
-			slug: "brul",
+			slug: "example-repo",
 			dir,
 		});
 
 		expect(saved.width).toBe(BANNER_WIDTH);
 		expect(saved.height).toBe(BANNER_HEIGHT);
-		expect(saved.path).toMatch(/^\/images\/brul-[0-9a-f]{8}\.webp$/);
+		expect(saved.path).toMatch(/^\/images\/example-repo-[0-9a-f]{8}\.webp$/);
 		expect(saved.passThrough).toBe(false);
 	});
 
@@ -68,7 +68,7 @@ describe("обложка приводится к 1200×630", () => {
 			buffer: await makePng(200, 150),
 			mimeType: "image/png",
 			kind: "banner",
-			slug: "brul",
+			slug: "example-repo",
 			dir,
 		});
 
@@ -82,7 +82,7 @@ describe("обложка приводится к 1200×630", () => {
 			buffer: await makePng(3000, 2000),
 			mimeType: "image/png",
 			kind: "banner",
-			slug: "brul",
+			slug: "example-repo",
 			dir,
 		});
 
@@ -233,7 +233,7 @@ describe("removeImage", () => {
 
 describe("slug в имени файла", () => {
 	it.each([
-		["brul", "brul"],
+		["example-repo", "example-repo"],
 		["../etc", "img"],
 		["Bad Slug", "img"],
 		["", "img"],

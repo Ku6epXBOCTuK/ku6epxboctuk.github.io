@@ -24,11 +24,11 @@ describe("пути контента", () => {
 	});
 
 	it("языковые файлы остались на месте", () => {
-		expect(rel(unitFile("project", "brul", "ru"))).toBe(
-			"src/content/projects/brul/index.ru.md",
+		expect(rel(unitFile("project", "example-repo", "ru"))).toBe(
+			"src/content/projects/example-repo/index.ru.md",
 		);
-		expect(rel(unitFile("project", "brul", "en"))).toBe(
-			"src/content/projects/brul/index.en.md",
+		expect(rel(unitFile("project", "example-repo", "en"))).toBe(
+			"src/content/projects/example-repo/index.en.md",
 		);
 		expect(rel(unitDir("post", "hello"))).toBe("src/content/posts/hello");
 	});

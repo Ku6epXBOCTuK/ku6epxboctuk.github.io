@@ -37,8 +37,8 @@ describe("пути локальных клонов", () => {
 		});
 
 		it("относительный путь резолвится от корня сайта", () => {
-			expect(resolveProjectPath("../brul", root)).toBe(
-				join(root, "..", "brul"),
+			expect(resolveProjectPath("../example-repo", root)).toBe(
+				join(root, "..", "example-repo"),
 			);
 		});
 
@@ -48,8 +48,8 @@ describe("пути локальных клонов", () => {
 		});
 
 		it("лишние пробелы обрезаются", () => {
-			expect(resolveProjectPath("  ../brul  ", root)).toBe(
-				join(root, "..", "brul"),
+			expect(resolveProjectPath("  ../example-repo  ", root)).toBe(
+				join(root, "..", "example-repo"),
 			);
 		});
 	});
@@ -78,10 +78,10 @@ describe("пути локальных клонов", () => {
 		});
 
 		it("git-репозиторий — ok", () => {
-			makeRepo("brul");
-			const verdict = classifyProjectPath("./brul", root);
+			makeRepo("example-repo");
+			const verdict = classifyProjectPath("./example-repo", root);
 			expect(verdict.state).toBe("ok");
-			expect(verdict.resolved).toBe(join(root, "brul"));
+			expect(verdict.resolved).toBe(join(root, "example-repo"));
 		});
 
 		it(".git файлом (worktree) тоже считается репозиторием", () => {

@@ -383,12 +383,14 @@ describe("репозиторий", () => {
 		it("path уезжает в .local.json и не попадает в md и не в json", async () => {
 			const input = emptyEntry("project", PROJECT_SLUG);
 			input.versions.ru.frontmatter.title = "Проект";
-			input.versions.ru.frontmatter.path = "../brul";
+			input.versions.ru.frontmatter.path = "../example-repo";
 			input.shared = { repo: "https://github.com/o/n" };
 
 			await saveEntry("project", PROJECT_SLUG, input, fixture());
 
-			expect(readLocal("project")[PROJECT_SLUG]).toEqual({ path: "../brul" });
+			expect(readLocal("project")[PROJECT_SLUG]).toEqual({
+				path: "../example-repo",
+			});
 			// Обычный json знать о машине не должен: он в git.
 			expect(readMeta("project")[PROJECT_SLUG]).toEqual({
 				repo: "https://github.com/o/n",

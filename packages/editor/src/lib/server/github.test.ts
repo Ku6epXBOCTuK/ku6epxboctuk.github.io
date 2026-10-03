@@ -17,19 +17,63 @@ const RAW = "https://raw.githubusercontent.com/o/r/main";
 
 describe("parseRepoUrl", () => {
 	it.each([
-		["https://github.com/Ku6epXBOCTuK/brul", "Ku6epXBOCTuK", "brul"],
-		["http://github.com/Ku6epXBOCTuK/brul", "Ku6epXBOCTuK", "brul"],
-		["https://github.com/Ku6epXBOCTuK/brul/", "Ku6epXBOCTuK", "brul"],
-		["github.com/Ku6epXBOCTuK/brul", "Ku6epXBOCTuK", "brul"],
-		["www.github.com/Ku6epXBOCTuK/brul", "Ku6epXBOCTuK", "brul"],
-		["Ku6epXBOCTuK/brul", "Ku6epXBOCTuK", "brul"],
-		["  https://github.com/Ku6epXBOCTuK/brul  ", "Ku6epXBOCTuK", "brul"],
-		["https://github.com/Ku6epXBOCTuK/brul.git", "Ku6epXBOCTuK", "brul"],
-		["git@github.com:Ku6epXBOCTuK/brul.git", "Ku6epXBOCTuK", "brul"],
-		["git+https://github.com/Ku6epXBOCTuK/brul", "Ku6epXBOCTuK", "brul"],
-		["https://github.com/Ku6epXBOCTuK/brul/tree/main", "Ku6epXBOCTuK", "brul"],
-		["https://github.com/Ku6epXBOCTuK/brul?tab=readme", "Ku6epXBOCTuK", "brul"],
-		["https://github.com/Ku6epXBOCTuK/brul#install", "Ku6epXBOCTuK", "brul"],
+		[
+			"https://github.com/Ku6epXBOCTuK/example-repo",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"http://github.com/Ku6epXBOCTuK/example-repo",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"https://github.com/Ku6epXBOCTuK/example-repo/",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		["github.com/Ku6epXBOCTuK/example-repo", "Ku6epXBOCTuK", "example-repo"],
+		[
+			"www.github.com/Ku6epXBOCTuK/example-repo",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		["Ku6epXBOCTuK/example-repo", "Ku6epXBOCTuK", "example-repo"],
+		[
+			"  https://github.com/Ku6epXBOCTuK/example-repo  ",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"https://github.com/Ku6epXBOCTuK/example-repo.git",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"git@github.com:Ku6epXBOCTuK/example-repo.git",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"git+https://github.com/Ku6epXBOCTuK/example-repo",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"https://github.com/Ku6epXBOCTuK/example-repo/tree/main",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"https://github.com/Ku6epXBOCTuK/example-repo?tab=readme",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
+		[
+			"https://github.com/Ku6epXBOCTuK/example-repo#install",
+			"Ku6epXBOCTuK",
+			"example-repo",
+		],
 		[
 			"https://github.com/Ku6epXBOCTuK/now_playing",
 			"Ku6epXBOCTuK",
@@ -44,7 +88,7 @@ describe("parseRepoUrl", () => {
 		"   ",
 		"не ссылка",
 		"https://gitlab.com/o/r",
-		"brul",
+		"example-repo",
 		"https://github.com/Ku6epXBOCTuK",
 		"https://github.com/features/actions",
 		"https://github.com/topics/rust",
@@ -54,14 +98,16 @@ describe("parseRepoUrl", () => {
 	});
 
 	it("собирает обратно канонический url", () => {
-		const ref = parseRepoUrl("github.com/Ku6epXBOCTuK/brul/tree/main");
-		expect(ref && repoUrl(ref)).toBe("https://github.com/Ku6epXBOCTuK/brul");
+		const ref = parseRepoUrl("github.com/Ku6epXBOCTuK/example-repo/tree/main");
+		expect(ref && repoUrl(ref)).toBe(
+			"https://github.com/Ku6epXBOCTuK/example-repo",
+		);
 	});
 });
 
 describe("humanize", () => {
 	it.each([
-		["brul", "Brul"],
+		["example-repo", "Example repo"],
 		["now-playing", "Now playing"],
 		["now_playing", "Now playing"],
 		["git.overhooks", "Git overhooks"],
@@ -73,10 +119,10 @@ describe("humanize", () => {
 
 describe("slugifyRepoName", () => {
 	it.each([
-		["brul", "brul"],
+		["example-repo", "example-repo"],
 		["now_playing", "now-playing"],
 		["git.overhooks", "git-overhooks"],
-		["effect-ts-practice", "effect-ts-practice"],
+		["example-lab", "example-lab"],
 		["--weird--name--", "weird-name"],
 		["_leading", "leading"],
 	])("%s → %s", (input, expected) => {
@@ -87,7 +133,7 @@ describe("slugifyRepoName", () => {
 describe("firstParagraph", () => {
 	it("пропускает заголовок, бейджи и html, отдаёт первый абзац", () => {
 		const readme = [
-			"# brul",
+			"# example-repo",
 			"",
 			"[![build](https://img.shields.io/badge/build-passing-green)](https://ci.example)",
 			"",
@@ -101,7 +147,7 @@ describe("firstParagraph", () => {
 			"## Установка",
 			"",
 			"```sh",
-			"npm i -g brul",
+			"npm i -g example-repo",
 			"```",
 		].join("\n");
 
@@ -139,7 +185,7 @@ describe("firstParagraph", () => {
 	// GitHub отдаёт README с CRLF: без нормализации весь файл — один блок.
 	it("понимает CRLF, как отдаёт GitHub", () => {
 		const readme = [
-			"# brul",
+			"# example-repo",
 			"",
 			"Декларативный UI для нативных десктоп-приложений на Rust.",
 			"Без браузерного движка.",
@@ -192,7 +238,7 @@ describe("isBadgeUrl", () => {
 		["https://img.shields.io/badge/build-passing-green", true],
 		["https://badgen.net/github/stars/o/r", true],
 		["https://codecov.io/gh/o/r/branch/main/graph/badge.svg", true],
-		["https://nodei.co/npm/brul.png", true],
+		["https://nodei.co/npm/example-repo.png", true],
 		["https://raw.githubusercontent.com/o/r/main/docs/shot.png", false],
 		["https://github.com/o/r/assets/a.gif", false],
 	])("%s → %s", (url, expected) => {

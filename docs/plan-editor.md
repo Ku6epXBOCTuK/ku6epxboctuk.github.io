@@ -38,7 +38,7 @@
 
 SvelteKit для редактора, а не голый Vite: `hooks.server.ts` даёт проверку
 доступа на каждом запросе в одном месте, плюс привычные роуты для глубоких
-ссылок вида `/project/brul`. У пакета своя `svelte.config.js`.
+ссылок вида `/project/example-repo`. У пакета своя `svelte.config.js`.
 
 ## Порядок
 

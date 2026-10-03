@@ -165,7 +165,7 @@ describe("валидация", () => {
 			const result = tree({
 				files: pair(
 					"projects/x",
-					["title: T", "description: D", "path: ../brul"],
+					["title: T", "description: D", "path: ../example-repo"],
 					["title: T", "description: D"],
 				),
 			});
