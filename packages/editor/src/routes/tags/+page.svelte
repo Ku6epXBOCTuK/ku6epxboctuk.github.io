@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
 	import ConfirmModal from "$lib/components/ConfirmModal.svelte";
+	import RemoveScopes from "$lib/components/tags/RemoveScopes.svelte";
+	import TagAdder from "$lib/components/tags/TagAdder.svelte";
+	import TagEditRow from "$lib/components/tags/TagEditRow.svelte";
+	import TagFilter from "$lib/components/tags/TagFilter.svelte";
+	import TagViewRow from "$lib/components/tags/TagViewRow.svelte";
+	import type { TagDropScope, TagPlan, TagRow } from "$lib/types";
 
 	/*
 	 * Теги живут в двух местах:
@@ -13,29 +19,6 @@
 	 * делать второе вместо первого нельзя.
 	 */
 
-	interface Unit {
-		type: string;
-		slug: string;
-	}
-
-	interface TagRow {
-		tag: string;
-		count: number;
-		units: Unit[];
-		/** Есть ли тег в списке `tags.json`. */
-		listed: boolean;
-	}
-
-	interface Plan {
-		from: string;
-		to: string;
-		exists: boolean;
-		merge: boolean;
-		affected: number;
-		duplicates: number;
-		resultCount: number;
-	}
-
 	let rows = $state<TagRow[]>([]);
 	let query = $state("");
 	let busy = $state(false);
@@ -44,12 +27,11 @@
 	let newTag = $state("");
 	let editing = $state("");
 	let draft = $state("");
-	let plan = $state<Plan | null>(null);
+	let plan = $state<TagPlan | null>(null);
 	let pending = $state<TagRow | null>(null);
 	let removing = $state<TagRow | null>(null);
 
-	/** Что удаляем из удаляемой записи: из списка, из контента или и то и другое. */
-	let dropScope = $state<"list" | "content" | "both">("both");
+	let dropScope = $state<TagDropScope>("both");
 
 	const visible = $derived(
 		rows.filter((row) =>
@@ -110,7 +92,7 @@
 			const res = await fetch(
 				`/api/tags/plan?from=${encodeURIComponent(editing)}&to=${encodeURIComponent(target)}`,
 			);
-			plan = res.ok ? ((await res.json()) as { plan: Plan }).plan : null;
+			plan = res.ok ? ((await res.json()) as { plan: TagPlan }).plan : null;
 		} catch {
 			plan = null;
 		}
@@ -242,55 +224,23 @@
 		<h1>Теги</h1>
 	</header>
 
-	<div class="adder">
-		<input
-			type="text"
-			value={newTag}
-			placeholder="новый тег"
-			aria-label="новый тег"
-			aria-invalid={Boolean(newTagError)}
-			oninput={(e) => (newTag = e.currentTarget.value)}
-			onkeydown={(e) => {
-				if (e.key === "Enter") addNew();
-			}}
-		/>
-		<button
-			type="button"
-			disabled={busy || !newTag || Boolean(newTagError)}
-			onclick={addNew}
-		>
-			добавить в список
-		</button>
-		{#if newTagError}
-			<span class="note bad">{newTagError}</span>
-		{/if}
-	</div>
+	<TagAdder
+		value={newTag}
+		{busy}
+		error={newTagError}
+		oninput={(next) => (newTag = next)}
+		onadd={addNew}
+	/>
 
 	{#if rows.length === 0}
 		<p class="empty">Тегов пока нет — добавь их в форме единицы.</p>
 	{:else}
-		<div class="filter">
-			<input
-				type="text"
-				bind:value={query}
-				placeholder="найти тег"
-				aria-label="поиск тега"
-			/>
-			{#if query !== ""}
-				<button
-					type="button"
-					class="clear"
-					aria-label="сбросить поиск"
-					title="сбросить"
-					onclick={() => (query = "")}
-				>
-					×
-				</button>
-				<span class="found">
-					{visible.length} из {rows.length}
-				</span>
-			{/if}
-		</div>
+		<TagFilter
+			value={query}
+			found={visible.length}
+			total={rows.length}
+			oninput={(next) => (query = next)}
+		/>
 
 		{#if visible.length === 0}
 			<p class="empty">Ничего не нашлось.</p>
@@ -299,68 +249,22 @@
 				{#each visible as row (row.tag)}
 					<li>
 						{#if editing === row.tag}
-							<div class="edit-row">
-								<input
-									type="text"
-									class="edit"
-									value={draft}
-									aria-invalid={Boolean(draftError)}
-									oninput={(e) => onDraft(e.currentTarget.value)}
-									onkeydown={(e) => {
-										if (e.key === "Enter") commitRename(row);
-										if (e.key === "Escape") cancelEdit();
-									}}
-								/>
-								<button
-									type="button"
-									disabled={busy}
-									onclick={() => commitRename(row)}
-								>
-									{plan?.merge ? "слить" : "ок"}
-								</button>
-								<button type="button" disabled={busy} onclick={cancelEdit}>
-									отмена
-								</button>
-								{#if draftError}
-									<span class="note bad">{draftError}</span>
-								{:else if plan?.merge}
-									<span class="note">
-										тег «{plan.to}» уже есть — сольются, останется в
-										{plan.resultCount}
-										{plan.resultCount === 1 ? "записи" : "записях"}
-										{#if plan.duplicates > 0}
-											, из них {plan.duplicates} с дублями
-										{/if}
-									</span>
-								{/if}
-							</div>
+							<TagEditRow
+								{draft}
+								error={draftError}
+								{plan}
+								{busy}
+								ondraft={onDraft}
+								oncommit={() => commitRename(row)}
+								oncancel={cancelEdit}
+							/>
 						{:else}
-							<button
-								type="button"
-								class="name"
-								disabled={busy}
-								onclick={() => startEdit(row)}
-								title="переименовать"
-							>
-								{row.tag}
-							</button>
-							<span class="count">{row.count}</span>
-							{#if !row.listed}
-								<span class="tag-note">только в записях</span>
-							{/if}
-							<span class="where">
-								{row.units
-									.map((unit) => `${unit.type}/${unit.slug}`)
-									.join(", ")}
-							</span>
-							<button
-								type="button"
-								class="danger"
-								disabled={busy}
-								onclick={() => (removing = row)}
-							>
-								убрать
-							</button>
+							<TagViewRow
+								{row}
+								{busy}
+								onedit={() => startEdit(row)}
+								onremove={() => (removing = row)}
+							/>
 						{/if}
 					</li>
 				{/each}
@@ -385,23 +289,11 @@
 {/if}
 
 {#if removing}
-	<div class="scopes">
-		<span>убрать «{removing.tag}»:</span>
-		<label>
-			<input type="radio" bind:group={dropScope} value="list" />
-			из списка
-		</label>
-		{#if removing.count > 0}
-			<label>
-				<input type="radio" bind:group={dropScope} value="content" />
-				из записей ({removing.count})
-			</label>
-		{/if}
-		<label>
-			<input type="radio" bind:group={dropScope} value="both" />
-			отовсюду
-		</label>
-	</div>
+	<RemoveScopes
+		row={removing}
+		value={dropScope}
+		onchange={(next) => (dropScope = next)}
+	/>
 	<ConfirmModal
 		title="Убрать тег?"
 		body={dropScope === "list"
@@ -431,23 +323,8 @@
 	h1 {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 17px;
-		font-weight: 600;
-	}
-
-	.edit {
-		font: inherit;
 		font-size: var(--fs-md);
-		padding: 6px 9px;
-		color: var(--text);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		max-width: 220px;
-	}
-
-	.edit[aria-invalid="true"] {
-		border-color: var(--danger);
+		font-weight: 600;
 	}
 
 	ul {
@@ -463,60 +340,12 @@
 		display: flex;
 		align-items: center;
 		gap: var(--gap-3);
-		padding: 6px var(--gap-3);
+		padding: var(--gap-1) var(--gap-3);
 		border-bottom: 1px solid var(--line);
 	}
 
 	li:last-child {
 		border-bottom: none;
-	}
-
-	.name {
-		font-family: var(--font-mono);
-		background: transparent;
-		border: none;
-		padding: 2px 0;
-		color: var(--accent);
-		min-width: 140px;
-		text-align: left;
-	}
-
-	.count {
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-dim);
-		min-width: 20px;
-	}
-
-	.where {
-		flex: 1;
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		min-width: 0;
-	}
-
-	button {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 5px 10px;
-		color: var(--text-dim);
-		background: var(--surface-2);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		cursor: pointer;
-	}
-
-	button:disabled {
-		opacity: 0.45;
-		cursor: default;
-	}
-
-	button.danger {
-		color: var(--danger);
 	}
 
 	.empty,
@@ -528,116 +357,5 @@
 
 	.status {
 		color: var(--text-dim);
-	}
-
-	/*
-	 * Правка занимает всю ширину строки: пока идёт предпросмотр, важно видеть
-	 * и поле, и то, что из этого выйдет, а не гадать по одному слову.
-	 */
-	.edit-row {
-		display: flex;
-		align-items: center;
-		gap: var(--gap-2);
-		flex: 1;
-		flex-wrap: wrap;
-	}
-
-	.note {
-		font-size: var(--fs-sm);
-		color: var(--warn);
-	}
-
-	.note.bad {
-		color: var(--danger);
-	}
-
-	.filter {
-		display: flex;
-		align-items: center;
-		gap: var(--gap-2);
-		flex-wrap: wrap;
-		padding: var(--gap-2) 0;
-	}
-
-	.filter input,
-	.adder input {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 6px 9px;
-		color: var(--text);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-	}
-
-	.filter input {
-		flex: 1;
-		min-width: 160px;
-	}
-
-	.filter .clear {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 0 8px;
-		background: transparent;
-		border: none;
-		color: var(--text-faint);
-		line-height: 1;
-		cursor: pointer;
-	}
-
-	.filter .clear:hover {
-		color: var(--danger);
-	}
-
-	.adder input {
-		min-width: 180px;
-	}
-
-	.filter input:focus,
-	.adder input:focus {
-		outline: none;
-		border-color: var(--accent);
-	}
-
-	.adder input[aria-invalid="true"] {
-		border-color: var(--danger);
-	}
-
-	.found {
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
-	}
-
-	.adder {
-		display: flex;
-		align-items: center;
-		gap: var(--gap-2);
-		flex-wrap: wrap;
-	}
-
-	.tag-note {
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
-	}
-
-	.scopes {
-		display: flex;
-		align-items: center;
-		gap: var(--gap-3);
-		flex-wrap: wrap;
-		padding: var(--gap-2) var(--gap-3);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-panel);
-		background: var(--surface-2);
-		font-size: var(--fs-md);
-	}
-
-	.scopes label {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		cursor: pointer;
 	}
 </style>

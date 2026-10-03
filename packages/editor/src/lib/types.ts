@@ -27,3 +27,30 @@ export interface CreateResult extends SaveResult {
 }
 
 export type EditorUnits = UnitSummary[];
+
+export interface TagUnit {
+	type: string;
+	slug: string;
+}
+
+export interface TagRow {
+	tag: string;
+	count: number;
+	units: TagUnit[];
+	/** Есть ли тег в списке `tags.json`. */
+	listed: boolean;
+}
+
+/** Ответ `/api/tags/plan`: что будет, если переименовать тег. */
+export interface TagPlan {
+	from: string;
+	to: string;
+	exists: boolean;
+	merge: boolean;
+	affected: number;
+	duplicates: number;
+	resultCount: number;
+}
+
+/** Что удаляем из удаляемой записи: из списка, из контента или и то и другое. */
+export type TagDropScope = "list" | "content" | "both";

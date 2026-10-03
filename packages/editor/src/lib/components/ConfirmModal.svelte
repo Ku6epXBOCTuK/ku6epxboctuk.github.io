@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Button from "./ui/Button.svelte";
+
 	interface Props {
 		title: string;
 		body: string;
@@ -45,9 +47,9 @@
 		<h2 id={titleId}>{title}</h2>
 		<p>{body}</p>
 		<div class="actions">
-			<button type="button" onclick={oncancel}>отмена</button>
-			<button type="button" class="danger" {disabled} onclick={onconfirm}
-				>{confirmLabel}</button
+			<Button onclick={oncancel}>отмена</Button>
+			<Button variant="danger-solid" {disabled} onclick={onconfirm}
+				>{confirmLabel}</Button
 			>
 		</div>
 	</div>
@@ -61,15 +63,15 @@
 		display: grid;
 		place-items: center;
 		padding: var(--gap-6);
-		background: rgb(0 0 0 / 62%);
+		background: var(--backdrop);
 	}
 
 	.modal {
-		width: min(560px, 100%);
+		width: min(var(--modal-w), 100%);
 		display: flex;
 		flex-direction: column;
 		gap: var(--gap-3);
-		padding: var(--gap-5);
+		padding: var(--gap-4);
 		border: 1px solid var(--line-strong);
 		border-radius: var(--r-panel);
 		background: var(--surface-2);
@@ -86,45 +88,12 @@
 	p {
 		margin: 0;
 		font-size: var(--fs-md);
-		line-height: 1.6;
+		line-height: var(--lh-copy);
 		color: var(--text-dim);
 	}
 
 	.actions {
 		display: flex;
 		gap: var(--gap-2);
-	}
-
-	.actions button {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 7px 14px;
-		color: var(--text-dim);
-		background: var(--surface-3);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		cursor: pointer;
-	}
-
-	.actions button:disabled {
-		opacity: 0.45;
-		cursor: default;
-	}
-
-	.actions button:hover:not(:disabled) {
-		color: var(--text);
-		background: var(--surface);
-	}
-
-	.actions button.danger {
-		color: var(--on-danger);
-		background: var(--danger-strong);
-		border-color: var(--danger-strong);
-		font-weight: 600;
-	}
-
-	.actions button.danger:hover:not(:disabled) {
-		background: var(--danger);
-		border-color: var(--danger);
 	}
 </style>

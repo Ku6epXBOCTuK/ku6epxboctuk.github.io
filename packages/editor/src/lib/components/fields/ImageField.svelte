@@ -88,7 +88,7 @@
 
 	img {
 		max-width: 100%;
-		max-height: 180px;
+		max-height: var(--img-preview-h);
 		object-fit: contain;
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
@@ -99,11 +99,20 @@
 		font: inherit;
 		font-family: var(--font-mono);
 		font-size: var(--fs-md);
-		padding: 6px 9px;
+		padding: var(--pad-field);
 		color: var(--text);
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
 		border-radius: var(--r-control);
+	}
+
+	input:focus {
+		outline: none;
+		border-color: var(--accent);
+	}
+
+	input:hover:not(:disabled):not(:focus) {
+		border-color: var(--line-hover);
 	}
 
 	.note {

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { uploadImage } from "$lib/upload";
 	import ImageDrop from "./ImageDrop.svelte";
+	import MoreMarker from "./MoreMarker.svelte";
 
 	interface Props {
 		value: string;
@@ -60,18 +61,13 @@
 
 <div class="markdown">
 	{#if needsMoreMarker}
-		<div class="marker" class:missing={!hasMarker}>
-			{#if hasMarker}
-				<span>
-					<strong>&lt;!--more--&gt;</strong> · тизер {teaserLength}
-				</span>
-				<button type="button" {disabled} onclick={removeMarker}>убрать</button>
-			{:else}
-				<span><strong>&lt;!--more--&gt;</strong> · обязателен для статьи</span>
-				<button type="button" {disabled} onclick={insertMarker}>вставить</button
-				>
-			{/if}
-		</div>
+		<MoreMarker
+			{hasMarker}
+			{teaserLength}
+			{disabled}
+			oninsert={insertMarker}
+			onremove={removeMarker}
+		/>
 	{/if}
 
 	<textarea
@@ -103,32 +99,13 @@
 		gap: var(--gap-2);
 	}
 
-	.marker {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--gap-3);
-		font-size: var(--fs-sm);
-		padding: 6px 9px;
-		border: 1px solid var(--accent-dim);
-		border-radius: var(--r-control);
-		background: var(--accent-wash);
-		color: var(--text-dim);
-	}
-
-	.marker.missing {
-		border-color: #5c2f31;
-		background: var(--danger-wash);
-		color: var(--danger);
-	}
-
 	textarea {
 		font-family: var(--font-mono);
 		font-size: var(--fs-md);
-		line-height: 1.75;
+		line-height: var(--lh-code);
 		/* Описания проектов — это 2–3 абзаца. Растягивать поле на весь экран
 		   незачем, поэтому отвязываемся от высоты окна: тянется мышью. */
-		min-height: 360px;
+		min-height: var(--textarea-min-h);
 		padding: var(--gap-4);
 		color: var(--text);
 		background: var(--bg);
@@ -149,22 +126,6 @@
 		gap: var(--gap-3);
 		font-size: var(--fs-sm);
 		color: var(--text-faint);
-	}
-
-	button {
-		font: inherit;
-		font-size: var(--fs-sm);
-		padding: 2px 8px;
-		color: var(--text-dim);
-		background: var(--surface-2);
-		border: 1px solid var(--line-strong);
-		border-radius: 4px;
-		cursor: pointer;
-	}
-
-	button:hover {
-		color: var(--text);
-		background: var(--surface-3);
 	}
 
 	.bad {

@@ -37,10 +37,20 @@
 	--warn: #e3b341;
 	--warn-wash: #2a2317;
 
-	/* Радиусы: контролы мельче панелей */
+	/* Линии и наведение состояний: раньше лежали литералами в компонентах */
+	--line-danger: #5c2f31;
+	--line-warn: #5a4a20;
+	--line-hover: #4d535f;
+	--accent-hover: #6ad68d;
+	--backdrop: rgb(0 0 0 / 62%);
+	--on-selection: #fff;
+
+	/* Радиусы: чипы мельче контролов, контролы мельче панелей */
+	--r-chip: 4px;
 	--r-control: 8px;
-	--r-panel: 14px;
 	--r-group: 12px;
+	--r-panel: 14px;
+	--r-pill: 999px;
 
 	/*
 	 * Кегли. Работа ведётся на нормальном мониторе, поэтому базовая линия 18px.
@@ -52,7 +62,20 @@
 	--fs-label: 16px;
 	--fs-md: 17px;
 	--fs-lg: 18px;
+	--fs-brand: 19px;
 	--fs-xl: 28px;
+
+	/* Межстрочные: база, поле ввода, связный текст, код */
+	--lh-base: 1.5;
+	--lh-field: 1.55;
+	--lh-copy: 1.6;
+	--lh-code: 1.75;
+
+	/* Трекинг: заголовки капсом и плотные подписи */
+	--track-tight: -0.01em;
+	--track-label: 0.01em;
+	--track-caps: 0.08em;
+	--track-wide: 0.1em;
 
 	/* Тень: смещение + размытие, не блок-тень */
 	--shadow-panel: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 28%);
@@ -70,8 +93,43 @@
 	--gap-6: 32px;
 	--gap-8: 44px;
 
+	/* Мелкие шаги для внутренностей контролов */
+	--gap-half: 2px;
+	--gap-05: 4px;
+
+	/* Внутренние отступы контролов: кнопки, поля, чипы, строки списков */
+	--pad-btn: 6px 12px;
+	--pad-btn-sm: 4px 9px;
+	--pad-btn-xs: 2px 8px;
+	--pad-field: 7px 9px;
+	--pad-chip: var(--gap-half) 8px;
+	--pad-badge: 1px 6px;
+	--pad-row: 7px var(--gap-3);
+	--cell-py: 13px;
+
 	/* Внутренний отступ текста от края экрана */
 	--gutter: 24px;
+
+	/*
+	 * Меры: размеры, которые не ложатся в ритм. Все «магические» пиксели
+	 * живут здесь, а не в компонентах, чтобы их можно было пересмотреть
+	 * одним взглядом.
+	 */
+	--header-h: 56px;
+	--modal-w: 560px;
+	--drop-min-h: 48px;
+	--arrow-w: 30px;
+	--arrow-h: 26px;
+	--check-size: 16px;
+	--icon-cell: 34px;
+	--icon-grid-w: 340px;
+	--textarea-min-h: 360px;
+	--img-preview-h: 180px;
+	--hints-max-h: 180px;
+	--dirs-max-h: 260px;
+	--input-min-w: 180px;
+	--mark-size: 12px;
+	--dot-size: 8px;
 }
 
 html,
@@ -80,7 +138,7 @@ body {
 	color: var(--text);
 	font-family: var(--font-ui);
 	font-size: var(--fs-lg);
-	line-height: 1.5;
+	line-height: var(--lh-base);
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -105,7 +163,7 @@ body {
 
 ::selection {
 	background: var(--accent-dim);
-	color: #fff;
+	color: var(--on-selection);
 }
 
 :focus-visible {

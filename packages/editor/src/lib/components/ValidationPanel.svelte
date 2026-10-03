@@ -38,7 +38,7 @@
 
 <style>
 	.panel {
-		border: 1px solid #5c2f31;
+		border: 1px solid var(--line-danger);
 		background: var(--danger-wash);
 		border-radius: var(--r-panel);
 		padding: var(--gap-3);
@@ -48,16 +48,16 @@
 	}
 
 	.panel[data-state="warn"] {
-		border-color: #5a4a20;
+		border-color: var(--line-warn);
 		background: var(--warn-wash);
 	}
 
 	.group h3 {
-		margin: 0 0 4px;
+		margin: 0 0 var(--gap-05);
 		font-size: var(--fs-sm);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: var(--track-caps);
 		color: var(--danger);
 	}
 
@@ -67,22 +67,22 @@
 
 	ul {
 		margin: 0;
-		padding-left: 18px;
+		padding-left: var(--gap-4);
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: var(--gap-half);
 	}
 
 	li {
 		font-size: var(--fs-sm);
 		font-family: var(--font-mono);
-		line-height: 1.6;
+		line-height: var(--lh-copy);
 		color: var(--text-dim);
 	}
 
 	.ok {
 		margin: 0;
-		padding: 7px var(--gap-3);
+		padding: var(--pad-row);
 		border: 1px solid var(--line);
 		border-radius: var(--r-control);
 		background: var(--surface);

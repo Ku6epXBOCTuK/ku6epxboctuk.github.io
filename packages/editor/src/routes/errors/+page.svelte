@@ -1,16 +1,11 @@
 <script lang="ts">
 	import { invalidateAll } from "$app/navigation";
-	import type { ProjectPathReport } from "@ku6epxboctuk/content-core/shared";
+	import ReportRow from "$lib/components/errors/ReportRow.svelte";
+	import Badge from "$lib/components/ui/Badge.svelte";
+	import Button from "$lib/components/ui/Button.svelte";
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();
-
-	const STATE_TEXT: Record<ProjectPathReport["state"], string> = {
-		ok: "найдена",
-		"not-set": "не задана",
-		missing: "папки нет",
-		"not-a-repo": "не git-репозиторий",
-	};
 
 	const broken = $derived(
 		data.reports.filter(
@@ -26,7 +21,7 @@
 <div class="errors">
 	<header>
 		<h1>Ошибки</h1>
-		<button type="button" onclick={() => invalidateAll()}>перепроверить</button>
+		<Button onclick={() => invalidateAll()}>перепроверить</Button>
 	</header>
 
 	<p class="lead">
@@ -42,18 +37,10 @@
 
 	{#if broken.length > 0}
 		<section>
-			<h2>не обойти <span class="count">{broken.length}</span></h2>
+			<h2>не обойти <Badge pill>{broken.length}</Badge></h2>
 			<ul>
 				{#each broken as report (report.slug)}
-					<li>
-						<a href="/project/{report.slug}">{report.slug}</a>
-						<span class="title">{report.title}</span>
-						<span class="state">{STATE_TEXT[report.state]}</span>
-						<code>{report.declared}</code>
-						{#if report.resolved && report.resolved !== report.declared}
-							<code class="resolved">{report.resolved}</code>
-						{/if}
-					</li>
+					<ReportRow {report} />
 				{/each}
 			</ul>
 		</section>
@@ -61,16 +48,13 @@
 
 	{#if unset.length > 0}
 		<section>
-			<h2>не участвуют <span class="count">{unset.length}</span></h2>
+			<h2>не участвуют <Badge pill>{unset.length}</Badge></h2>
 			<p class="note">
 				Папка не указана. Это не поломка: не каждый проект нужен в weekly.
 			</p>
 			<ul class="plain">
 				{#each unset as report (report.slug)}
-					<li>
-						<a href="/project/{report.slug}">{report.slug}</a>
-						<span class="title">{report.title}</span>
-					</li>
+					<ReportRow {report} plain />
 				{/each}
 			</ul>
 		</section>
@@ -78,13 +62,10 @@
 
 	{#if ok.length > 0}
 		<details>
-			<summary>найдено <span class="count">{ok.length}</span></summary>
+			<summary>найдено <Badge pill>{ok.length}</Badge></summary>
 			<ul class="plain">
 				{#each ok as report (report.slug)}
-					<li>
-						<a href="/project/{report.slug}">{report.slug}</a>
-						<code class="resolved">{report.resolved}</code>
-					</li>
+					<ReportRow {report} plain />
 				{/each}
 			</ul>
 		</details>
@@ -109,7 +90,7 @@
 		margin: 0;
 		font-size: var(--fs-xl);
 		font-weight: 600;
-		letter-spacing: -0.01em;
+		letter-spacing: var(--track-tight);
 	}
 
 	h2 {
@@ -120,7 +101,7 @@
 		font-size: var(--fs-sm);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: var(--track-caps);
 		color: var(--danger);
 	}
 
@@ -128,19 +109,13 @@
 	.note {
 		margin: 0;
 		font-size: var(--fs-md);
-		line-height: 1.6;
+		line-height: var(--lh-copy);
 		color: var(--text-dim);
 	}
 
-	code {
+	.lead code {
 		font-family: var(--font-mono);
 		font-size: var(--fs-sm);
-		color: var(--text-dim);
-	}
-
-	.resolved {
-		color: var(--text-faint);
-		word-break: break-all;
 	}
 
 	.all-good {
@@ -153,16 +128,6 @@
 		color: var(--accent);
 	}
 
-	.count {
-		font-family: var(--font-mono);
-		font-size: var(--fs-xs);
-		letter-spacing: 0;
-		color: var(--text-faint);
-		background: var(--surface-2);
-		border-radius: 999px;
-		padding: 1px 6px;
-	}
-
 	ul {
 		margin: 0;
 		padding: 0;
@@ -172,46 +137,8 @@
 		overflow: hidden;
 	}
 
-	li {
-		display: flex;
-		align-items: baseline;
-		gap: var(--gap-3);
-		flex-wrap: wrap;
-		padding: 8px var(--gap-3);
-		border-bottom: 1px solid var(--line);
-		background: var(--surface);
-		font-size: var(--fs-md);
-	}
-
-	li:last-child {
-		border-bottom: none;
-	}
-
-	ul.plain li {
+	ul.plain {
 		border: none;
-	}
-
-	a {
-		font-family: var(--font-mono);
-		font-size: var(--fs-md);
-		color: var(--text);
-		text-decoration: none;
-	}
-
-	a:hover {
-		color: var(--accent);
-	}
-
-	.title {
-		color: var(--text-faint);
-	}
-
-	.state {
-		font-size: var(--fs-sm);
-		padding: 1px 7px;
-		border-radius: 999px;
-		background: var(--danger-wash);
-		color: var(--danger);
 	}
 
 	details {
@@ -228,23 +155,7 @@
 		font-size: var(--fs-sm);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: var(--track-caps);
 		color: var(--text-faint);
-	}
-
-	button {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 6px 12px;
-		color: var(--text-dim);
-		background: var(--surface-2);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		cursor: pointer;
-	}
-
-	button:hover {
-		color: var(--text);
-		background: var(--surface-3);
 	}
 </style>

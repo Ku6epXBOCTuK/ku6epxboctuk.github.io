@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { tick } from "svelte";
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
+	import TagChip from "./TagChip.svelte";
+	import TagHints from "./TagHints.svelte";
 
 	/*
 	 * Поле тегов: чипы в одной строке с вводом. Тег добавляется без Enter —
@@ -48,9 +50,6 @@
 
 	const typed = $derived(normalizeTag(query));
 	const typedError = $derived(typed ? tagError(typed) : null);
-
-	/** Совпадения нет: `indexOf` вернул -1. */
-	const NO_MATCH = -1;
 
 	/** Держим ссылку, чтобы вернуть фокус после добавления тега. */
 	let input = $state<HTMLInputElement | null>(null);
@@ -177,33 +176,17 @@
 		{#if chosen.length > 0}
 			<ul class="chips">
 				{#each chosen as tag, index (tag)}
-					<li
-						class:dragging={dragging === index}
-						draggable={disabled ? "false" : "true"}
+					<TagChip
+						{tag}
+						copied={copied === tag}
+						dragging={dragging === index}
+						{disabled}
+						oncopy={(t) => void copy(t)}
+						onremove={remove}
 						ondragstart={(e) => dragStart(e, index)}
-						ondragover={(e) => e.preventDefault()}
 						ondrop={(e) => drop(e, index)}
 						ondragend={() => (dragging = null)}
-					>
-						<button
-							type="button"
-							class="tag"
-							title="копировать"
-							{disabled}
-							onclick={() => void copy(tag)}
-						>
-							{copied === tag ? "скопировано" : tag}
-						</button>
-						<button
-							type="button"
-							class="x"
-							aria-label="убрать тег {tag}"
-							{disabled}
-							onclick={() => remove(tag)}
-						>
-							×
-						</button>
-					</li>
+					/>
 				{/each}
 			</ul>
 		{/if}
@@ -223,31 +206,12 @@
 	</div>
 
 	{#if open && suggestions.length > 0}
-		<ul class="hints">
-			{#each suggestions as tag (tag)}
-				{@const at = needle === "" ? NO_MATCH : tag.indexOf(needle)}
-				<li>
-					<button
-						type="button"
-						{disabled}
-						onmousedown={(e) => {
-							// Без `preventDefault` поле успевает потерять фокус, и
-							// вернуть его пришлось бы угадыванием — проще не дать
-							// фокусу уйти вовсе.
-							e.preventDefault();
-							void add(tag);
-						}}
-					>
-						{#if at >= 0}
-							{tag.slice(0, at)}<mark>{tag.slice(at, at + needle.length)}</mark
-							>{tag.slice(at + needle.length)}
-						{:else}
-							{tag}
-						{/if}
-					</button>
-				</li>
-			{/each}
-		</ul>
+		<TagHints
+			{suggestions}
+			{needle}
+			{disabled}
+			onpick={(tag) => void add(tag)}
+		/>
 	{/if}
 
 	{#if typedError}
@@ -264,15 +228,6 @@
 	}
 
 	/*
-	 * Стили поля и кнопок здесь свои: scoped-правила `Field.svelte` до
-	 * внутренностей дочернего компонента не достают, а без них вход рисуется
-	 * браузером — светло-серый с чёрным текстом, то есть нечитаемо на тёмной
-	 * теме.
-	 *
-	 * Порядок — по возрастанию специфичности, иначе stylelint ругается.
-	 */
-
-	/*
 	 * Вся строка — одно «поле»: рамка у обёртки, а не у input, чтобы чипы
 	 * лежали внутри той же рамки.
 	 */
@@ -280,8 +235,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 4px;
-		padding: 4px 6px;
+		gap: var(--gap-05);
+		padding: var(--gap-05) var(--gap-1);
 		background: var(--bg);
 		border: 1px solid var(--line-strong);
 		border-radius: var(--r-control);
@@ -293,7 +248,7 @@
 		min-width: 90px;
 		font: inherit;
 		font-size: var(--fs-md);
-		padding: 3px;
+		padding: var(--gap-half);
 		color: var(--text);
 		background: transparent;
 		border: none;
@@ -315,90 +270,9 @@
 		list-style: none;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px;
+		gap: var(--gap-05);
 		margin: 0;
 		padding: 0;
-	}
-
-	.chips li {
-		display: inline-flex;
-		align-items: center;
-		font-size: var(--fs-sm);
-		background: var(--accent-wash);
-		border: 1px solid var(--accent-dim);
-		border-radius: var(--r-control);
-	}
-
-	.chips li.dragging {
-		opacity: 0.4;
-	}
-
-	.chips button {
-		font: inherit;
-		font-size: var(--fs-sm);
-		background: transparent;
-		border: none;
-		line-height: 1;
-		cursor: pointer;
-	}
-
-	.chips .tag {
-		padding: 2px 0 2px 8px;
-		color: var(--text);
-	}
-
-	.chips .x {
-		padding: 2px 4px;
-		color: var(--text-dim);
-	}
-
-	/*
-	 * Подсказки лежат поверх поля: если раздвинуть поток, список подвигает всю
-	 * форму при каждом нажатии. Поэтому `position: absolute` и своя тень.
-	 */
-	.hints {
-		position: absolute;
-		top: 100%;
-		left: 0;
-		right: 0;
-		z-index: 5;
-		list-style: none;
-		margin: 2px 0 0;
-		padding: 4px;
-		max-height: 180px;
-		overflow-y: auto;
-		background: var(--surface-2);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		box-shadow: var(--shadow-panel);
-	}
-
-	.hints button {
-		display: block;
-		width: 100%;
-		text-align: left;
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 5px 9px;
-		color: var(--text-dim);
-		background: transparent;
-		border: none;
-		border-radius: var(--r-control);
-		cursor: pointer;
-	}
-
-	.hints mark {
-		color: var(--accent);
-		background: transparent;
-	}
-
-	.chips .x:hover:not(:disabled) {
-		color: var(--danger);
-	}
-
-	.hints button:hover:not(:disabled) {
-		color: var(--text);
-		background: var(--surface-3);
 	}
 
 	.bad {
