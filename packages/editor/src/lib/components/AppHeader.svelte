@@ -4,20 +4,32 @@
 	const problems = $derived(
 		(page.data.problems as { broken: number } | undefined)?.broken ?? 0,
 	);
-	const onErrors = $derived(page.url.pathname === "/errors");
-	const onTags = $derived(page.url.pathname === "/tags");
+
+	const SECTIONS = [
+		{ href: "/posts", label: "посты" },
+		{ href: "/articles", label: "статьи" },
+		{ href: "/projects", label: "проекты" },
+		{ href: "/tags", label: "теги" },
+		{ href: "/errors", label: "ошибки" },
+	];
+
+	const path = $derived(page.url.pathname);
 </script>
 
 <header>
 	<a class="mark" href="/">редактор</a>
 	<nav>
-		<a href="/tags" aria-current={onTags || undefined}>теги</a>
-		<a href="/errors" aria-current={onErrors || undefined}>
-			ошибки
-			{#if problems > 0}
-				<span class="dot" title="{problems} — не обойти"></span>
-			{/if}
-		</a>
+		{#each SECTIONS as section (section.href)}
+			<a
+				href={section.href}
+				aria-current={path.startsWith(section.href) || undefined}
+			>
+				{section.label}
+				{#if section.href === "/errors" && problems > 0}
+					<span class="dot" title="{problems} — не обойти"></span>
+				{/if}
+			</a>
+		{/each}
 	</nav>
 </header>
 

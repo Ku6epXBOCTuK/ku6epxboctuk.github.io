@@ -1,4 +1,4 @@
-import type { Entry, UnitSummary } from "@ku6epxboctuk/content-core/shared";
+import type { Entry, EntrySummary } from "@ku6epxboctuk/content-core/shared";
 
 export interface ValidationReport {
 	errors: string[];
@@ -19,7 +19,7 @@ export interface CreateResult extends SaveResult {
 	slug: string;
 }
 
-export type EditorUnits = UnitSummary[];
+export type EditorUnits = EntrySummary[];
 
 export interface TagUnit {
 	type: string;

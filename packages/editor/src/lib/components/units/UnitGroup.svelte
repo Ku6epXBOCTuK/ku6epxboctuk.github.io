@@ -1,19 +1,58 @@
 <script lang="ts">
-	import type { UnitSummary } from "@ku6epxboctuk/content-core/shared";
+	import { invalidateAll } from "$app/navigation";
+	import type { EntrySummary } from "@ku6epxboctuk/content-core/shared";
+	import ConfirmModal from "../ConfirmModal.svelte";
 	import Badge from "../ui/Badge.svelte";
+	import Button from "../ui/Button.svelte";
 
 	interface Props {
-		label: string;
-		units: UnitSummary[];
+		units: EntrySummary[];
+		label?: string;
 	}
 
-	let { label, units }: Props = $props();
+	let { units, label }: Props = $props();
+
+	let removing = $state<EntrySummary | null>(null);
+	let busy = $state(false);
+	let errorText = $state("");
+
+	async function doDelete() {
+		const unit = removing;
+		if (!unit) return;
+
+		busy = true;
+		errorText = "";
+		try {
+			const res = await fetch(`/api/entries/${unit.type}/${unit.slug}`, {
+				method: "DELETE",
+			});
+			if (!res.ok) {
+				errorText =
+					((await res.json().catch(() => ({}))) as { error?: string }).error ??
+					`HTTP ${res.status}`;
+				return;
+			}
+			removing = null;
+			await invalidateAll();
+		} catch (err) {
+			errorText = (err as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
 </script>
 
-<h2>
-	{label}
-	<Badge pill>{units.length}</Badge>
-</h2>
+{#if label}
+	<h2>
+		{label}
+		<Badge pill>{units.length}</Badge>
+	</h2>
+{/if}
+
+{#if errorText}
+	<p class="bad">{errorText}</p>
+{/if}
+
 <ul>
 	{#each units as unit (unit.slug)}
 		<li>
@@ -27,10 +66,27 @@
 					<Badge tone="warn">перевод</Badge>
 				{/if}
 				<span class="langs">{unit.langs.join(" ")}</span>
+				<Button
+					variant="danger"
+					size="sm"
+					disabled={busy}
+					onclick={() => (removing = unit)}>удалить</Button
+				>
 			</span>
 		</li>
 	{/each}
 </ul>
+
+{#if removing}
+	<ConfirmModal
+		title="Удалить единицу?"
+		body={`${removing.type}/${removing.slug} исчезнет вместе с обоими файлами. Отменить это нельзя.`}
+		confirmLabel="да, удалить"
+		disabled={busy}
+		oncancel={() => (removing = null)}
+		onconfirm={doDelete}
+	/>
+{/if}
 
 <style>
 	h2 {
@@ -114,5 +170,11 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-xs);
 		color: var(--text-faint);
+	}
+
+	.bad {
+		margin: var(--gap-2) 0;
+		font-size: var(--fs-md);
+		color: var(--danger);
 	}
 </style>

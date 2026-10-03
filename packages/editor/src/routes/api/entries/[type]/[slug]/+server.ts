@@ -7,6 +7,7 @@ import {
 	validateEntry,
 } from "@ku6epxboctuk/content-core";
 import { json } from "@sveltejs/kit";
+import { removeImage } from "$lib/server/images.ts";
 import { readSlug, readType } from "$lib/server/params.ts";
 import type { RequestHandler } from "./$types";
 
@@ -44,9 +45,13 @@ export const DELETE: RequestHandler = async (event) => {
 	const type = readType(event);
 	const slug = readSlug(event);
 
+	const image = loadEntry(type, slug)?.shared.image;
+
 	if (!deleteEntry(type, slug)) {
 		return json({ error: `Не найдено: ${type}/${slug}` }, { status: 404 });
 	}
+
+	if (typeof image === "string") removeImage(image);
 
 	return json({ ok: true, deleted: `${type}/${slug}` });
 };

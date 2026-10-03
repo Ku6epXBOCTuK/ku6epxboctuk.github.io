@@ -38,7 +38,10 @@
 	{placeholder}
 	aria-invalid={invalid || undefined}
 	{...rest}
-	oninput={(e) => oninput?.(e.currentTarget.value)}
+	oninput={(e) => {
+		value = e.currentTarget.value;
+		oninput?.(value);
+	}}
 	{onkeydown}
 />
 

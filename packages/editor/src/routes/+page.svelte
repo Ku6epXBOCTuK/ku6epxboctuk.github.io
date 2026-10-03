@@ -3,12 +3,11 @@
 	import {
 		CONTENT_TYPES,
 		type ContentType,
-		type UnitSummary,
+		type EntrySummary,
 	} from "@ku6epxboctuk/content-core/shared";
-	import CreatePanel from "$lib/components/home/CreatePanel.svelte";
-	import UnitGroup from "$lib/components/home/UnitGroup.svelte";
+	import UnitGroup from "$lib/components/units/UnitGroup.svelte";
 
-	const units = $derived(page.data.units as UnitSummary[]);
+	const units = $derived(page.data.units as EntrySummary[]);
 
 	const TYPE_LABEL: Record<ContentType, string> = {
 		post: "посты",
@@ -17,10 +16,8 @@
 	};
 </script>
 
-<CreatePanel />
-
 {#if units.length === 0}
-	<p class="empty">Пока пусто. Создай первую единицу кнопкой выше.</p>
+	<p class="empty">Пока пусто. Создай первую единицу на странице типа.</p>
 {:else}
 	{#each CONTENT_TYPES as type (type)}
 		{@const group = units.filter((unit) => unit.type === type)}
