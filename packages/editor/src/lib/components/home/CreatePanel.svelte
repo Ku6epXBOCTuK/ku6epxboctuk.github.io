@@ -11,11 +11,6 @@
 	import Button from "../ui/Button.svelte";
 	import TextInput from "../ui/TextInput.svelte";
 
-	/*
-	 * Панель создания: пустые единицы трёх типов и проект из GitHub-репозитория.
-	 * Вся логика создания — здесь, страница только показывает список.
-	 */
-
 	let creating = $state(false);
 	let errorText = $state("");
 	let ghUrl = $state("");
@@ -50,7 +45,6 @@
 		creating = true;
 		errorText = "";
 		try {
-			// `defaultsFor` отдаёт плоскую карту; корзины расставляет `scope`.
 			await createEntry(
 				type,
 				slug,
@@ -84,7 +78,6 @@
 
 			ghNotes = json.notes ?? [];
 
-			// GitHub присылает поля вперемешку, `scope` раскладывает их по корзинам.
 			const entry = entryFromFlat("project", json.slug, {
 				...defaultsFor("project"),
 				...json.frontmatter,
@@ -166,8 +159,6 @@
 		display: flex;
 		align-items: center;
 		gap: var(--gap-2);
-		/* Без wrap и min-width кнопка «создать» уезжала за край панели на
-		   узком экране: поле сжималось не до нуля, а до своей базы. */
 		flex: 1 1 240px;
 		min-width: 0;
 		max-width: 440px;

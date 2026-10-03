@@ -1,7 +1,3 @@
-/**
- * Разбор ссылки на репозиторий и вытаскивание данных, которые GitHub отдаёт без
- * токена. Сеть трогается только здесь, остальное — чистые функции, их тестируем.
- */
 import sharp from "sharp";
 
 const API = "https://api.github.com";
@@ -77,11 +73,6 @@ function ownerRepo(path: string): RepoRef | null {
 	return { owner, repo };
 }
 
-/**
- * Понимает всё, чем ссылку на репозиторий обычно пишут: полный url с путём
- * внутри, `owner/repo` без домена и ssh-remote. Чужой домен и `..` отбрасываем:
- * это уже не репозиторий GitHub, а опечатка, которую нечего тащить в проект.
- */
 export function parseRepoUrl(input: string): RepoRef | null {
 	const raw = input.trim();
 	if (!raw || raw.includes("..")) return null;
@@ -115,10 +106,6 @@ export function humanize(name: string): string {
 	return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-/**
- * Имя репозитория в slug: `now_playing` → `now-playing`. Подчёркивания и
- * точки в slug не допускаются, а приписывать владельца ко всему — шум.
- */
 export function slugifyRepoName(name: string): string {
 	const slug = name
 		.toLowerCase()
@@ -128,15 +115,10 @@ export function slugifyRepoName(name: string): string {
 	return slug;
 }
 
-/**
- * GitHub отдаёт README с CRLF, а разделителем блоков у нас `\n\n`. Без
- * нормализации весь файл — один блок, и первый абзац не находится никогда.
- */
 export function normalizeMarkdown(markdown: string): string {
 	return markdown.replace(/\r\n?/g, "\n");
 }
 
-/** README начинается с заголовка, бейджей и html — всё это не описание. */
 const SKIP_BLOCK = [
 	/^#{1,6}\s/, // заголовок
 	/^>/, // цитата
@@ -162,7 +144,6 @@ export function firstParagraph(markdown: string): string {
 		const block = raw.trim();
 		if (!block) continue;
 		if (SKIP_BLOCK.some((pattern) => pattern.test(block))) continue;
-		// Многострочный html-баннер из нескольких строк
 		if (block.includes("<") && block.includes(">")) continue;
 
 		return inlineText(block);
@@ -171,11 +152,6 @@ export function firstParagraph(markdown: string): string {
 	return "";
 }
 
-/**
- * Убирает разметку внутри абзаца, оставляя читаемый текст. Переносы строк
- * склеиваем в пробелы: абзац из README — это мягкая обёртка, а в поле текста
- * проекта его удобнее править одной строкой.
- */
 export function inlineText(text: string): string {
 	return text
 		.replace(/!\[[^\]]*\]\([^)]*\)/g, "")
@@ -193,7 +169,6 @@ export function isBadgeUrl(url: string): boolean {
 	return BADGE_HOSTS.some((host) => url.includes(host));
 }
 
-/** Относительные картинки README живут в raw по пути от корня репозитория. */
 export function absoluteReadmeUrl(rawBase: string, src: string): string | null {
 	const trimmed = src.trim();
 	if (!trimmed || trimmed.startsWith("data:")) return null;
@@ -205,10 +180,6 @@ export function absoluteReadmeUrl(rawBase: string, src: string): string | null {
 	return `${rawBase}/${path}`;
 }
 
-/**
- * Картинки из README по порядку: сначала markdown, потом html. Бейджи выкидываем
- * сразу, остальное отсеется по размеру при скачивании.
- */
 export function readmeImageUrls(markdown: string, rawBase: string): string[] {
 	const found: string[] = [];
 
@@ -224,7 +195,6 @@ export function readmeImageUrls(markdown: string, rawBase: string): string[] {
 	)) {
 		push(match[1] as string);
 	}
-	// Регулярка разбирает чужой README, а не рендерит картинку.
 	for (const match of normalizeMarkdown(markdown).matchAll(
 		/<img[^>]+src=["']([^"']+)["']/gi, // impeccable-disable-line broken-image
 	)) {
@@ -284,10 +254,6 @@ export function rawBaseFor(ref: RepoRef, branch: string): string {
 	return `https://raw.githubusercontent.com/${ref.owner}/${ref.repo}/${branch}`;
 }
 
-/**
- * README может отсутствовать или быть битым — это не ошибка, а пустой текст.
- * Ветку передавать не нужно: `/readme` отдаёт файл ветки по умолчанию.
- */
 export async function fetchReadme(ref: RepoRef): Promise<string> {
 	const url = `${API}/repos/${ref.owner}/${ref.repo}/readme`;
 	const res = await fetch(url, {
@@ -310,7 +276,6 @@ export interface DownloadedImage {
 	height: number;
 }
 
-/** Скачивает и декодирует. Размер не проверяет — это делает выбор кандидата. */
 export async function fetchImage(url: string): Promise<DownloadedImage | null> {
 	try {
 		const res = await fetch(url, {
@@ -349,15 +314,9 @@ export interface ImageCandidate {
 
 export interface PickResult {
 	image: DownloadedImage | null;
-	/** Что нашли и почему не взяли — нужно для подсказки в интерфейсе. */
 	rejected: ImageCandidate[];
 }
 
-/**
- * Первая достаточно большая картинка из README: скриншот, а не иконка. Бейджи
- * отсеяны раньше, здесь остаётся только размер. Отклонённые кандидаты
- * возвращаем, чтобы интерфейс мог сказать, чего именно не хватило.
- */
 export async function pickReadmeImage(
 	urls: string[],
 	attempts = MAX_IMAGE_ATTEMPTS,

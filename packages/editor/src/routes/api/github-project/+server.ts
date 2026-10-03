@@ -25,19 +25,12 @@ export interface GitHubProjectPayload {
 	notes: string[];
 }
 
-/**
- * Собирает проект по ссылке на репозиторий. Заполняем всё, что GitHub отдаёт
- * без вопросов, остальное остаётся на владельце: `subtitle`, `order`, `path`
- * и `status` на GitHub нет, а придумывать их нельзя.
- */
 export const POST: RequestHandler = async ({ request }) => {
 	let url = "";
 	let wantImage = true;
 	try {
 		const body = (await request.json()) as { url?: unknown; image?: unknown };
 		if (typeof body?.url === "string") url = body.url;
-		// Форму можно вызывать повторно, когда обложка уже есть. Без этого флага
-		// скачался бы лишний файл в static/images, который никто не использует.
 		if (typeof body?.image === "boolean") wantImage = body.image;
 	} catch {
 		return json({ error: "Ожидался JSON с полем url" }, { status: 400 });
@@ -84,8 +77,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			const { image, rejected } = await pickReadmeImage(urls);
 
 			if (image) {
-				// Тот же пайплайн, что и у загрузки перетаскиванием: баннер
-				// приводится к 1200×630 и кладётся в static/images.
 				const saved = await saveImage({
 					buffer: image.buffer,
 					mimeType: image.mimeType,

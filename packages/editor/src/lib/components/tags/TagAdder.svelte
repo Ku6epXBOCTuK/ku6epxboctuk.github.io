@@ -2,14 +2,6 @@
 	import Button from "../ui/Button.svelte";
 	import TextInput from "../ui/TextInput.svelte";
 
-	/*
-	 * Завести тег заранее, до первого поста с ним.
-	 *
-	 * Инпут не глушится на время запроса (задизейбленный элемент теряет фокус,
-	 * и следующий тег подряд не ввести), поэтому `disabled` здесь только на
-	 * кнопке, а повторный Enter отсекает страница.
-	 */
-
 	interface Props {
 		value: string;
 		busy: boolean;

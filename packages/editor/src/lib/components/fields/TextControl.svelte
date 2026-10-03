@@ -6,7 +6,6 @@
 		value: string;
 		disabled?: boolean;
 		kind?: "string" | "url";
-		/** slug, path и repo — это данные, а не проза: показываем моноширинным. */
 		mono?: boolean;
 		onchange: (value: string) => void;
 	}

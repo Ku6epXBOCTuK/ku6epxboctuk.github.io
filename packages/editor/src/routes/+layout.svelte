@@ -21,8 +21,7 @@
 	.app {
 		width: 100%;
 		min-height: 100vh;
-		/* Без боковых полей: интерфейс занимает весь экран от края до края.
-		   clip, а не hidden, — иначе ломается position: sticky у колонки с текстом. */
+		/* clip, а не hidden: иначе ломается position: sticky у шапки. */
 		padding: 0 0 var(--gap-8);
 		overflow-x: clip;
 		display: flex;

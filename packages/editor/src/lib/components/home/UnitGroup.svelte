@@ -2,10 +2,6 @@
 	import type { UnitSummary } from "@ku6epxboctuk/content-core/shared";
 	import Badge from "../ui/Badge.svelte";
 
-	/*
-	 * Одна группа списка единиц: заголовок типа со счётчиком и строки.
-	 */
-
 	interface Props {
 		label: string;
 		units: UnitSummary[];

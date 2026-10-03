@@ -1,13 +1,7 @@
-// @vitest-environment node
+﻿// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import { IMAGE_TYPES, imageType, safeImageName } from "./image-files.ts";
-
-/*
- * Это единственное место, где имя из адреса превращается в путь на диске.
- * Ошибка читается как «картинка не грузится» или, что хуже, как чтение файла
- * за пределами `static/images`.
- */
 
 describe("safeImageName", () => {
 	it("пропускает расширения из белого списка", () => {
@@ -43,7 +37,6 @@ describe("safeImageName", () => {
 	});
 
 	it("не путает настоящее расширение и приписанное", () => {
-		// Роут отдаёт по белому списку, а не по «наличию точки».
 		expect(safeImageName("a.webp.php")).toBeNull();
 		expect(safeImageName("a.php.webp")).toBe("a.php.webp");
 	});

@@ -1,11 +1,6 @@
 <script lang="ts">
 	import TextInput from "../ui/TextInput.svelte";
 
-	/*
-	 * Поиск по списку тегов: поле, крестик сброса и счётчик «сколько из
-	 * скольки». Самой фильтрацией владеет страница.
-	 */
-
 	interface Props {
 		value: string;
 		found: number;

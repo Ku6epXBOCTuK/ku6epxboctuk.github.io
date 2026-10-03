@@ -31,12 +31,11 @@ test.afterAll(() => {
 		try {
 			removeTagFromRegistry(tag);
 		} catch {
-			// Тег мог быть в словаре и до теста — тогда не трогаем.
+			void 0;
 		}
 	}
 });
 
-/** Форма грузится клиентским fetch: до значения в поле вводить нельзя. */
 async function openForm(page: Page) {
 	await page.goto(`/${TYPE}/${SLUG}`);
 	await expect(page.locator("#ru-title")).toHaveValue("E2E");

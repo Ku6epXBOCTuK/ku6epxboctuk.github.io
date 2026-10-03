@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/state";
 
-	/*
-	 * Липкая шапка редактора: метка-ссылка на список и навигация по служебным
-	 * страницам. Точка у «ошибок» — счётчик проектов, которые weekly не обойти.
-	 */
-
 	const problems = $derived(
 		(page.data.problems as { broken: number } | undefined)?.broken ?? 0,
 	);

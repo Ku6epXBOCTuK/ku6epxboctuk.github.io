@@ -2,11 +2,6 @@
 	import type { TagRow } from "$lib/types";
 	import Button from "../ui/Button.svelte";
 
-	/*
-	 * Строка тега в режиме просмотра: имя (клик — переименовать), счётчик,
-	 * где стоит, и кнопка удаления.
-	 */
-
 	interface Props {
 		row: TagRow;
 		busy: boolean;

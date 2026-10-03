@@ -41,7 +41,6 @@ function extensionFor(mimeType: string): string {
 	return subtype === "jpeg" ? "jpg" : subtype;
 }
 
-/** Путь вида `/images/x.webp` обязан вести внутрь каталога картинок. */
 function resolveInImages(sitePath: string, dir: string): string | null {
 	if (!sitePath.startsWith(SITE_PREFIX)) return null;
 	const base = resolve(dir);

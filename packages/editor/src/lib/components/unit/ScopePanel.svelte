@@ -2,12 +2,6 @@
 	import type { FieldRow } from "$lib/groups";
 	import Field from "../fields/Field.svelte";
 
-	/*
-	 * Панель внеязыковых полей: «Общее» и «Локальное». Поля правятся один раз
-	 * и пишутся в оба файла (или в gitignored), поэтому здесь одна колонка на
-	 * всю ширину, а не две — рядом с ними нечего сравнивать.
-	 */
-
 	interface FieldAction {
 		label: string;
 		run: () => void;
@@ -21,7 +15,6 @@
 		slug: string;
 		value: (name: string) => unknown;
 		onchange: (name: string, next: unknown) => void;
-		/** Действие-дозаполнение у конкретного поля, например «с GitHub» у repo. */
 		actionFor?: (name: string) => FieldAction | undefined;
 	}
 
@@ -84,8 +77,6 @@
 
 	.body {
 		display: grid;
-		/* Две равные колонки: поля короткие, в одну они растягивались бы на весь
-		   экран, и ввод становился бы неудобно широким. */
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		column-gap: var(--gap-6);
 		align-items: start;

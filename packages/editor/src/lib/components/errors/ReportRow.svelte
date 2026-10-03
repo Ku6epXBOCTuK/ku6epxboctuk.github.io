@@ -2,11 +2,6 @@
 	import type { ProjectPathReport } from "@ku6epxboctuk/content-core/shared";
 	import Badge from "../ui/Badge.svelte";
 
-	/*
-	 * Строка отчёта о папке проекта: slug-ссылка, заголовок и пути.
-	 * `plain` — для списков, где папка не проверяется или всё найдено.
-	 */
-
 	const STATE_TEXT: Record<ProjectPathReport["state"], string> = {
 		ok: "найдена",
 		"not-set": "не задана",

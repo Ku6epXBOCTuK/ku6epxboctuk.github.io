@@ -1,15 +1,9 @@
 <script lang="ts">
 	import type { ContentLang } from "@ku6epxboctuk/content-core/shared";
 
-	/*
-	 * Стрелки копирования одного поля между языками. Лежат в узкой средней
-	 * колонке сетки, поэтому нажатие читается однозначно: вправо — RU в EN.
-	 */
-
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
 
 	interface Props {
-		/** Подпись поля для title кнопок. */
 		label: string;
 		disabled?: boolean;
 		oncopy: (from: ContentLang, to: ContentLang) => void;

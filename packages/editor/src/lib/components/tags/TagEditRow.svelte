@@ -3,12 +3,6 @@
 	import Button from "../ui/Button.svelte";
 	import TextInput from "../ui/TextInput.svelte";
 
-	/*
-	 * Строка тега в режиме правки. Занимает всю ширину: пока идёт предпросмотр
-	 * переименования, важно видеть и поле, и то, что из этого выйдет, а не
-	 * гадать по одному слову.
-	 */
-
 	interface Props {
 		draft: string;
 		error: string | null;

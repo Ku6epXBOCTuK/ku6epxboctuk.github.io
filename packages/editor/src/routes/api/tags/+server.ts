@@ -13,18 +13,6 @@ import {
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
-/*
- * Теги живут в двух местах, и это не дублирование, а разделение вопросов:
- *
- * - `tags.json` — словарь: какие теги вообще существуют. Его можно пополнить
- *   заранее, до первого поста с этим тегом.
- * - единицы контента — где теги реально стоят.
- *
- * Ответ страницы тегов — объединение обоих, с пометкой, чем тег является.
- * Переименование и удаление умеют действовать и в словаре, и в контенте, и
- * сразу в обоих.
- */
-
 interface Unit {
 	type: string;
 	slug: string;
@@ -43,7 +31,6 @@ interface TagView {
 	tag: string;
 	count: number;
 	units: Unit[];
-	/** Есть ли тег в словаре. */
 	listed: boolean;
 }
 
@@ -52,8 +39,6 @@ export const GET: RequestHandler = () => {
 	const usage = usageByTag();
 
 	const tags: TagView[] = [
-		// Словарь идёт первым: человек заводит тег заранее, и он должен быть
-		// виден сразу, а не после первой записи с ним.
 		...[...listed].sort((a, b) => a.localeCompare(b)),
 		...[...usage.keys()].filter((tag) => !listed.has(tag)),
 	]
@@ -98,11 +83,6 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 };
 
-/**
- * Переименование: `inContent` — переписать единицы, `inList` — словарь.
- * Оба по умолчанию: обычно человек хочет и то и другое, а лишний шаг «а теперь
- * ещё и в контенте» — это как раз тот случай, где что-нибудь забудется.
- */
 export const PUT: RequestHandler = async ({ request }) => {
 	const body = await readPayload(request);
 	const from = readString(body.tag);
@@ -135,11 +115,6 @@ export const PUT: RequestHandler = async ({ request }) => {
 	}
 };
 
-/**
- * Удаление. Из словаря и из контента — разные вещи: убрать тег из словаря
- * значит лишь перестать предлагать его, а записи останутся как были. Поэтому
- * флаги запрашиваются явно, а не угадываются.
- */
 export const DELETE: RequestHandler = async ({ request }) => {
 	const body = await readPayload(request);
 	const tag = readString(body.tag);

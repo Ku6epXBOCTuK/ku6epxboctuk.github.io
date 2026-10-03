@@ -22,14 +22,6 @@ export const GET: RequestHandler = async (event) => {
 	return json({ entry, validation: validateEntry(type, slug) });
 };
 
-/**
- * Одно сохранение на единицу, а не по языку: RU и EN лежат в одной записи и
- * расходятся только если разошлись на диске. Сохранение одной языковой версии
- * означало бы, что вторая молча осталась старой.
- *
- * На входе — `Entry` целиком, без проекции: приводит к записи `entryFromInput`,
- * раскладывает по файлам репозиторий.
- */
 export const PUT: RequestHandler = async (event) => {
 	const type = readType(event);
 	const slug = readSlug(event);

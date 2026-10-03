@@ -2,12 +2,6 @@
 	import type { DirEntry } from "@ku6epxboctuk/content-core";
 	import Button from "../ui/Button.svelte";
 
-	/*
-	 * Панель обзора папок: корни, «вверх», список подпапок и выбор текущей.
-	 * Навигацию и загрузку выполняет родитель (DirField) — панель только
-	 * показывает состояние и шлёт события.
-	 */
-
 	interface Props {
 		path: string;
 		parent: string | null;
@@ -15,7 +9,6 @@
 		roots: string[];
 		loading: boolean;
 		error: string;
-		/** Введённое вручную значение поля — чтобы можно было оставить его. */
 		current: string;
 		disabled?: boolean;
 		onnavigate: (path: string) => void;
@@ -196,8 +189,6 @@
 	}
 
 	.mark {
-		/* Один и тот же знак, заполненный и пустой: квадратик со стрелочкой
-		   читались по-разному — стрелка мельче и терялась на его фоне. */
 		font-size: var(--mark-size);
 		color: var(--text-faint);
 	}

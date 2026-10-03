@@ -1,9 +1,6 @@
 import type { LayoutLoad } from "./$types";
 
-/**
- * Нужно для красной точки в хедере. Ошибка здесь не должна ломать страницу:
- * без счётчика редактор просто покажет ноль.
- */
+// Ошибка не должна ломать страницу: без счётчика редактор покажет ноль.
 export const load: LayoutLoad = async ({ fetch }) => {
 	try {
 		const res = await fetch("/api/project-paths");

@@ -7,11 +7,6 @@
 	import Button from "../ui/Button.svelte";
 	import MarkdownField from "../fields/MarkdownField.svelte";
 
-	/*
-	 * Блок текста: те же две колонки, что и у полей. Инструменты копирования
-	 * и очистки живут в заголовке колонки, сохранение — внизу всего блока.
-	 */
-
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
 
 	interface Props {
@@ -21,10 +16,6 @@
 		busy: boolean;
 		status: string;
 		onbody: (lang: ContentLang, body: string) => void;
-		/**
-		 * Копия текста. Молча затирать перевод нельзя, поэтому кнопка активна,
-		 * пока в цели пусто.
-		 */
 		oncopytext: (from: ContentLang, to: ContentLang) => void;
 		onclear: (lang: ContentLang) => void;
 		onsave: () => void;

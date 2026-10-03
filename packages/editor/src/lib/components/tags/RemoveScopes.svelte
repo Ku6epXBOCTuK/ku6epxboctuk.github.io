@@ -1,12 +1,6 @@
 <script lang="ts">
 	import type { TagDropScope, TagRow } from "$lib/types";
 
-	/*
-	 * Выбор, откуда убирать тег. Убрать тег из списка и стереть его из
-	 * пятидесяти постов — разные вещи, поэтому перед модалкой спрашиваем
-	 * явно.
-	 */
-
 	interface Props {
 		row: TagRow;
 		value: TagDropScope;

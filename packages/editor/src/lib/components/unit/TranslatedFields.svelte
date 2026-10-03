@@ -7,23 +7,12 @@
 	import Field from "../fields/Field.svelte";
 	import CopyArrows from "./CopyArrows.svelte";
 
-	/*
-	 * Переводимые поля — таблица строк, а не две колонки. Каждая строка: RU
-	 * слева, EN справа, поэтому «теги» стоят на одной высоте с «тегами»
-	 * второго языка. Две независимые колонки здесь не годились: внутри каждой
-	 * поля раскладывались ещё раз и строки разъезжались.
-	 *
-	 * Три колонки, а не две: средняя узкая — под стрелки копирования этого
-	 * поля.
-	 */
-
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
 
 	interface Props {
 		rows: FieldRow[];
 		busy: boolean;
 		slug: string;
-		/** Итог последнего дозаполнения с GitHub — показывается под сеткой. */
 		ghStatus?: string;
 		value: (name: string, lang: ContentLang) => unknown;
 		onchange: (name: string, lang: ContentLang, next: unknown) => void;
@@ -99,9 +88,8 @@
 
 <style>
 	.pair {
-		/* Ширина колонки стрелок задана явно и используется ещё и в заголовке:
-		   иначе колонка `auto` под метками схлопывалась в ноль и EN уезжал левее
-		   своих полей. */
+		/* Третья колонка — стрелки: ширина задана явно, иначе `auto` схлопывается
+		   в ноль и EN уезжает левее своих полей. */
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) var(--arrow-w) minmax(0, 1fr);
 		column-gap: var(--gap-3);
@@ -129,13 +117,10 @@
 		border-bottom: 1px solid var(--line);
 	}
 
-	/* Метки языков. Заголовок — сам элемент трёхколоночной сетки, поэтому без
-	   `1 / -1` он занимал только первую колонку и EN уезжал в поле стрелок. */
 	.pair-head {
 		grid-column: 1 / -1;
 		display: grid;
-		/* Те же треки, что у формы: средняя колонка равна ширине стрелок,
-		   поэтому метки стоят ровно над своими полями. */
+		/* Те же треки, что у формы: метки стоят ровно над своими полями. */
 		grid-template-columns: minmax(0, 1fr) var(--arrow-w) minmax(0, 1fr);
 		column-gap: var(--gap-3);
 		align-items: center;

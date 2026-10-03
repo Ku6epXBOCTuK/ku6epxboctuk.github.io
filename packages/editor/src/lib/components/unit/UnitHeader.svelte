@@ -2,11 +2,6 @@
 	import type { ContentType } from "@ku6epxboctuk/content-core/shared";
 	import Button from "../ui/Button.svelte";
 
-	/*
-	 * Шапка единицы: ссылка назад, адрес и удаление. Подтверждение удаления
-	 * живёт здесь же — это часть шапки, а не всей формы.
-	 */
-
 	interface Props {
 		type: ContentType;
 		slug: string;

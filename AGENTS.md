@@ -55,6 +55,24 @@ files. No read or write code changes.
 
 If a new color is needed, add it as a variable to `src/app.css` first.
 
+### Comments
+
+**Do not write comments that explain what code does, summarize a file, or
+narrate design decisions.** No file headers, no JSDoc on obvious functions, no
+section banners inside components.
+
+A comment is allowed only when it explains:
+
+1. genuinely complex code that cannot be simplified instead, or
+2. non-obvious behavior — an invisible constraint, a workaround for a specific
+   browser/framework quirk, a non-local invariant (e.g. "SvelteKit reuses this
+   component when the slug changes, so state is seeded only then").
+
+The bar is high: this is a simple project, and most comments fail it. If the
+code can be made obvious by renaming or restructuring, do that instead of
+commenting. Lint directives (`svelte-ignore`, `@vitest-environment`,
+`eslint-disable`) are not comments and stay.
+
 ### Verification
 
 After completing ANY task, ALWAYS run these npm scripts in order:

@@ -1,11 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
 
-	/*
-	 * Маленькая метка: счётчики, «черновик», «перевод», состояние папки.
-	 * `pill` — круглая, для счётчиков и состояний.
-	 */
-
 	interface Props {
 		tone?: "neutral" | "warn" | "danger";
 		pill?: boolean;

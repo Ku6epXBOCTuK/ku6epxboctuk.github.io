@@ -1,13 +1,6 @@
 <script lang="ts">
-	/*
-	 * Список подсказок тегов. Лежит поверх поля (`position: absolute`): если
-	 * раздвинуть поток, список подвигает всю форму при каждом нажатии.
-	 * Совпадение с запросом подсвечивается — теги нечувствительны к регистру.
-	 */
-
 	interface Props {
 		suggestions: string[];
-		/** Запрос для подсветки: уже в нижнем регистре. */
 		needle: string;
 		disabled?: boolean;
 		onpick: (tag: string) => void;
@@ -15,7 +8,6 @@
 
 	let { suggestions, needle, disabled = false, onpick }: Props = $props();
 
-	/** Совпадения нет: `indexOf` вернул -1. */
 	const NO_MATCH = -1;
 </script>
 
@@ -27,9 +19,7 @@
 				type="button"
 				{disabled}
 				onmousedown={(e) => {
-					// Без `preventDefault` поле успевает потерять фокус, и
-					// вернуть его пришлось бы угадыванием — проще не дать
-					// фокусу уйти вовсе.
+					// Иначе поле теряет фокус до клика, и список закрывается без выбора.
 					e.preventDefault();
 					onpick(tag);
 				}}

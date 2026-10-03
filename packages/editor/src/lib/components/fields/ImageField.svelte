@@ -68,8 +68,6 @@
 		oninput={(e) => onchange(e.currentTarget.value)}
 	/>
 
-	<!-- Подсказку про 1200×630 и static/images показывает Field из fields.ts,
-	     здесь она была бы второй копией того же текста. -->
 	{#if error}
 		<span class="bad">{error}</span>
 	{:else if saved}

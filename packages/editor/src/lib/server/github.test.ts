@@ -1,4 +1,4 @@
-// @vitest-environment node
+﻿// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import {
@@ -181,8 +181,6 @@ describe("firstParagraph", () => {
 		expect(firstParagraph("# Только заголовок\n")).toBe("");
 		expect(firstParagraph("<!-- комментарий -->\n")).toBe("");
 	});
-
-	// GitHub отдаёт README с CRLF: без нормализации весь файл — один блок.
 	it("понимает CRLF, как отдаёт GitHub", () => {
 		const readme = [
 			"# example-repo",

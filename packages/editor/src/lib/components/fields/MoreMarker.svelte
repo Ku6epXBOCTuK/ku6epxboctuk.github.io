@@ -1,11 +1,6 @@
 <script lang="ts">
 	import Button from "../ui/Button.svelte";
 
-	/*
-	 * Полоса `<!--more-->`: обязательный маркер тизера для статей. Показывает,
-	 * есть ли маркер и какой длины тизер, и умеет вставлять/убирать его.
-	 */
-
 	interface Props {
 		hasMarker: boolean;
 		teaserLength: number;

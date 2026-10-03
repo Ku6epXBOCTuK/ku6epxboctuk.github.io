@@ -12,15 +12,13 @@ test.describe("страница тегов", () => {
 			try {
 				removeTagFromRegistry(tag);
 			} catch {
-				// Тега могло не быть, если тест упал раньше добавления.
+				void 0;
 			}
 		}
 	});
 
 	test("фокус остаётся в поле нового тега после Enter", async ({ page }) => {
 		await page.goto("/tags");
-		// Ждём и гидрацию, и первую загрузку списка: до гидрации у инпута нет
-		// обработчиков, и ввод просто пропадает.
 		await page.waitForResponse("**/api/tags");
 
 		const input = page.getByLabel("новый тег");

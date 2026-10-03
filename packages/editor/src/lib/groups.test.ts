@@ -1,4 +1,4 @@
-// @vitest-environment node
+﻿// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import {
@@ -15,17 +15,14 @@ function pairRows(type: Type) {
 	return fieldRows(type, translatable(type), translatable(type));
 }
 
-/** Переводимые поля: парами RU | EN. */
 function fieldRowList(type: Type) {
 	return pairRows(type).translated.filter((row) => !row.title);
 }
 
-/** Общие поля: по одному на поле, без пары. */
 function sharedRowList(type: Type) {
 	return pairRows(type).shared.filter((row) => !row.title);
 }
 
-/** Локальные поля: тоже по одному, но в своём блоке. */
 function localRowList(type: Type) {
 	return pairRows(type).local.filter((row) => !row.title);
 }
@@ -54,7 +51,6 @@ describe("разметка полей", () => {
 
 		for (const type of ["post", "article", "project"] as const) {
 			for (const row of fieldRowList(type)) {
-				// Обе ячейки пустыми быть не могут: строка без полей — мусор.
 				if (!row.ru && !row.en) empty.push(type);
 				if (row.ru && row.en && row.ru.name !== row.en.name) {
 					mismatched.push(`${type}: ${row.ru.name} / ${row.en.name}`);
@@ -67,8 +63,6 @@ describe("разметка полей", () => {
 	});
 
 	it("path локальный, а не общий и не переводимый", () => {
-		// Путь к клону уезжает в гитигноренный файл, поэтому в общем блоке его
-		// быть не должно, а парой он не рисуется ни при каких условиях.
 		const paired = fieldRowList("project").filter(
 			(row) => row.ru?.name === "path",
 		);
@@ -106,9 +100,6 @@ describe("разметка полей", () => {
 		const titles = new Set(
 			rows.filter((r) => r.title).map((r) => r.title?.toLowerCase().trim()),
 		);
-
-		// «ОПИСАНИЕ» над полем «Описание» — дословный дубль, который сливается
-		// в одно. «Порядок и статус» над полем «Порядок» — не дубль.
 		const dupes = rows
 			.filter((row) => !row.title)
 			.filter((row) => titles.has(row.ru?.label.toLowerCase().trim()))
@@ -157,7 +148,6 @@ describe("разделение на переводимое и общее", () =>
 		for (const type of TYPES) {
 			for (const row of sharedRowList(type)) {
 				if (!row.shared) bad.push(`${type}: строка без поля`);
-				// Общее поле рисуется один раз: ни ru, ни en напротив нет.
 				if (row.ru) bad.push(`${type}.${row.shared?.name}: лишняя RU`);
 				if (row.en) bad.push(`${type}.${row.shared?.name}: лишняя EN`);
 			}
@@ -214,8 +204,6 @@ describe("разделение на переводимое и общее", () =>
 	});
 
 	it("path — local: не общий и не переводимый", () => {
-		// Раньше `path` тащил два флага сразу, `shared` и `only`. Теперь у него
-		// один `scope`, и места у него ровно одно.
 		expect(fieldsByScope("project", "local").map((f) => f.name)).toEqual([
 			"path",
 		]);
@@ -228,7 +216,6 @@ describe("разделение на переводимое и общее", () =>
 	});
 
 	it("общие поля идут раньше переводимых", () => {
-		// Порядок в форме обратный привычному: сверху общее, снизу переводимое.
 		const rows = pairRows("project");
 		const names = [...rows.shared, ...rows.translated]
 			.filter((row) => row.shared || row.ru)

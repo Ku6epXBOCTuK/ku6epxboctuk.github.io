@@ -13,24 +13,13 @@
 	import TextAreaControl from "./TextAreaControl.svelte";
 	import TextControl from "./TextControl.svelte";
 
-	/*
-	 * Рамка поля: подпись, контрол по `kind`, действие-дозаполнение и подсказка.
-	 * Контролы лежат рядом по одному на файл — этот компонент только выбирает.
-	 */
-
 	interface Props {
 		field: FieldDef;
 		value: unknown;
 		disabled?: boolean;
 		slug?: string;
-		/**
-		 * Уникальный префикс для `id` и `for`. На странице две копии одной формы —
-		 * RU и EN, поэтому без префикса у полей совпадают `id`, и подпись RU ведёт
-		 * на контрол EN. `id` получается `${scope}-${name}`, поэтому сам `scope`
-		 * уже должен быть готовым идентификатором, без имени поля на конце.
-		 */
+		/** Префикс `id` контрола: на странице две копии формы (RU и EN). */
 		scope?: string;
-		/** Необязательное действие под контролом — дозаполнение извне. */
 		actionLabel?: string;
 		onaction?: () => void;
 		onchange: (value: unknown) => void;
@@ -57,14 +46,11 @@
 		typeof value === "string" || typeof value === "number" ? value : "",
 	);
 
-	/** slug, path и repo — это данные, а не проза: показываем моноширинным. */
 	const MONO_FIELDS = new Set(["slug", "path", "repo", "image"]);
 
 	const mono = $derived(MONO_FIELDS.has(field.name));
 </script>
 
-<!-- Обёртка div, а не label: у поля-картинки два контрола, и метка с двумя
-     input внутри получается неоднозначной для клика и для скринридера. -->
 <div class="field" data-kind={field.kind}>
 	<label class="label" for={controlId}>
 		{field.label}{#if field.required}<span class="req" title="обязательное"

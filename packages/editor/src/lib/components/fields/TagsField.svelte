@@ -4,12 +4,6 @@
 	import TagChip from "./TagChip.svelte";
 	import TagHints from "./TagHints.svelte";
 
-	/*
-	 * Поле тегов: чипы в одной строке с вводом. Тег добавляется без Enter —
-	 * пробелом или запятой, а Enter берёт первую подсказку. Чипы можно
-	 * перетаскивать, клик по чипу копирует тег в буфер.
-	 */
-
 	interface Props {
 		id?: string;
 		value: string[];
@@ -19,29 +13,20 @@
 
 	let { id = "", value, disabled = false, onchange }: Props = $props();
 
-	/*
-	 * Список подсказок закрывается по `blur`, но клик по кнопке подсказки тоже
-	 * считается blur'ом: без паузы кнопка не успевает сработать. Отсюда задержка
-	 * в один кадр — меньше неё не работает, больше не нужно.
-	 */
+	// Подсказки закрываются по blur, но клик по подсказке — тоже blur:
+	// без паузы в кадр кнопка не успевает сработать.
 	const HINT_CLOSE_MS = 150;
-
-	/** Сколько чип показывает «скопировано» после клика. */
 	const COPIED_MS = 900;
 
 	let known = $state<string[]>([]);
 	let query = $state("");
 	let open = $state(false);
-	/** Индекс чипа, который сейчас тащат. */
 	let dragging = $state<number | null>(null);
-	/** Тег, скопированный только что: чип ненадолго меняет подпись. */
 	let copied = $state("");
 
 	const chosen = $derived(value);
-	/** Запрос для фильтра и подсветки: теги нечувствительны к регистру. */
 	const needle = $derived(query.trim().toLowerCase());
 
-	/** Из уже использованных — те, что ещё не выбраны и подходят под запрос. */
 	const suggestions = $derived(
 		known.filter(
 			(tag) => !chosen.includes(tag) && (needle === "" || tag.includes(needle)),
@@ -51,7 +36,6 @@
 	const typed = $derived(normalizeTag(query));
 	const typedError = $derived(typed ? tagError(typed) : null);
 
-	/** Держим ссылку, чтобы вернуть фокус после добавления тега. */
 	let input = $state<HTMLInputElement | null>(null);
 
 	async function loadKnown() {
@@ -59,12 +43,9 @@
 			const res = await fetch("/api/tags");
 			if (!res.ok) return;
 			const data = (await res.json()) as { tags: { tag: string }[] };
-			// Словарь и уже использованные — оба. Словарь полезен тем, что в нём
-			// есть теги, которых ещё нигде нет.
 			known = data.tags.map((entry) => entry.tag);
 		} catch {
-			// Список подсказок — удобство, а не условие работы поля: без него
-			// теги всё равно добавляются вручную.
+			// Подсказки — удобство, а не условие работы: теги добавляются и вручную.
 		}
 	}
 
@@ -72,7 +53,6 @@
 		void loadKnown();
 	});
 
-	/** Добавить кучей: кусок текста режется на теги пробелами и запятыми. */
 	function commit(parts: string[]) {
 		const next = [...chosen];
 		for (const part of parts) {
@@ -90,11 +70,7 @@
 		onchange([...chosen, tag]);
 		query = "";
 
-		/*
-		 * Фокус возвращаем после обновления дерева, а не сразу: пока список тегов
-		 * не перерисовался, `input` ещё может быть старым узлом, и фокус встал бы
-		 * в него и тут же потерялся при замене.
-		 */
+		// Фокус — после обновления дерева: до tick input может быть старым узлом.
 		await tick();
 		input?.focus();
 	}
@@ -103,10 +79,7 @@
 		onchange(chosen.filter((item) => item !== tag));
 	}
 
-	/*
-	 * Автодобавление: разделитель (пробел, запятая) заканчивает тег прямо по
-	 * мере ввода. Заодно это чинит вставку списка тегов из буфера.
-	 */
+	// Разделитель (пробел, запятая) заканчивает тег прямо по мере ввода.
 	function onType(event: Event) {
 		const next = event.currentTarget as HTMLInputElement;
 		const text = next.value;
@@ -122,8 +95,6 @@
 	function onKeydown(event: KeyboardEvent) {
 		if (event.key === "Enter") {
 			event.preventDefault();
-			// Enter сначала берёт подсказку, если она есть: так подсказка не
-			// остаётся мимо, когда её видно.
 			void add(suggestions[0] ?? typed);
 			return;
 		}
@@ -164,8 +135,7 @@
 				if (copied === tag) copied = "";
 			}, COPIED_MS);
 		} catch {
-			// Буфер может быть недоступен (права, не secure context) — тег от
-			// этого не ломается, просто не копируется.
+			// Буфер может быть недоступен (права, не secure context).
 		}
 	}
 </script>
@@ -227,10 +197,7 @@
 		position: relative;
 	}
 
-	/*
-	 * Вся строка — одно «поле»: рамка у обёртки, а не у input, чтобы чипы
-	 * лежали внутри той же рамки.
-	 */
+	/* Рамка у обёртки, а не у input: чипы лежат внутри той же рамки. */
 	.box {
 		display: flex;
 		flex-wrap: wrap;

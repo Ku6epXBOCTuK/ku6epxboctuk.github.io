@@ -103,8 +103,6 @@
 		font-family: var(--font-mono);
 		font-size: var(--fs-md);
 		line-height: var(--lh-code);
-		/* Описания проектов — это 2–3 абзаца. Растягивать поле на весь экран
-		   незачем, поэтому отвязываемся от высоты окна: тянется мышью. */
 		min-height: var(--textarea-min-h);
 		padding: var(--gap-4);
 		color: var(--text);

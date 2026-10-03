@@ -4,41 +4,18 @@ import {
 	type FieldDef,
 } from "@ku6epxboctuk/content-core/shared";
 
-/**
- * Поля разложены по блокам, и блоки не смешивают переводимое с общим.
- *
- * Смешивать нельзя: заголовок блока говорит, как читается то, что под ним, а
- * в блоке «Темы и обложка» обложка переводится, а теги нет. Такое название
- * врёт половину содержимого.
- *
- * Порядок в форме: сначала общие поля, потом переводимые. Общие одинаковы у
- * обоих языков и их правишь один раз, поэтому логично, что они сверху и не
- * перемежаются колонками.
- *
- * Это забота редактора, а не схемы контента: в `frontmatter.json` порядок полей
- * не меняется, здесь он только для показа.
- */
 export interface FieldGroup {
 	title: string;
 	fields: string[];
 }
 
-/** Блок после подстановки: `fields` уже отфильтрованы по наличию в схеме. */
 export interface ResolvedGroup {
 	title: string;
 	fields: FieldDef[];
 }
 
-/**
- * Строка формы: слева поле одного языка, справа его же из другого.
- *
- * Порядок строк один на оба языка, иначе «теги» RU оказались бы напротив
- * «ссылки» EN и сравнивать перевод пришлось бы глазами по всей форме.
- */
 export interface FieldRow {
-	/** Заголовок блока. Строка с ним — разделитель, полей не несёт. */
 	title?: string;
-	/** Общее поле: рисуется один раз, без колонки напротив. */
 	shared?: FieldDef;
 	ru?: FieldDef;
 	en?: FieldDef;
@@ -59,8 +36,6 @@ const PLAN: Record<ContentType, Plan> = {
 		local: [],
 		translated: [
 			{ title: "Заголовок", fields: ["title"] },
-			// Не «Обложка»: под блоком и так стоит поле с этой подписью, и два
-			// одинаковых слова подряд читаются как сбой вёрстки.
 			{ title: "Картинка", fields: ["image"] },
 		],
 	},
@@ -81,8 +56,6 @@ const PLAN: Record<ContentType, Plan> = {
 			{ title: "Темы", fields: ["tags"] },
 			{ title: "Порядок и статус", fields: ["status", "order", "draft"] },
 		],
-		// Локальное уходит в гитигноренный файл, поэтому показывается отдельно
-		// и с назван��ем файла: иначе непонятно, почему поле не в общем блоке.
 		local: [{ title: "Локальное — projects.local.json", fields: ["path"] }],
 		translated: [
 			{
@@ -94,7 +67,6 @@ const PLAN: Record<ContentType, Plan> = {
 	},
 };
 
-/** Поля блока в порядке плана, без пропавших и лишних. */
 function resolve(plan: FieldGroup[], fields: FieldDef[]): ResolvedGroup[] {
 	return plan
 		.map((group) => ({
@@ -105,12 +77,8 @@ function resolve(plan: FieldGroup[], fields: FieldDef[]): ResolvedGroup[] {
 }
 
 /**
- * Разметка формы: общие поля сверху одним списком, переводимые ниже парами.
- *
- * План ниже задаёт только порядок и заголовки блоков. В какой список попадёт
- * поле, решает `scope` у самого поля, а не место в плане: иначе `image` из блока
- * «Картинка» нарисовался бы парой с двумя пустыми ячейками, а новое поле из
- * `fields.ts` уехало бы в общий блок с ложной подписью.
+ * План задаёт только порядок и заголовки блоков. В какой список попадёт поле,
+ * решает `scope` у самого поля, а не место в плане.
  */
 export function fieldRows(
 	type: ContentType,
@@ -121,8 +89,6 @@ export function fieldRows(
 	const byName = (list: FieldDef[], name: string) =>
 		list.find((field) => field.name === name);
 
-	// Общие и локальные поля вызывающий не передаёт, они живут вне языковых
-	// колонок. Добираем из схемы, иначе они не попадут ни в одну строку.
 	const offLang = FIELDS[type].filter(
 		(field) => field.scope !== "translatable" && !field.hidden && !field.auto,
 	);
@@ -159,7 +125,6 @@ export function fieldRows(
 	for (const group of resolve(plan.local, union)) emit(group);
 	for (const group of resolve(plan.translated, union)) emit(group);
 
-	// Новое поле в схеме не должно молча пропасть из формы.
 	const claimed = new Set(
 		plan.shared
 			.flatMap((g) => g.fields)

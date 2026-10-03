@@ -3,13 +3,7 @@
 	import Button from "../ui/Button.svelte";
 	import TextInput from "../ui/TextInput.svelte";
 
-	/*
-	 * Переименование единицы. Отдельная зона внизу формы: действие меняет
-	 * адрес на сайте, поэтому оно не должно сидеть рядом с «сохранить».
-	 */
-
 	interface Props {
-		/** Текущий slug единицы — от него считается «изменилось ли». */
 		renameFrom: string;
 		value: string;
 		busy: boolean;

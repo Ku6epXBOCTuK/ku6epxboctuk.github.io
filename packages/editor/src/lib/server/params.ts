@@ -1,10 +1,6 @@
 import { isContentType, type ContentType } from "@ku6epxboctuk/content-core";
 import { error, type RequestEvent } from "@sveltejs/kit";
 
-// weekly в CONTENT_TYPES нет, поэтому редактор физически не может его править.
-// Язык в маршруте тоже не нужен: единица живёт обоими файлами сразу, а
-// `/api/entries/[type]/[slug]/[lang]` означал бы сохранение одной половины.
-
 const BAD_REQUEST = 400;
 
 export function readType(event: RequestEvent): ContentType {

@@ -4,16 +4,6 @@
 	import TextInput from "../ui/TextInput.svelte";
 	import DirBrowser from "./DirBrowser.svelte";
 
-	/*
-	 * Обзор папок для поля «Локальная папка».
-	 *
-	 * Системного диалога нет и быть не может: `showDirectoryPicker` отдаёт
-	 * handle без пути, веб не должен знать расположение файлов на диске. Путь
-	 * знает только Node, поэтому список приходит с сервера вместе с готовыми
-	 * путями, а форма ничего не склеивает — иначе разделители пришлось бы
-	 * угадывать.
-	 */
-
 	interface Listing {
 		path: string;
 		parent: string | null;

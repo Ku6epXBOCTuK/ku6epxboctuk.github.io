@@ -19,12 +19,6 @@
 	import TranslatedFields from "./TranslatedFields.svelte";
 	import UnitHeader from "./UnitHeader.svelte";
 
-	/*
-	 * Форма единицы — оркестратор: владеет состоянием `entry` и всеми
-	 * запросами, а рисуют дочерние панели. Каждая панель отвечает за свой
-	 * блок и получает значения и колбэки сверху.
-	 */
-
 	interface Props {
 		type: ContentType;
 		slug: string;
@@ -43,18 +37,15 @@
 
 	let renameFrom = $state("");
 	let renameTo = $state("");
-	/** Какой язык собираем очистить: null — модалка закрыта. */
 	let clearing = $state<ContentLang | null>(null);
 
-	// SvelteKit переиспользует компонент при смене slug, поэтому засеваем
-	// состояние из данных только когда сменилась единица, а не на каждый рендер.
+	// SvelteKit переиспользует компонент при смене slug: засеваем состояние
+	// из данных только когда сменилась единица, а не на каждый рендер.
 	let seeded = "";
 
 	$effect(() => {
 		if (seeded === slug) return;
 		seeded = slug;
-		// Глубокая копия: `detail` принадлежит загрузке страницы, и правка формы
-		// не должна расходиться с ней до сохранения.
 		const source = detail.entry;
 		entry = {
 			...source,
@@ -78,10 +69,6 @@
 		ghStatus = "";
 	});
 
-	/**
-	 * Поля одного языка — это ровно `translatable`. Различать ru и en больше
-	 * нечем: `only` ушёл вместе с новой раскладкой.
-	 */
 	const rows = $derived(
 		fieldRows(
 			type,
@@ -90,11 +77,6 @@
 		),
 	);
 
-	/**
-	 * Корзина, в которой поле лежит: `scope` решает, а не язык. Возвращается
-	 * карта, потому что форма обходит поля по именам из схемы, а не по
-	 * литеральным ключам, — типизация `Entry` остаётся на границе.
-	 */
 	function bucketOf(name: string, lang: ContentLang): Record<string, unknown> {
 		const current = entry;
 		if (!current) return {};
@@ -128,11 +110,6 @@
 		if (entry) entry.versions[lang].body = body;
 	}
 
-	/**
-	 * Копия одного поля из одного языка в другой. Не тихо: пустое значение в
-	 * источнике стирает поле в цели, а копия поверх непустой цели — это
-	 * осознанное действие, поэтому кнопка на каждое поле своя и подписана.
-	 */
 	function copyField(name: string, from: ContentLang, to: ContentLang) {
 		const source = bucketOf(name, from);
 		const target = bucketOf(name, to);
@@ -175,10 +152,6 @@
 		}
 	}
 
-	/**
-	 * Одно сохранение на единицу: `Entry` уезжает целиком, а раскладывать его по
-	 * трём файлам — дело репозитория.
-	 */
 	async function saveBoth() {
 		if (!entry) return;
 		busy = true;
@@ -253,10 +226,6 @@
 		if (guess) renameTo = guess;
 	}
 
-	/**
-	 * Дозаполнение из GitHub. Заполняем только пустые поля: ручное не трогаем,
-	 * а что не тронули — говорим, чтобы не было сюрпризов.
-	 */
 	async function pullFromGithub(lang: ContentLang) {
 		const url = String(entry?.shared.repo ?? "").trim();
 		if (!entry || !url) {
