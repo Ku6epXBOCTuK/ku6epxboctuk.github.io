@@ -12,12 +12,6 @@ import {
 	tagInRegistry,
 } from "./tag-registry.ts";
 
-/*
- * Словарь тегов существует независимо от контента: он может опережать его или
- * отставать от него. Поэтому проверяется не «правильные ли теги», а «файл не
- * едет вниз по структуре» и «удаление из словаря не трогает записи».
- */
-
 describe("словарь тегов", () => {
 	const roots: string[] = [];
 
@@ -32,7 +26,7 @@ describe("словарь тегов", () => {
 		dropFixtureRoots();
 	});
 
-	const file = (root: string) => join(root, "tags.json");
+	const file = (root: string) => join(root, "src", "content", "tags.json");
 
 	it("нет файла — пустой список, а не ошибка", () => {
 		expect(readTagRegistry(fixture())).toEqual([]);

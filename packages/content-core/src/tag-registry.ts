@@ -1,22 +1,7 @@
 import * as fs from "node:fs";
 import { join } from "node:path";
 import { normalizeTag, tagError } from "./tag-rules.ts";
-import { repoRoot } from "./paths.ts";
-
-/*
- * Список тегов, который существует сам по себе: `tags.json` в корне.
- *
- * Раньше список собирался из контента, и из-за этого нельзя было ни завести тег
- * заранее, ни поправить название, пока его ещё нигде не поставили. Теперь
- * словарь живёт отдельно, а контент на него ссылается по имени.
- *
- * Формат плоский и отсортированный: `{ "tags": ["css", "svelte"] }`. Никаких
- * id — см. `planTagRename`: переименование это точная замена значения по всем
- * записям, а не поиск по подстроке.
- *
- * Тег может быть в словаре и не использоваться: это нормально, словарь
- * опережает контент.
- */
+import { contentRoot, repoRoot } from "./paths.ts";
 
 const FILE = "tags.json";
 
@@ -25,7 +10,7 @@ interface Registry {
 }
 
 function readRaw(root: string): string[] {
-	const path = join(root, FILE);
+	const path = join(contentRoot(root), FILE);
 	if (!fs.existsSync(path)) return [];
 
 	try {
@@ -42,15 +27,13 @@ function readRaw(root: string): string[] {
 
 		return out.sort((a, b) => a.localeCompare(b));
 	} catch {
-		// Битый словарь не должен ронять редактор: контент важнее, а починить
-		// файл можно и руками.
+		// Битый файл — пустой словарь, а не падение редактора.
 		return [];
 	}
 }
 
-/** Записывает только если содержимое изменилось: иначе файл трогается зря. */
 function writeRaw(tags: string[], root: string): void {
-	const path = join(root, FILE);
+	const path = join(contentRoot(root), FILE);
 	const next = [...new Set(tags)].sort((a, b) => a.localeCompare(b));
 	const current = readRaw(root);
 
@@ -66,6 +49,7 @@ function writeRaw(tags: string[], root: string): void {
 		return;
 	}
 
+	fs.mkdirSync(contentRoot(root), { recursive: true });
 	fs.writeFileSync(
 		path,
 		`${JSON.stringify({ tags: next }, null, "\t")}\n`,
@@ -77,7 +61,6 @@ export function readTagRegistry(root: string = repoRoot()): string[] {
 	return readRaw(root);
 }
 
-/** Добавить тег в словарь. Если он уже есть — без ошибки: повтор не меняет смысл. */
 export function addTagToRegistry(
 	tag: string,
 	root: string = repoRoot(),
@@ -92,7 +75,6 @@ export function addTagToRegistry(
 	return readRaw(root);
 }
 
-/** Переименовать в словаре. Контент этим не трогается — см. `renameTag`. */
 export function renameTagInRegistry(
 	from: string,
 	to: string,
@@ -111,7 +93,6 @@ export function renameTagInRegistry(
 	return readRaw(root);
 }
 
-/** Убрать из словаря. Записи контента остаются как были. */
 export function removeTagFromRegistry(
 	tag: string,
 	root: string = repoRoot(),
