@@ -90,6 +90,7 @@ function checkType(value: unknown, field: SchemaField): string | null {
 	switch (field.type) {
 		case "string":
 		case "datetime":
+		case "dir":
 		case "icon":
 		case "image":
 		case "url":

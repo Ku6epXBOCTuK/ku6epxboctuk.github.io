@@ -83,9 +83,6 @@
 
 	const rows = $derived(fieldRows(type, fieldsFor(), fieldsFor()));
 
-	const metaFileName = $derived(`${type}s.json`);
-	const localFileName = $derived(`${type}s.local.json`);
-
 	/**
 	 * Корзина, в которой поле лежит: `scope` решает, а не язык. Возвращается
 	 * карта, потому что форма обходит поля по именам из схемы, а не по
@@ -369,7 +366,6 @@
 	<section class="shared">
 		<div class="shared-head">
 			<h2>Общее</h2>
-			<span class="file-name">{metaFileName}</span>
 		</div>
 		<div class="shared-body">
 			{#each rows.shared as row, index (index)}
@@ -399,11 +395,7 @@
 		<section class="shared">
 			<div class="shared-head">
 				<h2>Локальное</h2>
-				<span class="file-name">{localFileName}</span>
 			</div>
-			<p class="local-note">
-				Файл не в гите: путь к клону есть только на этой машине.
-			</p>
 			<div class="shared-body">
 				{#each rows.local as row, index (index)}
 					{#if row.title}
@@ -841,22 +833,6 @@
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		color: var(--accent);
-	}
-
-	/* Имя файла рядом с заголовком: блок «Общее» правит не поля вообще, а
-	   конкретный json, и без подписи это читается как «общее где-то». */
-	.file-name {
-		margin-left: auto;
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
-	}
-
-	.local-note {
-		margin: 0;
-		font-size: var(--fs-sm);
-		line-height: 1.6;
-		color: var(--text-faint);
 	}
 
 	.shared-body {

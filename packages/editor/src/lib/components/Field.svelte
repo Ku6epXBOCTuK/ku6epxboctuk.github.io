@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
+	import DirField from "./DirField.svelte";
 	import ImageField from "./ImageField.svelte";
 
 	interface Props {
@@ -103,6 +104,13 @@
 				<option value={choice}>{choice}</option>
 			{/each}
 		</select>
+	{:else if field.kind === "dir"}
+		<DirField
+			id={controlId}
+			{disabled}
+			value={String(scalar)}
+			onchange={text}
+		/>
 	{:else if field.kind === "icon"}
 		<!-- Глифы показываются теми же символами, какие попадут в текст: иначе
 		     приходится запоминать, как `⬡` выглядит в коде. -->

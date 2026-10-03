@@ -46,7 +46,7 @@
 				},
 				{ "name": "draft", "type": "boolean" }
 			],
-			"local": [{ "name": "path", "type": "string" }]
+			"local": [{ "name": "path", "type": "dir" }]
 		},
 		"weekly": {
 			"description": "Генерируется из git-логов, руками не редактируется.",
