@@ -10,14 +10,11 @@ import { CONTENT_TYPES } from "@ku6epxboctuk/content-core/shared";
  * выглядит как «страница пустая», а не как «не найдено поле», поэтому её надо
  * проверить явно: для каждого типа таблица должна видеть столько же модулей и
  * общих записей, сколько их на диске.
- *
- * Моки лежат в `src/content-mocks` и генерируются скриптом, поэтому при пустом
- * дереве проверка схлопывается — это видно по `describe.skip`.
  */
 
-const hasMocks = Object.keys(modulesOf("post")).length > 0;
+const hasContent = Object.keys(modulesOf("post")).length > 0;
 
-describe.skipIf(!hasMocks)("таблица глобов", () => {
+describe.skipIf(!hasContent)("таблица глобов", () => {
 	it.each(CONTENT_TYPES)("%s: модули и общие записи по одному slug", (type) => {
 		const modules = Object.keys(modulesOf(type));
 		const shared = Object.keys(sharedOf(type));

@@ -1,0 +1,36 @@
+{
+	"anatomiya-blokirovki-github": {
+		"date": "2026-07-24",
+		"tags": ["github", "webdev", "devops"]
+	},
+	"ecs-architecture": {
+		"date": "2026-09-10",
+		"tags": ["gamedev", "engineering"],
+		"draft": true
+	},
+	"git-hooks-that-save": {
+		"date": "2026-07-08",
+		"tags": ["git", "автоматизация"],
+		"draft": true
+	},
+	"kawaii-os-design": {
+		"date": "2026-07-22",
+		"tags": ["дизайн", "ui"],
+		"draft": true
+	},
+	"oklch-tokens": {
+		"date": "2026-08-06",
+		"tags": ["css", "дизайн"],
+		"draft": true
+	},
+	"static-site-speed": {
+		"date": "2026-06-25",
+		"tags": ["svelte", "infra"],
+		"draft": true
+	},
+	"weekly-reports-manual": {
+		"date": "2026-08-24",
+		"tags": ["мета", "автоматизация"],
+		"draft": true
+	}
+}

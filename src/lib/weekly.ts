@@ -11,38 +11,25 @@ import {
 	optionalString,
 	type LocalizedItem,
 } from "$lib/loaders";
-import { mergeShared, sharedFrom } from "$lib/shared";
+import { sharedFrom } from "$lib/shared";
 
 /*
  * `weekly` вне таблицы `content-globs`: типа нет в `CONTENT_TYPES`, он
  * генерируется отдельно, а не редактируется. Глобы поэтому свои — но такие же
  * по форме, как у остальных типов.
  */
-const modules = {
-	...import.meta.glob<MarkdownModule>(
-		"/src/content/weekly/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-	...import.meta.glob<MarkdownModule>(
-		"/src/content-mocks/weekly/*/index.{ru,en}.md",
-		{ eager: true },
-	),
-};
+const modules = import.meta.glob<MarkdownModule>(
+	"/src/content/weekly/*/index.{ru,en}.md",
+	{ eager: true },
+);
 
-const shared = mergeShared(
+const shared =
 	sharedFrom(
 		import.meta.glob<SharedRecord>("/src/content/weekly.json", {
 			eager: true,
 			import: "default",
 		}),
-	),
-	sharedFrom(
-		import.meta.glob<SharedRecord>("/src/content-mocks/weekly.json", {
-			eager: true,
-			import: "default",
-		}),
-	),
-);
+	) ?? {};
 
 export interface WeeklyReportBase extends ContentEntry {
 	excerpt?: string;

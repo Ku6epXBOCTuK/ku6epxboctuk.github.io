@@ -1,0 +1,233 @@
+{
+	"bropicker": {
+		"tags": ["rust", "slint"],
+		"repo": "https://github.com/Ku6epXBOCTuK/bropicker",
+		"status": "ready"
+	},
+	"brul": {
+		"tags": ["rust"],
+		"repo": "https://github.com/Ku6epXBOCTuK/brul",
+		"status": "ready"
+	},
+	"bun-dce-poc": {
+		"tags": ["bun", "poc"],
+		"repo": "https://github.com/Ku6epXBOCTuK/bun-dce-poc",
+		"status": "ready"
+	},
+	"cat-signal": {
+		"tags": ["fun", "ts"],
+		"repo": "https://github.com/Ku6epXBOCTuK/cat_signal",
+		"status": "raw",
+		"icon": "🐾",
+		"color": "coral",
+		"draft": true
+	},
+	"css-matrix-calc": {
+		"tags": ["css", "tools"],
+		"repo": "https://github.com/Ku6epXBOCTuK/css-matrix-calc",
+		"status": "ready",
+		"order": 3,
+		"icon": "◈",
+		"color": "sky"
+	},
+	"easy-png-tools": {
+		"tags": ["typescript", "tools"],
+		"repo": "https://github.com/Ku6epXBOCTuK/easy-png-tools",
+		"status": "ready",
+		"order": 1,
+		"icon": "✦",
+		"color": "coral"
+	},
+	"effect-ts-practice": {
+		"tags": ["typescript", "effect"],
+		"repo": "https://github.com/Ku6epXBOCTuK/effect-ts-practice",
+		"status": "ready"
+	},
+	"eye-candy": {
+		"tags": ["css"],
+		"repo": "https://github.com/Ku6epXBOCTuK/eye-candy",
+		"status": "ready"
+	},
+	"focus-garden": {
+		"tags": ["svelte", "tauri", "rust"],
+		"repo": "https://github.com/Ku6epXBOCTuK/focus_garden",
+		"status": "ready",
+		"icon": "✿",
+		"color": "sky",
+		"draft": true
+	},
+	"git-overhooks": {
+		"tags": ["rust", "git"],
+		"repo": "https://github.com/Ku6epXBOCTuK/git-overhooks",
+		"status": "ready"
+	},
+	"github-support-sla-monitor": {
+		"tags": ["github", "monitoring"],
+		"repo": "https://github.com/Ku6epXBOCTuK/github-support-sla-monitor",
+		"status": "ready"
+	},
+	"idle-chat-game": {
+		"tags": ["twitch", "game"],
+		"repo": "https://github.com/Ku6epXBOCTuK/idle-chat-game",
+		"status": "ready"
+	},
+	"itd": {
+		"tags": ["game", "threejs"],
+		"repo": "https://github.com/Ku6epXBOCTuK/itd",
+		"status": "raw",
+		"order": 7,
+		"icon": "⬡",
+		"color": "coral"
+	},
+	"ku6epxboctuk-github-io": {
+		"tags": ["svelte", "website"],
+		"repo": "https://github.com/Ku6epXBOCTuK/ku6epxboctuk.github.io",
+		"status": "ready"
+	},
+	"lopata": {
+		"tags": ["astro", "website"],
+		"repo": "https://github.com/Ku6epXBOCTuK/lopata",
+		"status": "ready"
+	},
+	"mica-notepad": {
+		"tags": ["rust", "tauri", "notes"],
+		"repo": "https://github.com/Ku6epXBOCTuK/mica_notepad",
+		"status": "ready",
+		"icon": "❒",
+		"color": "sky",
+		"draft": true
+	},
+	"mochi-ui": {
+		"tags": ["svelte", "design-system"],
+		"repo": "https://github.com/Ku6epXBOCTuK/mochi_ui",
+		"status": "ready",
+		"icon": "◌",
+		"color": "periwinkle",
+		"draft": true
+	},
+	"multi-widget": {
+		"tags": ["obs", "widget"],
+		"repo": "https://github.com/Ku6epXBOCTuK/multi-widget",
+		"status": "ready"
+	},
+	"now-playing": {
+		"tags": ["obs", "widget"],
+		"repo": "https://github.com/Ku6epXBOCTuK/now_playing",
+		"status": "ready",
+		"order": 5,
+		"icon": "●",
+		"color": "periwinkle"
+	},
+	"pizdudes": {
+		"tags": ["typescript"],
+		"repo": "https://github.com/Ku6epXBOCTuK/pizdudes",
+		"status": "ready"
+	},
+	"rock-roll-puzzle": {
+		"tags": ["game"],
+		"repo": "https://github.com/Ku6epXBOCTuK/rock-roll-puzzle",
+		"status": "ready"
+	},
+	"rubber-duck": {
+		"tags": ["typescript"],
+		"repo": "https://github.com/Ku6epXBOCTuK/rubber-duck",
+		"status": "ready"
+	},
+	"shooting-word": {
+		"tags": ["twitch", "game", "obs"],
+		"repo": "https://github.com/Ku6epXBOCTuK/shooting-word-html",
+		"status": "ready",
+		"order": 4,
+		"icon": "▲",
+		"color": "coral"
+	},
+	"sveltekit-template": {
+		"tags": ["svelte", "template"],
+		"repo": "https://github.com/Ku6epXBOCTuK/sveltekit-template",
+		"status": "ready"
+	},
+	"tg-bot": {
+		"tags": ["rust", "telegram", "bot"],
+		"repo": "https://github.com/Ku6epXBOCTuK/tg-bot",
+		"status": "ready"
+	},
+	"tray-run": {
+		"tags": ["rust"],
+		"repo": "https://github.com/Ku6epXBOCTuK/tray-run",
+		"status": "ready"
+	},
+	"twitch-announce-telegram-bot": {
+		"tags": ["twitch", "telegram", "bot"],
+		"repo": "https://github.com/Ku6epXBOCTuK/twitch-announce-telegram-bot",
+		"status": "ready"
+	},
+	"twitch-cafe": {
+		"tags": ["twitch"],
+		"repo": "https://github.com/Ku6epXBOCTuK/twitch-cafe",
+		"status": "ready"
+	},
+	"twitch-doc-panel": {
+		"tags": ["twitch", "markdown"],
+		"repo": "https://github.com/Ku6epXBOCTuK/twitch-doc-panel",
+		"status": "ready",
+		"order": 8,
+		"icon": "◇",
+		"color": "periwinkle"
+	},
+	"twitch-edge-tts": {
+		"tags": ["twitch", "tts"],
+		"repo": "https://github.com/Ku6epXBOCTuK/twitch-edge-tts",
+		"status": "ready"
+	},
+	"twitch-panels": {
+		"tags": ["twitch", "svelte"],
+		"repo": "https://github.com/Ku6epXBOCTuK/twitch-panels",
+		"status": "ready",
+		"order": 2,
+		"icon": "▦",
+		"color": "periwinkle"
+	},
+	"updater": {
+		"tags": ["rust"],
+		"repo": "https://github.com/Ku6epXBOCTuK/updater",
+		"status": "ready"
+	},
+	"v-domike": {
+		"tags": ["svelte", "website"],
+		"repo": "https://github.com/Ku6epXBOCTuK/v-domike",
+		"status": "ready"
+	},
+	"vite-poc": {
+		"tags": ["vite", "poc"],
+		"repo": "https://github.com/Ku6epXBOCTuK/vite-poc",
+		"status": "ready"
+	},
+	"weekly-report": {
+		"tags": ["typescript"],
+		"repo": "https://github.com/Ku6epXBOCTuK/weekly_report",
+		"status": "ready"
+	},
+	"x-fantasy-console": {
+		"tags": ["game"],
+		"repo": "https://github.com/Ku6epXBOCTuK/x-fantasy-console",
+		"status": "ready"
+	},
+	"xboct-chat": {
+		"tags": ["twitch", "obs"],
+		"repo": "https://github.com/Ku6epXBOCTuK/XBOCT-chat",
+		"status": "ready"
+	},
+	"xboct-deploy": {
+		"tags": ["rust", "devops"],
+		"repo": "https://github.com/Ku6epXBOCTuK/xboct-deploy",
+		"status": "ready"
+	},
+	"xboct-page": {
+		"tags": ["svelte", "extension"],
+		"repo": "https://github.com/Ku6epXBOCTuK/XBOCT-page",
+		"status": "ready",
+		"order": 6,
+		"icon": "❒",
+		"color": "sky"
+	}
+}

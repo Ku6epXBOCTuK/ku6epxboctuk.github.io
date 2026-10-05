@@ -1,0 +1,3 @@
+---
+title: x-fantasy-console
+---

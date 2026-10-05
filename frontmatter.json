@@ -59,8 +59,7 @@
 				{
 					"title": "Description",
 					"name": "description",
-					"type": "string",
-					"required": true
+					"type": "string"
 				},
 				{
 					"title": "Needs translation",

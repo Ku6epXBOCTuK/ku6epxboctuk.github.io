@@ -3,13 +3,13 @@ import { getArticles } from "$lib/articles";
 
 /*
  * Склейка «загрузчик + сырой текст»: тизер и время чтения приходят не из
- * frontmatter, а из raw-файла, поэтому проверяется на настоящих моках.
+ * frontmatter, а из raw-файла, поэтому проверяется на настоящем контенте.
  * Само извлечение разобрано в `articles.test.ts`.
  */
 
 const hasContent =
-	Object.keys(import.meta.glob("/src/content-mocks/articles/*/index.ru.md"))
-		.length > 0;
+	Object.keys(import.meta.glob("/src/content/articles/*/index.ru.md")).length >
+	0;
 
 describe.skipIf(!hasContent)("статьи с тизером", () => {
 	it("тизер непустой и обрезан маркером", () => {

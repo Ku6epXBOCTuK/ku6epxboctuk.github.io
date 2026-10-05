@@ -68,24 +68,20 @@ production.
 
 ## Скрипты
 
-| Команда              | Что делает                                  |
-| -------------------- | ------------------------------------------- |
-| `pnpm editor`        | локальный редактор контента                 |
-| `pnpm dev`           | дев-сервер сайта                            |
-| `pnpm build`         | продакшен-сборка сайта                      |
-| `pnpm format`        | prettier --write                            |
-| `pnpm check`         | svelte-check                                |
-| `pnpm lint`          | prettier --check + eslint                   |
-| `pnpm lint:css`      | stylelint                                   |
-| `pnpm lint:css-vars` | запрет прямых цветов в CSS                  |
-| `pnpm lint:content`  | валидация frontmatter                       |
-| `pnpm test:run`      | vitest                                      |
-| `pnpm test:e2e`      | playwright                                  |
-| `pnpm verify`        | format → check → lint:all → test:run        |
-| `pnpm mocks:gen`     | сгенерировать мок-контент в `content-mocks` |
-
-`src/content-mocks/` в гитигноре и на сайт не попадает — это заглушки для
-разработки.
+| Команда              | Что делает                           |
+| -------------------- | ------------------------------------ |
+| `pnpm editor`        | локальный редактор контента          |
+| `pnpm dev`           | дев-сервер сайта                     |
+| `pnpm build`         | продакшен-сборка сайта               |
+| `pnpm format`        | prettier --write                     |
+| `pnpm check`         | svelte-check                         |
+| `pnpm lint`          | prettier --check + eslint            |
+| `pnpm lint:css`      | stylelint                            |
+| `pnpm lint:css-vars` | запрет прямых цветов в CSS           |
+| `pnpm lint:content`  | валидация frontmatter                |
+| `pnpm test:run`      | vitest                               |
+| `pnpm test:e2e`      | playwright                           |
+| `pnpm verify`        | format → check → lint:all → test:run |
 
 ## Деплой
 

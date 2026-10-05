@@ -164,7 +164,7 @@ const SCHEMA = {
 			name: "description",
 			kind: "text",
 			label: "Описание",
-			required: true,
+			required: false,
 			scope: "translatable",
 		},
 		TAGS,

@@ -8,8 +8,7 @@ import { collectTags, tagIndex, taggedEntries } from "$lib/tags";
  */
 
 const hasContent =
-	Object.keys(import.meta.glob("/src/content-mocks/posts/*/index.ru.md"))
-		.length > 0;
+	Object.keys(import.meta.glob("/src/content/posts/*/index.ru.md")).length > 0;
 
 describe.skipIf(!hasContent)("индекс тегов на контенте", () => {
 	it("собирается из постов, статей и проектов", () => {

@@ -292,11 +292,6 @@ describe("валидация", () => {
 			{ files: pair("posts/x", [...POST, "excerpt: нельзя"], POST) },
 			/"excerpt" is not used for post/,
 		],
-		[
-			"нет description у проекта",
-			{ files: pair("projects/x", ["title: T"], ["title: T"]) },
-			/missing required field "description"/,
-		],
 	];
 
 	it.each(errors)("ошибка: %s", (_name, fixture, pattern) => {

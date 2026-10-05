@@ -376,8 +376,8 @@ describe("репозиторий", () => {
 	describe("локальные поля", () => {
 		afterAll(() => {
 			deleteEntry("project", PROJECT_SLUG, fixture());
-			fs.rmSync(metaFile("project"), { force: true });
-			fs.rmSync(localFile("project"), { force: true });
+			fs.rmSync(metaFile("project", fixture()), { force: true });
+			fs.rmSync(localFile("project", fixture()), { force: true });
 		});
 
 		it("path уезжает в .local.json и не попадает в md и не в json", async () => {
