@@ -5,7 +5,7 @@
 			"shared": [
 				{ "name": "date", "type": "date", "required": true },
 				{ "name": "tags", "type": "tags" },
-				{ "name": "image", "type": "image" },
+				{ "name": "image", "type": "image", "required": true },
 				{ "name": "link", "type": "url" },
 				{ "name": "draft", "type": "boolean" }
 			],

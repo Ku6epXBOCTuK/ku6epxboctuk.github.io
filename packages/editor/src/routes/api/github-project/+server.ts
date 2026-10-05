@@ -88,7 +88,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			} else {
 				frontmatter.image = (
 					await createProjectPlaceholder(meta.name, slug)
-				).path;
+				).light.path;
 				const first = rejected[0];
 				if (first) {
 					notes.push(

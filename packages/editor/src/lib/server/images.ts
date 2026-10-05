@@ -63,6 +63,8 @@ export async function saveImage(input: {
 	kind: ImageKind;
 	slug: string;
 	dir?: string;
+	/** Готовый stem вместо случайного — для парных файлов вроде тематических вариантов. */
+	stem?: string;
 }): Promise<ProcessedImage> {
 	const { buffer, mimeType, kind, slug } = input;
 	const dir = input.dir ?? imagesDir();
@@ -76,7 +78,8 @@ export async function saveImage(input: {
 	}
 
 	const base = isValidSlug(slug) ? slug : "img";
-	const stem = `${base}-${randomBytes(RANDOM_BYTES).toString("hex")}`;
+	const stem =
+		input.stem ?? `${base}-${randomBytes(RANDOM_BYTES).toString("hex")}`;
 
 	fs.mkdirSync(dir, { recursive: true });
 

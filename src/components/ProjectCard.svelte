@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/state";
 	import Card from "$cmp/Card.svelte";
+	import ThemeImage from "$cmp/ThemeImage.svelte";
 	import { langUrl, pageLang } from "$lib/content";
 	import type { Project } from "$lib/projects";
 
@@ -23,7 +24,7 @@
 	<div class="project-card">
 		{#if project.image}
 			<div class="project-screenshot">
-				<img src={project.image} alt={project.title} />
+				<ThemeImage src={project.image} alt={project.title} />
 			</div>
 		{/if}
 		<div class="project-info">
@@ -81,14 +82,16 @@
 		z-index: 2;
 	}
 
-	.project-screenshot img {
+	.project-screenshot :global(img) {
 		width: 100%;
 		display: block;
 		filter: brightness(0.9) contrast(1.05);
-		transition: filter 0.3s ease;
+		transition:
+			filter 0.3s ease,
+			opacity 0.3s ease;
 	}
 
-	.project-screenshot:hover img {
+	.project-screenshot:hover :global(img) {
 		filter: brightness(1) contrast(1);
 	}
 

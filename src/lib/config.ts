@@ -1,4 +1,4 @@
-export const HOME_RECENT_POSTS = 3;
+export const HOME_RECENT_POSTS = 4;
 
 export const SOCIAL = {
 	telegram: "https://t.me/Ku6epXBOCTuK_feed",

@@ -103,7 +103,7 @@ describe("валидация", () => {
 				),
 			},
 			json: {
-				"posts.json": { ok: { date: "2026-09-30" } },
+				"posts.json": { ok: { date: "2026-09-30", image: "/images/x.webp" } },
 				"articles.json": { ok: { date: "2026-09-30" } },
 				"projects.json": { ok: { repo: "https://github.com/o/n" } },
 				"weekly.json": { "2026-09-22": { date: "2026-09-22" } },

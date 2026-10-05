@@ -62,7 +62,7 @@
 
 	.draft-badge {
 		position: absolute;
-		top: -11px;
+		top: -14px;
 		right: 16px;
 		font-size: 11px;
 		font-weight: 800;

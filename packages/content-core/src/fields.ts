@@ -139,7 +139,7 @@ const SCHEMA = {
 		TITLE,
 		DATE,
 		TAGS,
-		IMAGE,
+		{ ...IMAGE, required: true },
 		{
 			name: "link",
 			kind: "url",

@@ -1,36 +1,44 @@
 {
 	"anatomiya-blokirovki-github": {
 		"date": "2026-07-24",
-		"tags": ["github", "webdev", "devops"]
+		"tags": ["github", "webdev", "devops"],
+		"image": "/images/anatomiya-blokirovki-github-496c8a87.light.webp",
+		"draft": true
 	},
 	"ecs-architecture": {
 		"date": "2026-09-10",
 		"tags": ["gamedev", "engineering"],
+		"image": "/images/ecs-architecture-5394f099.light.webp",
 		"draft": true
 	},
 	"git-hooks-that-save": {
 		"date": "2026-07-08",
 		"tags": ["git", "автоматизация"],
+		"image": "/images/git-hooks-that-save-d425c61c.light.webp",
 		"draft": true
 	},
 	"kawaii-os-design": {
 		"date": "2026-07-22",
 		"tags": ["дизайн", "ui"],
+		"image": "/images/kawaii-os-design-142a5183.light.webp",
 		"draft": true
 	},
 	"oklch-tokens": {
 		"date": "2026-08-06",
 		"tags": ["css", "дизайн"],
+		"image": "/images/oklch-tokens-ab0cd523.light.webp",
 		"draft": true
 	},
 	"static-site-speed": {
 		"date": "2026-06-25",
 		"tags": ["svelte", "infra"],
+		"image": "/images/static-site-speed-54980ae6.light.webp",
 		"draft": true
 	},
 	"weekly-reports-manual": {
 		"date": "2026-08-24",
 		"tags": ["мета", "автоматизация"],
+		"image": "/images/weekly-reports-manual-7e94362e.light.webp",
 		"draft": true
 	}
 }

@@ -2,96 +2,113 @@
 	"added-dark-theme": {
 		"date": "2026-09-04",
 		"tags": ["дизайн", "код"],
+		"image": "/images/added-dark-theme-325d83ef.light.webp",
 		"draft": true
 	},
 	"from-react-to-svelte": {
 		"date": "2026-08-20",
 		"tags": ["svelte", "рефлексия"],
+		"image": "/images/from-react-to-svelte-4efd3131.light.webp",
 		"link": "https://svelte.dev",
 		"draft": true
 	},
 	"napisala-git-overhooks": {
 		"date": "2026-09-19",
 		"tags": ["rust", "git"],
+		"image": "/images/napisala-git-overhooks-4633eabc.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/git-overhooks",
 		"draft": true
 	},
 	"obnovila-easy-png-tools": {
 		"date": "2026-10-04",
 		"tags": ["typescript", "tools"],
+		"image": "/images/obnovila-easy-png-tools-6464e739.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/easy-png-tools",
 		"draft": true
 	},
 	"one-week-of-rust": {
 		"date": "2026-07-15",
 		"tags": ["rust"],
+		"image": "/images/one-week-of-rust-f70ca711.light.webp",
 		"draft": true
 	},
 	"pomodoro-trail": {
 		"date": "2026-09-14",
 		"tags": ["таски", "эксперимент"],
+		"image": "/images/pomodoro-trail-d3bb19a4.light.webp",
 		"draft": true
 	},
 	"reading-time-static": {
 		"date": "2026-07-28",
 		"tags": ["svelte", "идея"],
+		"image": "/images/reading-time-static-4370ed1e.light.webp",
 		"draft": true
 	},
 	"sdelala-sla-monitor": {
 		"date": "2026-09-11",
 		"tags": ["github", "monitoring"],
+		"image": "/images/sdelala-sla-monitor-f4813822.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/github-support-sla-monitor",
 		"draft": true
 	},
 	"sdelala-twitch-doc-panel": {
 		"date": "2026-09-24",
 		"tags": ["twitch", "markdown"],
+		"image": "/images/sdelala-twitch-doc-panel-4e8e26c9.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/twitch-doc-panel",
 		"draft": true
 	},
 	"sozdala-bropicker": {
 		"date": "2026-10-03",
 		"tags": ["rust", "slint"],
+		"image": "/images/sozdala-bropicker-f7664d82.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/bropicker",
 		"draft": true
 	},
 	"sozdala-brul": {
 		"date": "2026-09-10",
 		"tags": ["rust"],
+		"image": "/images/sozdala-brul-44f419c4.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/brul",
 		"draft": true
 	},
 	"statya-anatomiya-blokirovki": {
 		"date": "2026-07-24",
 		"tags": ["github"],
+		"image": "/images/statya-anatomiya-blokirovki-a7d3bbec.light.webp",
 		"link": "https://dev.to/ku6epxboctuk/anatomy-of-a-ban-why-login-with-github-is-the-biggest-architectural-mistake-of-your-life-1715",
 		"draft": true
 	},
 	"terminal-widget-progress": {
 		"date": "2026-08-11",
 		"tags": ["сайт"],
+		"image": "/images/terminal-widget-progress-f26dad3b.light.webp",
 		"draft": true
 	},
 	"vylozhila-shooting-word": {
 		"date": "2026-06-26",
 		"tags": ["twitch", "game", "obs"],
+		"image": "/images/vylozhila-shooting-word-ffaef0fe.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/shooting-word-html",
 		"draft": true
 	},
 	"z-index-battle": {
 		"date": "2026-09-12",
 		"tags": ["css", "будни"],
+		"image": "/images/z-index-battle-1e11c7be.light.webp",
 		"draft": true
 	},
 	"zapustila-twitch-announce-bot": {
 		"date": "2026-09-25",
 		"tags": ["twitch", "telegram", "bot"],
+		"image": "/images/zapustila-twitch-announce-bot-3cd3350c.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/twitch-announce-telegram-bot",
 		"draft": true
 	},
 	"zavela-sait": {
 		"date": "2026-10-05",
 		"tags": ["svelte", "website"],
+		"image": "/images/zavela-sait-ceffdddd.light.webp",
 		"link": "https://github.com/Ku6epXBOCTuK/ku6epxboctuk.github.io",
 		"draft": true
 	}

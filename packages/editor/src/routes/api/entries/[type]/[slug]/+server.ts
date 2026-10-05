@@ -5,11 +5,19 @@ import {
 	renameEntry,
 	saveEntry,
 	validateEntry,
+	type ContentType,
 } from "@ku6epxboctuk/content-core";
 import { json } from "@sveltejs/kit";
 import { removeImage } from "$lib/server/images.ts";
 import { readSlug, readType } from "$lib/server/params.ts";
+import { createPlaceholder } from "$lib/server/placeholder.ts";
 import type { RequestHandler } from "./$types";
+
+const PLACEHOLDER_KIND: Record<ContentType, string> = {
+	post: "пост",
+	article: "статья",
+	project: "проект",
+};
 
 export const GET: RequestHandler = async (event) => {
 	const type = readType(event);
@@ -30,11 +38,17 @@ export const PUT: RequestHandler = async (event) => {
 	const payload = await event.request.json().catch(() => null);
 
 	try {
-		const { entry } = await saveEntry(
-			type,
-			slug,
-			entryFromInput(type, slug, payload),
-		);
+		const input = entryFromInput(type, slug, payload);
+
+		if (!input.shared.image) {
+			const title = input.versions.ru.frontmatter.title;
+			const name = typeof title === "string" && title ? title : slug;
+			input.shared.image = (
+				await createPlaceholder(name, slug, PLACEHOLDER_KIND[type])
+			).light.path;
+		}
+
+		const { entry } = await saveEntry(type, slug, input);
 		return json({ ok: true, entry, validation: validateEntry(type, slug) });
 	} catch (err) {
 		return json({ error: (err as Error).message }, { status: 400 });
