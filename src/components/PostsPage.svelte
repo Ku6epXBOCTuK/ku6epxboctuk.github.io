@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getPosts } from "$lib/posts";
 	import PostCard from "$cmp/PostCard.svelte";
+	import SectionTitle from "$cmp/SectionTitle.svelte";
 	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
 
@@ -14,7 +15,7 @@
 	const posts = $derived(getPosts(lang));
 </script>
 
-<div class="section-title">{t.nav.posts}</div>
+<SectionTitle>{t.nav.posts}</SectionTitle>
 
 <div class="list">
 	{#each posts as post (post.slug)}
@@ -23,24 +24,9 @@
 </div>
 
 <style>
-	.section-title {
-		color: var(--coral);
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		margin-bottom: 24px;
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--outline);
-	}
-
-	.section-title::before {
-		content: "# ";
-		color: var(--muted-foreground);
-	}
-
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: 16px;
 	}
 </style>

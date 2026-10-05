@@ -38,11 +38,9 @@
 
 <style>
 	.window {
-		border: 2px solid transparent;
+		border: 2px solid var(--outline);
 		border-radius: 14px;
-		background:
-			linear-gradient(var(--window), var(--window)) padding-box,
-			linear-gradient(to bottom right, var(--outline), var(--shadow)) border-box;
+		background: var(--window);
 		box-shadow: var(--hard-shadow);
 		overflow: hidden;
 	}

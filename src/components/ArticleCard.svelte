@@ -65,8 +65,8 @@
 
 	.article-title {
 		color: var(--foreground);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: 700;
+		font-size: 19px;
 	}
 
 	.article-title:hover {
@@ -75,7 +75,7 @@
 
 	.article-date {
 		color: var(--muted-foreground);
-		font-size: 12px;
+		font-size: 15px;
 		white-space: nowrap;
 	}
 
@@ -93,7 +93,7 @@
 	.article-teaser {
 		margin: 0;
 		color: var(--muted-foreground);
-		font-size: 13px;
+		font-size: 16px;
 		line-height: 1.55;
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
@@ -103,7 +103,7 @@
 	}
 
 	.tag {
-		font-size: 11px;
+		font-size: 15px;
 		color: var(--sky);
 	}
 
@@ -114,7 +114,7 @@
 	}
 
 	.lang-badge {
-		font-size: 10px;
+		font-size: 12px;
 		padding: 1px 6px;
 		border: 1px solid var(--line);
 		border-radius: 4px;

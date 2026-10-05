@@ -11,7 +11,6 @@
 		{ path: "/articles", key: "articles" },
 		{ path: "/projects", key: "projects" },
 		{ path: "/weekly", key: "weekly" },
-		{ path: "/tags", key: "tags" },
 	] as const;
 
 	const lang = $derived(pageLang(page.data.lang));
@@ -79,7 +78,7 @@
 		gap: 26px;
 		color: var(--muted-foreground);
 		font-family: var(--font-display);
-		font-size: 14px;
+		font-size: 16px;
 	}
 
 	.nav-links a {

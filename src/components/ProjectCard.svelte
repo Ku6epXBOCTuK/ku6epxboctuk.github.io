@@ -95,24 +95,24 @@
 	.project-name {
 		color: var(--coral);
 		font-weight: 700;
-		font-size: 15px;
+		font-size: 19px;
 	}
 
 	.project-repo {
 		color: var(--muted-foreground);
 		font-weight: 400;
-		font-size: 12px;
+		font-size: 15px;
 		margin-left: 8px;
 	}
 
 	.project-subtitle {
 		color: var(--muted-foreground);
-		font-size: 12px;
+		font-size: 15px;
 	}
 
 	.project-desc {
 		color: var(--foreground);
-		font-size: 13px;
+		font-size: 16px;
 		line-height: 1.6;
 	}
 
@@ -123,8 +123,8 @@
 	}
 
 	.tag {
-		font-size: 11px;
-		padding: 2px 8px;
+		font-size: 14px;
+		padding: 3px 10px;
 		border: 1px solid var(--outline);
 		border-radius: 4px;
 		color: var(--muted-foreground);

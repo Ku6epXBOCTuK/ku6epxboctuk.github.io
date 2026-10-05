@@ -4,6 +4,7 @@
 	import ArticleCard from "$cmp/ArticleCard.svelte";
 	import PostCard from "$cmp/PostCard.svelte";
 	import ProjectCard from "$cmp/ProjectCard.svelte";
+	import SectionTitle from "$cmp/SectionTitle.svelte";
 	import { langUrl, pageLang, type ContentLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
 	import { tagIndex, type TaggedEntry } from "$lib/tags";
@@ -46,7 +47,7 @@
 </script>
 
 <div class="tags">
-	<div class="section-title">{t.nav.tags}</div>
+	<SectionTitle style="margin-bottom:0">{t.nav.tags}</SectionTitle>
 
 	<div class="cloud">
 		<button
@@ -99,20 +100,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
-	}
-
-	.section-title {
-		color: var(--coral);
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--outline);
-	}
-
-	.section-title::before {
-		content: "# ";
-		color: var(--muted-foreground);
 	}
 
 	/*

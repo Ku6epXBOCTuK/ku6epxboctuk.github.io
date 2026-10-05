@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getProjects } from "$lib/projects";
 	import ProjectCard from "$cmp/ProjectCard.svelte";
+	import SectionTitle from "$cmp/SectionTitle.svelte";
 	import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 	import { ui } from "$lib/i18n";
 
@@ -14,7 +15,7 @@
 	const projects = $derived(getProjects(lang));
 </script>
 
-<div class="section-title">{t.nav.projects}</div>
+<SectionTitle>{t.nav.projects}</SectionTitle>
 
 <div class="list">
 	{#each projects as project (project.slug)}
@@ -23,21 +24,6 @@
 </div>
 
 <style>
-	.section-title {
-		color: var(--coral);
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		margin-bottom: 24px;
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--outline);
-	}
-
-	.section-title::before {
-		content: "# ";
-		color: var(--muted-foreground);
-	}
-
 	.list {
 		display: flex;
 		flex-direction: column;

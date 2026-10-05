@@ -46,7 +46,7 @@
 		justify-content: space-between;
 		gap: 24px;
 		color: var(--muted-foreground);
-		font-size: 12px;
+		font-size: 15px;
 	}
 
 	.brand {
@@ -87,7 +87,7 @@
 		align-items: center;
 		gap: 6px;
 		font-family: var(--font-display);
-		font-size: 11px;
+		font-size: 15px;
 		font-weight: 700;
 		padding: 5px 12px;
 		border: 2px solid var(--outline);

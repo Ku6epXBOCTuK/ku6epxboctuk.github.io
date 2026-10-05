@@ -38,7 +38,7 @@
 	.post-card {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	.post-header {
@@ -51,8 +51,8 @@
 
 	.post-title {
 		color: var(--foreground);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: 700;
+		font-size: 19px;
 	}
 
 	.post-title:hover {
@@ -61,23 +61,23 @@
 
 	.post-date {
 		color: var(--muted-foreground);
-		font-size: 12px;
+		font-size: 15px;
 		white-space: nowrap;
 	}
 
 	.post-tags {
 		display: flex;
-		gap: 8px;
+		gap: 10px;
 		flex-wrap: wrap;
 	}
 
 	.tag {
-		font-size: 11px;
+		font-size: 15px;
 		color: var(--sky);
 	}
 
 	.post-link {
-		font-size: 11px;
+		font-size: 15px;
 		color: var(--periwinkle);
 		margin-top: 2px;
 	}

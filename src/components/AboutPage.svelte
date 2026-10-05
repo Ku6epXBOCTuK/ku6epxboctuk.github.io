@@ -1,4 +1,8 @@
-<div class="section-title">about</div>
+<script lang="ts">
+	import SectionTitle from "$cmp/SectionTitle.svelte";
+</script>
+
+<SectionTitle>about</SectionTitle>
 
 <div class="about-text">
 	<p>
@@ -25,7 +29,7 @@
 	</p>
 </div>
 
-<div class="section-title" style="margin-top: 40px">skills</div>
+<SectionTitle style="margin-top: 40px">skills</SectionTitle>
 <table class="skills-table">
 	<tbody>
 		<tr><td>frontend</td><td>svelte, rust, tauri, typescript</td></tr>
@@ -39,7 +43,7 @@
 	</tbody>
 </table>
 
-<div class="section-title" style="margin-top: 40px">experience</div>
+<SectionTitle style="margin-top: 40px">experience</SectionTitle>
 
 <div class="exp-item">
 	<div class="exp-header">
@@ -93,21 +97,6 @@
 </div>
 
 <style>
-	.section-title {
-		color: var(--coral);
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		margin-bottom: 24px;
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--outline);
-	}
-
-	.section-title::before {
-		content: "# ";
-		color: var(--muted-foreground);
-	}
-
 	.about-text {
 		margin: 20px 0;
 		color: var(--foreground);

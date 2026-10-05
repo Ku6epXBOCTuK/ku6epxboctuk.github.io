@@ -35,7 +35,7 @@
 	.card {
 		position: relative;
 		display: block;
-		padding: 20px 24px;
+		padding: 24px 28px;
 		border: 1px solid var(--line);
 		border-radius: 12px;
 		background: var(--window);
@@ -62,9 +62,9 @@
 
 	.draft-badge {
 		position: absolute;
-		top: 12px;
-		right: 12px;
-		font-size: 10px;
+		top: -11px;
+		right: 16px;
+		font-size: 11px;
 		font-weight: 800;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;

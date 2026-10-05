@@ -44,8 +44,8 @@
 
 	.report-title {
 		color: var(--foreground);
-		font-weight: 600;
-		font-size: 14px;
+		font-weight: 700;
+		font-size: 19px;
 	}
 
 	.report-title:hover {
@@ -54,13 +54,13 @@
 
 	.report-date {
 		color: var(--muted-foreground);
-		font-size: 12px;
+		font-size: 15px;
 		white-space: nowrap;
 	}
 
 	.report-excerpt {
 		color: var(--muted-foreground);
-		font-size: 12px;
+		font-size: 15px;
 		line-height: 1.6;
 	}
 </style>

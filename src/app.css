@@ -24,7 +24,7 @@
 	--background: oklch(0.95 0.035 60);
 	--foreground: oklch(0.42 0.08 35);
 	--outline: oklch(0.52 0.09 35);
-	--shadow: oklch(0.52 0.09 35);
+	--shadow: oklch(0.44 0.08 35);
 	--window: oklch(0.99 0.012 80);
 	--titlebar: oklch(0.82 0.08 280);
 	--primary: oklch(0.78 0.12 35);
@@ -39,7 +39,7 @@
 	--accent-soft: oklch(0.93 0.05 45);
 	--periwinkle-soft: oklch(0.9 0.05 270);
 	--sky-soft: oklch(0.91 0.045 240);
-	--hard-shadow: 3px 3px 0 0 var(--shadow);
+	--hard-shadow: 4px 4px 0 0 var(--shadow);
 	--tag-foreground: oklch(0.52 0.09 35);
 
 	--font-display: "Comfortaa", system-ui, sans-serif;
@@ -47,11 +47,11 @@
 
 	--accent4: oklch(0.65 0.16 25);
 
-	--term-bg: #211c2b;
-	--term-fg: #eee5f2;
-	--term-prompt: #a98bd0;
-	--term-mood: #f4a8c8;
-	--term-status: #b9eee3;
+	--term-bg: oklch(0.985 0.012 80);
+	--term-fg: oklch(0.42 0.08 35);
+	--term-prompt: oklch(0.58 0.09 280);
+	--term-mood: oklch(0.62 0.13 20);
+	--term-status: oklch(0.55 0.09 180);
 	--dot-pink: #f4a8c8;
 	--dot-mint: #b9eee3;
 	--dot-blue: #c7d8ff;
@@ -62,7 +62,7 @@
 	--background: oklch(0.28 0.04 305);
 	--foreground: oklch(0.95 0.025 70);
 	--outline: oklch(0.68 0.06 300);
-	--shadow: oklch(0.5 0.06 300);
+	--shadow: oklch(0.55 0.055 300);
 	--window: oklch(0.32 0.04 305);
 	--titlebar: oklch(0.46 0.06 290);
 	--primary: oklch(0.74 0.1 35);
@@ -80,6 +80,12 @@
 	--tag-foreground: oklch(0.68 0.06 300);
 
 	--accent4: oklch(0.6 0.15 25);
+
+	--term-bg: #211c2b;
+	--term-fg: #eee5f2;
+	--term-prompt: #a98bd0;
+	--term-mood: #f4a8c8;
+	--term-status: #b9eee3;
 }
 
 /* ===== soft + light ===== */
@@ -109,6 +115,12 @@
 	--font-body: system-ui, Arial, sans-serif;
 
 	--accent4: #f87171;
+
+	--term-bg: #ffffff;
+	--term-fg: #292337;
+	--term-prompt: #8577c4;
+	--term-mood: #d875a4;
+	--term-status: #2f9e8f;
 }
 
 /* ===== soft + dark ===== */
@@ -116,7 +128,7 @@
 	--background: #17131f;
 	--foreground: #f8eff8;
 	--outline: #393044;
-	--shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+	--shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
 	--window: #211b2a;
 	--titlebar: #211c2b;
 	--primary: #f8eff8;
@@ -134,6 +146,12 @@
 	--tag-foreground: #c9a0b8;
 
 	--accent4: #dc2626;
+
+	--term-bg: #211c2b;
+	--term-fg: #eee5f2;
+	--term-prompt: #a98bd0;
+	--term-mood: #f4a8c8;
+	--term-status: #b9eee3;
 }
 
 html {
@@ -144,7 +162,7 @@ body {
 	font-family: var(--font-body);
 	background: var(--background);
 	color: var(--foreground);
-	font-size: 14px;
+	font-size: 18px;
 	line-height: 1.7;
 	min-height: 100vh;
 	transition:

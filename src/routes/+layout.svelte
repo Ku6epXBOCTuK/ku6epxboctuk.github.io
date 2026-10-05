@@ -18,11 +18,13 @@
 	.site-shell {
 		width: min(1120px, calc(100% - 40px));
 		margin: 0 auto;
+		padding-top: 48px;
 	}
 
 	@media (max-width: 700px) {
 		.site-shell {
 			width: calc(100% - 28px);
+			padding-top: 28px;
 		}
 	}
 </style>

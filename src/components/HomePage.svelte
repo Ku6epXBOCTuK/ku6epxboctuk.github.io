@@ -80,7 +80,7 @@
 		grid-template-columns: 1.2fr 0.8fr;
 		gap: 72px;
 		align-items: center;
-		padding: 100px 0 105px;
+		padding: 56px 0 105px;
 	}
 
 	.hero-copy h1 {
@@ -103,13 +103,13 @@
 		color: var(--coral);
 		text-transform: uppercase;
 		letter-spacing: 0.13em;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 700;
 	}
 
 	.hero-copy > p {
-		max-width: 510px;
-		font-size: 18px;
+		max-width: 560px;
+		font-size: 20px;
 		color: var(--muted-foreground);
 	}
 
@@ -135,7 +135,7 @@
 
 	.text-link {
 		color: var(--coral);
-		font-size: 13px;
+		font-size: 15px;
 		font-weight: 700;
 		text-decoration: none;
 		white-space: nowrap;
@@ -167,9 +167,9 @@
 		display: inline-flex;
 		align-items: center;
 		font-family: var(--font-display);
-		font-size: 12px;
+		font-size: 15px;
 		font-weight: 700;
-		padding: 7px 14px;
+		padding: 8px 16px;
 		border: 2px solid var(--outline);
 		border-radius: 8px;
 		color: var(--muted-foreground);
@@ -192,9 +192,9 @@
 		align-items: center;
 		gap: 8px;
 		font-family: var(--font-display);
-		font-size: 13px;
+		font-size: 16px;
 		font-weight: 700;
-		padding: 12px 17px;
+		padding: 14px 20px;
 		border-radius: 10px;
 		border: 2px solid var(--outline);
 		background: var(--window);
@@ -238,7 +238,7 @@
 		.hero {
 			grid-template-columns: 1fr;
 			gap: 35px;
-			padding: 60px 0 70px;
+			padding: 32px 0 70px;
 		}
 
 		.hero-copy h1 {
