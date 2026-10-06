@@ -23,12 +23,13 @@
 <Card {href} draft={project.draft}>
 	<div class="project-card">
 		{#if project.image}
-			<div class="project-screenshot">
+			<div class="project-thumb">
 				<ThemeImage src={project.image} alt={project.title} />
 			</div>
 		{/if}
 		<div class="project-info">
 			<div class="project-name">
+				{#if project.icon}<span class="project-icon">{project.icon}</span>{/if}
 				{project.title}
 				{#if project.repo}
 					<span class="project-repo">{repoShort}</span>
@@ -52,53 +53,37 @@
 <style>
 	.project-card {
 		display: flex;
-		flex-direction: column;
-		gap: 14px;
+		gap: 20px;
+		align-items: stretch;
 	}
 
-	.project-screenshot {
-		width: 100%;
+	.project-thumb {
+		flex: 0 0 480px;
 		border-radius: 8px;
 		overflow: hidden;
-		position: relative;
-		background: var(--background);
 	}
 
-	.project-screenshot::before {
-		content: "";
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
+	.project-thumb :global(.theme-image),
+	.project-thumb :global(.theme-image img) {
 		height: 100%;
-		background: repeating-linear-gradient(
-			0deg,
-			transparent,
-			transparent 2px,
-			rgba(0, 0, 0, 0.04) 2px,
-			rgba(0, 0, 0, 0.04) 4px
-		);
-		pointer-events: none;
-		z-index: 2;
+		object-fit: cover;
 	}
 
-	.project-screenshot :global(img) {
-		width: 100%;
-		display: block;
-		filter: brightness(0.9) contrast(1.05);
-		transition:
-			filter 0.3s ease,
-			opacity 0.3s ease;
-	}
-
-	.project-screenshot:hover :global(img) {
-		filter: brightness(1) contrast(1);
+	.project-info {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		min-width: 0;
 	}
 
 	.project-name {
 		color: var(--coral);
 		font-weight: 700;
 		font-size: 19px;
+	}
+
+	.project-icon {
+		margin-right: 6px;
 	}
 
 	.project-repo {
@@ -123,6 +108,7 @@
 		display: flex;
 		gap: 6px;
 		flex-wrap: wrap;
+		margin-top: auto;
 	}
 
 	.tag {
@@ -131,5 +117,15 @@
 		border: 1px solid var(--outline);
 		border-radius: 4px;
 		color: var(--muted-foreground);
+	}
+
+	@media (max-width: 560px) {
+		.project-card {
+			flex-direction: column;
+		}
+
+		.project-thumb {
+			flex: none;
+		}
 	}
 </style>
