@@ -1,0 +1,69 @@
+:root {
+	--bg: var(--ui-bg);
+	--surface: var(--ui-surface);
+	--surface-2: var(--ui-panel);
+	--surface-3: var(--ui-hover);
+
+	--line: var(--ui-line);
+	--line-strong: var(--ui-line-strong);
+	--line-hover: var(--ui-line-strong);
+
+	--text: var(--ui-fg);
+	--text-dim: var(--ui-fg-secondary);
+	--text-faint: var(--ui-fg-muted);
+
+	--accent: var(--ui-accent-ink);
+	--accent-dim: var(--ui-accent);
+	--accent-wash: var(--ui-accent-surface);
+	--accent-hover: var(--ui-accent-hover);
+
+	--danger: var(--ui-danger);
+	--danger-wash: var(--ui-danger-surface);
+	--danger-strong: var(--ui-danger);
+	--on-danger: var(--ui-on-danger);
+	--warn: var(--ui-warning);
+	--warn-wash: var(--ui-warning-surface);
+
+	--line-danger: color-mix(in srgb, var(--ui-danger) 50%, var(--ui-line));
+	--line-warn: color-mix(in srgb, var(--ui-warning) 50%, var(--ui-line));
+	--backdrop: var(--ui-backdrop);
+	--on-selection: var(--ui-on-accent);
+
+	--r-chip: var(--ui-r-chip);
+	--r-control: var(--ui-r-control);
+	--r-group: var(--ui-r-control);
+	--r-panel: var(--ui-r-panel);
+	--r-pill: var(--ui-r-pill);
+
+	--fs-xs: var(--ui-fs-sm);
+	--fs-sm: var(--ui-fs-md);
+	--fs-label: var(--ui-fs-md);
+	--fs-md: var(--ui-fs-lg);
+	--fs-lg: var(--ui-fs-lg);
+	--fs-brand: var(--ui-fs-lg);
+	--fs-xl: var(--ui-fs-xl);
+
+	--lh-base: var(--ui-lh);
+	--lh-field: var(--ui-lh);
+	--lh-copy: var(--ui-lh);
+	--lh-code: var(--ui-lh);
+
+	--track-tight: -0.01em;
+	--track-label: 0.01em;
+	--track-caps: var(--ui-label-track);
+	--track-wide: var(--ui-label-track);
+
+	--shadow-panel: var(--ui-shadow-panel);
+	--shadow-pop: var(--ui-shadow-pop);
+
+	--font-ui: var(--ui-font);
+	--font-mono: var(--ui-font-mono);
+
+	--gap-05: var(--ui-space-1);
+	--gap-1: var(--ui-space-2);
+	--gap-2: var(--ui-space-3);
+	--gap-3: var(--ui-space-4);
+	--gap-4: var(--ui-space-5);
+	--gap-6: var(--ui-space-6);
+	--gap-8: var(--ui-space-7);
+}

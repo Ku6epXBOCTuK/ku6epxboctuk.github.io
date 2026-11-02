@@ -5,6 +5,7 @@
 	import "@fontsource/ibm-plex-sans/700.css";
 	import "@fontsource/ibm-plex-mono/400.css";
 	import "../lib/theme.css";
+	import "../lib/compat.css";
 	import AppHeader from "$lib/components/AppHeader.svelte";
 	import type { Snippet } from "svelte";
 
