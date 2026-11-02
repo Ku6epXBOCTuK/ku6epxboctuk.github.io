@@ -2,7 +2,7 @@
 	import { uploadImage } from "$lib/upload";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import TextArea from "@ku6epxboctuk/ui-kit/components/TextArea";
-	import ImageDrop from "./ImageDrop.svelte";
+	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop";
 	import MoreMarker from "./MoreMarker.svelte";
 
 	interface Props {
@@ -82,8 +82,9 @@
 		oninput={(e) => onchange(e.currentTarget.value)}
 	/>
 
-	<ImageDrop
+	<FileDrop
 		{disabled}
+		accept="image/*"
 		label={uploading ? "загружаю…" : "перетащи картинку в текст"}
 		onpick={insertImage}
 	/>

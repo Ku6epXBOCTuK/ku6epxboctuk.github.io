@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
-	import ConfirmModal from "$lib/components/ConfirmModal.svelte";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog";
 	import RemoveScopes from "$lib/components/tags/RemoveScopes.svelte";
 	import TagAdder from "$lib/components/tags/TagAdder.svelte";
 	import TagEditRow from "$lib/components/tags/TagEditRow.svelte";
@@ -254,7 +254,7 @@
 </section>
 
 {#if pending && plan}
-	<ConfirmModal
+	<ConfirmDialog
 		title="Слить два тега?"
 		body={`«${pending.tag}» исчезнет, а «${plan.to}» останется в ${plan.resultCount} ${plan.resultCount === 1 ? "записи" : "записях"}.`}
 		confirmLabel="да, слить"
@@ -270,7 +270,7 @@
 		value={dropScope}
 		onchange={(next) => (dropScope = next)}
 	/>
-	<ConfirmModal
+	<ConfirmDialog
 		title="Убрать тег?"
 		body={dropScope === "list"
 			? `Тег перестанет предлагаться, записи останутся как были.`

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from "$app/navigation";
 	import type { EntrySummary } from "@ku6epxboctuk/content-core/shared";
-	import ConfirmModal from "../ConfirmModal.svelte";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog";
 	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
@@ -80,7 +80,7 @@
 </ul>
 
 {#if removing}
-	<ConfirmModal
+	<ConfirmDialog
 		title="Удалить единицу?"
 		body={`${removing.type}/${removing.slug} исчезнет вместе с обоими файлами. Отменить это нельзя.`}
 		confirmLabel="да, удалить"

@@ -11,7 +11,7 @@
 	import type { EntryDetail, ValidationReport } from "$lib/types";
 	import { fieldRows } from "$lib/groups";
 	import type { GitHubProjectPayload } from "../../../routes/api/github-project/+server";
-	import ConfirmModal from "../ConfirmModal.svelte";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog";
 	import ValidationPanel from "../ValidationPanel.svelte";
 	import ScopePanel from "./ScopePanel.svelte";
 	import SlugZone from "./SlugZone.svelte";
@@ -351,7 +351,7 @@
 	<ValidationPanel {report} />
 
 	{#if clearing}
-		<ConfirmModal
+		<ConfirmDialog
 			title="Очистить текст?"
 			body={`Текст версии ${LANG_LABEL[clearing]} станет пустым. Отменить это нельзя — файл на диске останется, пока не сохранишь.`}
 			confirmLabel="да, очистить"

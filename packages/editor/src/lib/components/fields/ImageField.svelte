@@ -2,7 +2,7 @@
 	import { describeSize, uploadImage } from "$lib/upload";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
-	import ImageDrop from "./ImageDrop.svelte";
+	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop";
 
 	interface Props {
 		value: string;
@@ -51,8 +51,9 @@
 </script>
 
 <div class="image">
-	<ImageDrop
+	<FileDrop
 		{disabled}
+		accept="image/*"
 		label={busy ? "обрабатываю…" : "перетащи картинку или нажми"}
 		onpick={pick}
 	/>
