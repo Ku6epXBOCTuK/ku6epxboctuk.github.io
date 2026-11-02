@@ -12,7 +12,7 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"@ku6epxboctuk/content-core": "workspace:*",
+		"@ku6epxboctuk/content-core": "link:../content-core",
 		"prettier": "^3.9.8",
 		"sharp": "^0.35.5"
 	},

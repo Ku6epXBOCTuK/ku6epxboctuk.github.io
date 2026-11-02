@@ -34,7 +34,7 @@
 		"lint:css": "stylelint '**/*.{css,svelte}",
 		"lint:css-vars": "node scripts/css-vars.js",
 		"lint:content": "tsx scripts/lint-content.ts",
-		"editor": "pnpm --filter @ku6epxboctuk/editor dev",
+		"editor": "pnpm -C packages/editor install && pnpm -C packages/editor dev",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
 		"test:run": "vitest run",

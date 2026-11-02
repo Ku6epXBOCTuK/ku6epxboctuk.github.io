@@ -1,6 +1,5 @@
 allowBuilds:
   esbuild: true
-  sharp: true
 
 packages:
-  - "packages/*"
+  - "packages/content-core"
