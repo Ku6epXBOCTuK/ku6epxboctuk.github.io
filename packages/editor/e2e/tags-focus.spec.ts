@@ -75,6 +75,6 @@ test.describe("tags field in the unit form", () => {
 		await input.press("Enter");
 		await expect(input).toBeFocused();
 
-		await expect(page.locator(".tags-field .chips li")).toHaveCount(2);
+		await expect(page.locator(".ui-tag-chips li")).toHaveCount(2);
 	});
 });

@@ -1,15 +1,17 @@
 <script lang="ts">
-	import { tidyTags } from "@ku6epxboctuk/content-core/shared";
+	import { tagError, tidyTags } from "@ku6epxboctuk/content-core/shared";
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
+	import { onMount } from "svelte";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 	import Checkbox from "@ku6epxboctuk/ui-kit/components/Checkbox";
 	import FieldShell from "@ku6epxboctuk/ui-kit/components/Field";
+	import TagInput from "@ku6epxboctuk/ui-kit/components/TagInput";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
+	import { knownTags } from "$lib/tags";
 	import ChoiceControl from "./ChoiceControl.svelte";
 	import DirField from "./DirField.svelte";
 	import IconControl from "./IconControl.svelte";
 	import ImageField from "./ImageField.svelte";
-	import TagsField from "./TagsField.svelte";
 
 	interface Props {
 		field: FieldDef;
@@ -60,6 +62,12 @@
 
 	const shown = $derived(String(scalar));
 
+	let suggestions = $state<string[]>([]);
+
+	onMount(async () => {
+		suggestions = await knownTags();
+	});
+
 	function ontext(event: Event) {
 		const raw = (event.currentTarget as HTMLInputElement).value;
 		if (field.kind === "number") {
@@ -72,7 +80,21 @@
 
 {#snippet control(id: string)}
 	{#if field.kind === "string[]"}
-		<TagsField {id} {disabled} value={list} {onchange} />
+		<TagInput
+			{id}
+			{disabled}
+			value={list}
+			{onchange}
+			{suggestions}
+			validate={tagError}
+			showAll={false}
+			reorderable
+			copyable
+			copiedLabel="скопировано"
+			copyLabel={(tag) => `скопировать тег ${tag}`}
+			ariaLabel="теги"
+			placeholder={list.length === 0 ? "добавить тег" : ""}
+		/>
 	{:else if field.kind === "choice"}
 		<ChoiceControl
 			{id}

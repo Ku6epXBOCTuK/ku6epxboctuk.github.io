@@ -41,7 +41,7 @@ async function openForm(page: Page) {
 	await expect(page.locator("#ru-title")).toHaveValue("E2E");
 }
 
-const chips = (page: Page) => page.locator(".tags-field .chips li");
+const chips = (page: Page) => page.locator(".ui-tag-chips li");
 
 test("tags are added without Enter: comma and space, case ignored", async ({
 	page,
@@ -64,10 +64,10 @@ test("hints highlight the match and add on click", async ({ page }) => {
 	await input.click();
 	await input.pressSequentially("SVELTEK");
 
-	const mark = page.locator(".tags-field .hints mark");
+	const mark = page.locator(".ui-tag-mark");
 	await expect(mark).toHaveText("sveltek");
 
-	await page.locator(".tags-field .hints button").first().click();
+	await page.locator(".ui-select-option").first().click();
 	await expect(chips(page)).toHaveText(["sveltekit"]);
 	await expect(input).toBeFocused();
 });
@@ -80,7 +80,7 @@ test("chips can be dragged to change order", async ({ page }) => {
 	await input.pressSequentially("one two three ");
 	await expect(chips(page)).toHaveText(["one", "two", "three"]);
 
-	const items = page.locator(".tags-field .chips li");
+	const items = page.locator(".ui-tag-chips li");
 	await items.nth(0).dragTo(items.nth(2));
 
 	await expect(chips(page)).toHaveText(["two", "three", "one"]);

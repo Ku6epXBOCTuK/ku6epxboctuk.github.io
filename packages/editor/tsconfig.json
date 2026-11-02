@@ -11,6 +11,13 @@
 		"strict": true,
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
-		"types": ["node"]
+		"types": ["node"],
+		"paths": {
+			"svelte": ["./node_modules/svelte"],
+			"svelte/*": ["./node_modules/svelte/*"],
+			"$lib": ["./src/lib"],
+			"$lib/*": ["./src/lib/*"],
+			"$app/types": ["./.svelte-kit/types/index.d.ts"]
+		}
 	}
 }
