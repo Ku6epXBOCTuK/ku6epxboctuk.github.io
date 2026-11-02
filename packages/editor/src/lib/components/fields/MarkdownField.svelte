@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { uploadImage } from "$lib/upload";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import TextArea from "@ku6epxboctuk/ui-kit/components/TextArea";
 	import ImageDrop from "./ImageDrop.svelte";
 	import MoreMarker from "./MoreMarker.svelte";
@@ -92,7 +93,7 @@
 	</div>
 
 	{#if uploadError}
-		<span class="bad">{uploadError}</span>
+		<Notice tone="danger" size="lg">{uploadError}</Notice>
 	{/if}
 </div>
 
@@ -115,10 +116,5 @@
 		gap: var(--ui-space-4);
 		font-size: var(--ui-fs-md);
 		color: var(--ui-fg-muted);
-	}
-
-	.bad {
-		font-size: var(--ui-fs-lg);
-		color: var(--ui-danger);
 	}
 </style>

@@ -6,6 +6,7 @@
 	} from "@ku6epxboctuk/content-core/shared";
 	import type { GitHubProjectPayload } from "../../../routes/api/github-project/+server";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	let creating = $state(false);
@@ -88,7 +89,9 @@
 	</ul>
 {/if}
 {#if errorText}
-	<p class="bad">{errorText}</p>
+	<div class="error">
+		<Notice tone="danger" size="lg">{errorText}</Notice>
+	</div>
 {/if}
 
 <style>
@@ -127,9 +130,7 @@
 		color: var(--ui-warning);
 	}
 
-	.bad {
-		margin: var(--ui-space-3) 0 0;
-		font-size: var(--ui-fs-lg);
-		color: var(--ui-danger);
+	.error {
+		margin-top: var(--ui-space-3);
 	}
 </style>

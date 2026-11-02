@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { FieldRow } from "$lib/groups";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
 	import Field from "../fields/Field.svelte";
 
 	interface FieldAction {
@@ -20,16 +21,20 @@
 
 	let { title, rows, scope, busy, slug, value, onchange, actionFor }: Props =
 		$props();
+
+	const GROUP_LEVEL = 3;
 </script>
 
 <section class="panel">
 	<div class="head">
-		<h2>{title}</h2>
+		<SectionTitle tone="accent" size="sm">{title}</SectionTitle>
 	</div>
 	<div class="body">
 		{#each rows as row, index (index)}
 			{#if row.title}
-				<h3 class="group">{row.title}</h3>
+				<SectionTitle level={GROUP_LEVEL} size="sm" class="scope-group"
+					>{row.title}</SectionTitle
+				>
 			{:else if row.shared}
 				{@const action = actionFor?.(row.shared.name)}
 				<Field
@@ -66,15 +71,6 @@
 		border-bottom: 1px solid var(--ui-line);
 	}
 
-	.head h2 {
-		margin: 0;
-		font-size: var(--ui-fs-sm);
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-accent-ink);
-	}
-
 	.body {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -82,17 +78,12 @@
 		align-items: start;
 	}
 
-	.group {
+	:global(.scope-group) {
 		grid-column: 1 / -1;
 		margin: var(--ui-space-4) 0 0;
-		font-size: var(--ui-fs-sm);
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-fg-muted);
 	}
 
-	.group:first-child {
+	:global(.scope-group:first-child) {
 		margin-top: 0;
 	}
 

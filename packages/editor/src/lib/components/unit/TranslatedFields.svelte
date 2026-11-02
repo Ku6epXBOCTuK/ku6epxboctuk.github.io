@@ -4,6 +4,8 @@
 		FieldDef,
 	} from "@ku6epxboctuk/content-core/shared";
 	import type { FieldRow } from "$lib/groups";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
 	import Field from "../fields/Field.svelte";
 	import CopyArrows from "./CopyArrows.svelte";
 
@@ -49,14 +51,16 @@
 
 <div class="pair">
 	<div class="pair-head">
-		<h2>{LANG_LABEL.ru}</h2>
+		<SectionTitle mono>{LANG_LABEL.ru}</SectionTitle>
 		<span class="pair-head-gap"></span>
-		<h2 class="pair-head-en">{LANG_LABEL.en}</h2>
+		<SectionTitle mono class="pair-head-en">{LANG_LABEL.en}</SectionTitle>
 	</div>
 
 	{#each rows as row, index (index)}
 		{#if row.title}
-			<h2 class="row-head">{row.title}</h2>
+			<SectionTitle tone="accent" size="sm" class="row-head"
+				>{row.title}</SectionTitle
+			>
 		{:else if row.ru && row.en}
 			{@render fieldCell(row.ru, "ru")}
 			<div class="arrows-cell">
@@ -82,7 +86,7 @@
 	{/each}
 
 	{#if ghStatus}
-		<p class="gh-status">{ghStatus}</p>
+		<Notice variant="box" tone="accent" class="gh-status">{ghStatus}</Notice>
 	{/if}
 </div>
 
@@ -96,17 +100,12 @@
 		align-items: start;
 	}
 
-	.row-head {
+	:global(.row-head) {
 		grid-column: 1 / -1;
 		margin: var(--ui-space-5) 0 var(--ui-space-3);
-		font-size: var(--ui-fs-sm);
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-accent-ink);
 	}
 
-	.row-head:first-of-type {
+	:global(.row-head:first-of-type) {
 		margin-top: 0;
 	}
 
@@ -127,16 +126,7 @@
 		border-bottom: 1px solid var(--ui-line-strong);
 	}
 
-	.pair-head h2 {
-		margin: 0;
-		font-family: var(--ui-font-mono);
-		font-size: var(--ui-fs-md);
-		font-weight: 700;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-fg-muted);
-	}
-
-	.pair-head-en {
+	:global(.pair-head-en) {
 		grid-column: 3;
 	}
 
@@ -144,16 +134,9 @@
 		grid-column: 2;
 	}
 
-	.gh-status {
+	:global(.gh-status) {
 		grid-column: 1 / -1;
 		margin: var(--ui-space-4) 0 0;
-		padding: var(--ui-space-3) var(--ui-space-3);
-		border: 1px solid var(--ui-accent);
-		border-radius: var(--ui-r-control);
-		background: var(--ui-accent-surface);
-		font-size: var(--ui-fs-md);
-		line-height: var(--ui-lh);
-		color: var(--ui-fg-secondary);
 	}
 
 	@media (width <= 1100px) {
@@ -162,12 +145,12 @@
 			gap: var(--ui-space-5);
 		}
 
-		.row-head,
+		:global(.row-head),
 		.pair-head {
 			grid-column: 1;
 		}
 
-		.pair-head-en {
+		:global(.pair-head-en) {
 			grid-column: 1;
 		}
 	}

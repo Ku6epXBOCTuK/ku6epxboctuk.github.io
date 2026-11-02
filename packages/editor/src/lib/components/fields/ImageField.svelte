@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { describeSize, uploadImage } from "$lib/upload";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 	import ImageDrop from "./ImageDrop.svelte";
 
@@ -70,11 +71,11 @@
 	/>
 
 	{#if error}
-		<span class="bad">{error}</span>
+		<Notice tone="danger" size="lg">{error}</Notice>
 	{:else if saved}
-		<span class="note">
+		<Notice>
 			{saved.width}×{saved.height} · {describeSize(saved.bytes)}
-		</span>
+		</Notice>
 	{/if}
 </div>
 
@@ -92,15 +93,5 @@
 		background: var(--ui-bg);
 		border: 1px solid var(--ui-line-strong);
 		border-radius: var(--ui-r-control);
-	}
-
-	.note {
-		font-size: var(--ui-fs-md);
-		color: var(--ui-fg-muted);
-	}
-
-	.bad {
-		font-size: var(--ui-fs-lg);
-		color: var(--ui-danger);
 	}
 </style>

@@ -5,6 +5,7 @@
 		Entry,
 	} from "@ku6epxboctuk/content-core/shared";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
 	import MarkdownField from "../fields/MarkdownField.svelte";
 
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
@@ -41,7 +42,7 @@
 {#snippet textColumn(lang: ContentLang, copyTo: ContentLang)}
 	<div class="pair-col">
 		<div class="pair-head">
-			<h2>{LANG_LABEL[lang]}</h2>
+			<SectionTitle mono>{LANG_LABEL[lang]}</SectionTitle>
 			<div class="pair-tools">
 				<Button
 					size="sm"
@@ -113,15 +114,6 @@
 		align-items: center;
 		padding-bottom: var(--ui-space-4);
 		border-bottom: 1px solid var(--ui-line-strong);
-	}
-
-	.pair-head h2 {
-		margin: 0;
-		font-family: var(--ui-font-mono);
-		font-size: var(--ui-fs-md);
-		font-weight: 700;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-fg-muted);
 	}
 
 	.pair-tools {

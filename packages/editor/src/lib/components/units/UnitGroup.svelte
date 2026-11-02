@@ -4,6 +4,8 @@
 	import ConfirmModal from "../ConfirmModal.svelte";
 	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
 
 	interface Props {
 		units: EntrySummary[];
@@ -43,14 +45,14 @@
 </script>
 
 {#if label}
-	<h2>
+	<SectionTitle class="group-title">
 		{label}
 		<Badge>{units.length}</Badge>
-	</h2>
+	</SectionTitle>
 {/if}
 
 {#if errorText}
-	<p class="bad">{errorText}</p>
+	<Notice tone="danger" size="lg" class="group-error">{errorText}</Notice>
 {/if}
 
 <ul>
@@ -89,20 +91,16 @@
 {/if}
 
 <style>
-	h2 {
-		display: flex;
-		align-items: center;
-		gap: var(--ui-space-3);
+	:global(.group-title) {
 		margin: var(--ui-space-6) 0 var(--ui-space-3);
-		font-size: var(--ui-fs-md);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-fg-muted);
 	}
 
-	h2 :global(.badge) {
+	:global(.group-title) :global(.badge) {
 		letter-spacing: 0;
+	}
+
+	:global(.group-error) {
+		margin: var(--ui-space-3) 0;
 	}
 
 	ul {
@@ -170,11 +168,5 @@
 		font-family: var(--ui-font-mono);
 		font-size: var(--ui-fs-sm);
 		color: var(--ui-fg-muted);
-	}
-
-	.bad {
-		margin: var(--ui-space-3) 0;
-		font-size: var(--ui-fs-lg);
-		color: var(--ui-danger);
 	}
 </style>

@@ -9,6 +9,7 @@
 		type EntrySummary,
 	} from "@ku6epxboctuk/content-core/shared";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import GithubCreate from "./GithubCreate.svelte";
 	import UnitGroup from "./UnitGroup.svelte";
 
@@ -74,7 +75,7 @@
 	</header>
 
 	{#if errorText}
-		<p class="bad">{errorText}</p>
+		<Notice tone="danger" size="lg">{errorText}</Notice>
 	{/if}
 
 	{#if units.length === 0}
@@ -109,11 +110,5 @@
 		margin: var(--ui-space-6) 0;
 		font-size: var(--ui-fs-lg);
 		color: var(--ui-fg-muted);
-	}
-
-	.bad {
-		margin: 0;
-		font-size: var(--ui-fs-lg);
-		color: var(--ui-danger);
 	}
 </style>

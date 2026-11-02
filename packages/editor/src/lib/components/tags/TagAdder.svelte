@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
@@ -28,7 +29,7 @@
 		добавить в список
 	</Button>
 	{#if error}
-		<span class="note bad">{error}</span>
+		<Notice tone="danger">{error}</Notice>
 	{/if}
 </div>
 
@@ -42,14 +43,5 @@
 
 	.adder :global(input) {
 		min-width: var(--input-min-w);
-	}
-
-	.note {
-		font-size: var(--ui-fs-md);
-		color: var(--ui-warning);
-	}
-
-	.note.bad {
-		color: var(--ui-danger);
 	}
 </style>

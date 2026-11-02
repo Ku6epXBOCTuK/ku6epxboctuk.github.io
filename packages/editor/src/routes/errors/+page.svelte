@@ -3,6 +3,8 @@
 	import ReportRow from "$lib/components/errors/ReportRow.svelte";
 	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();
@@ -30,14 +32,20 @@
 	</p>
 
 	{#if data.reports.length === 0}
-		<p class="all-good">Проектов пока нет — проверять нечего.</p>
+		<Notice variant="box" tone="accent" size="lg"
+			>Проектов пока нет — проверять нечего.</Notice
+		>
 	{:else if broken.length === 0 && unset.length === 0}
-		<p class="all-good">Всё на месте: у каждого проекта папка найдена.</p>
+		<Notice variant="box" tone="accent" size="lg"
+			>Всё на месте: у каждого проекта папка найдена.</Notice
+		>
 	{/if}
 
 	{#if broken.length > 0}
 		<section>
-			<h2>не обойти <Badge>{broken.length}</Badge></h2>
+			<SectionTitle tone="danger" class="errors-title"
+				>не обойти <Badge>{broken.length}</Badge></SectionTitle
+			>
 			<ul>
 				{#each broken as report (report.slug)}
 					<ReportRow {report} />
@@ -48,10 +56,12 @@
 
 	{#if unset.length > 0}
 		<section>
-			<h2>не участвуют <Badge>{unset.length}</Badge></h2>
-			<p class="note">
-				Папка не указана. Это не поломка: не каждый проект нужен в weekly.
-			</p>
+			<SectionTitle tone="danger" class="errors-title"
+				>не участвуют <Badge>{unset.length}</Badge></SectionTitle
+			>
+			<Notice size="lg"
+				>Папка не указана. Это не поломка: не каждый проект нужен в weekly.</Notice
+			>
 			<ul class="plain">
 				{#each unset as report (report.slug)}
 					<ReportRow {report} plain />
@@ -93,20 +103,11 @@
 		letter-spacing: var(--track-tight);
 	}
 
-	h2 {
-		display: flex;
-		align-items: center;
-		gap: var(--ui-space-3);
+	:global(.errors-title) {
 		margin: 0 0 var(--ui-space-3);
-		font-size: var(--ui-fs-md);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-danger);
 	}
 
-	.lead,
-	.note {
+	.lead {
 		margin: 0;
 		font-size: var(--ui-fs-lg);
 		line-height: var(--ui-lh);
@@ -116,16 +117,6 @@
 	.lead code {
 		font-family: var(--ui-font-mono);
 		font-size: var(--ui-fs-md);
-	}
-
-	.all-good {
-		margin: 0;
-		padding: var(--ui-space-4);
-		border: 1px solid var(--ui-accent);
-		border-radius: var(--ui-r-control);
-		background: var(--ui-accent-surface);
-		font-size: var(--ui-fs-lg);
-		color: var(--ui-accent-ink);
 	}
 
 	ul {

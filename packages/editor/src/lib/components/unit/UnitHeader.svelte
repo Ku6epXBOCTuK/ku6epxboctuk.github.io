@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ContentType } from "@ku6epxboctuk/content-core/shared";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Label from "@ku6epxboctuk/ui-kit/components/Label";
 
 	interface Props {
 		type: ContentType;
@@ -16,7 +17,7 @@
 
 <header>
 	<a class="back" href="/">← всё</a>
-	<h1><span class="kind">{type}</span>{slug}</h1>
+	<h1><Label>{type}</Label>{slug}</h1>
 	<Button
 		variant="danger"
 		disabled={busy}
@@ -56,15 +57,6 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-	}
-
-	.kind {
-		font-family: var(--ui-font);
-		font-size: var(--ui-fs-sm);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: var(--ui-label-track);
-		color: var(--ui-fg-muted);
 	}
 
 	.back {

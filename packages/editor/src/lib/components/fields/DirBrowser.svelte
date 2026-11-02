@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { DirEntry } from "@ku6epxboctuk/content-core";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
 
 	interface Props {
 		path: string;
@@ -52,11 +53,11 @@
 	</div>
 
 	{#if loading}
-		<p class="hint">читаю…</p>
+		<Notice>читаю…</Notice>
 	{:else if error}
-		<p class="hint bad">{error}</p>
+		<Notice tone="danger">{error}</Notice>
 	{:else if dirs.length === 0}
-		<p class="hint">здесь нет подпапок</p>
+		<Notice>здесь нет подпапок</Notice>
 	{:else}
 		<ul>
 			{#each dirs as entry (entry.full)}
@@ -195,15 +196,5 @@
 
 	.mark.repo {
 		color: var(--ui-accent-ink);
-	}
-
-	.hint {
-		margin: 0;
-		font-size: var(--ui-fs-md);
-		color: var(--ui-fg-muted);
-	}
-
-	.hint.bad {
-		color: var(--ui-danger);
 	}
 </style>
