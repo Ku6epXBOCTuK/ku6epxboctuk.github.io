@@ -53,10 +53,10 @@
 
 <style>
 	.ui-select-trigger {
-		font-family: var(--font-mono);
+		font-family: var(--ui-font-mono);
 	}
 
 	.ui-select-option-label[data-empty] {
-		color: var(--text-faint);
+		color: var(--ui-fg-muted);
 	}
 </style>

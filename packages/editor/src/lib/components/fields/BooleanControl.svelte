@@ -21,6 +21,6 @@
 	input {
 		width: var(--check-size);
 		height: var(--check-size);
-		accent-color: var(--accent);
+		accent-color: var(--ui-accent-ink);
 	}
 </style>

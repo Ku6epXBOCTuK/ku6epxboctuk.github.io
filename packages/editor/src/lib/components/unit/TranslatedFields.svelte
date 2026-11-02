@@ -88,23 +88,22 @@
 
 <style>
 	.pair {
-		/* Третья колонка — стрелки: ширина задана явно, иначе `auto` схлопывается
-		   в ноль и EN уезжает левее своих полей. */
+		/* NOTE: arrow column is fixed-width: auto collapses to zero and EN drifts left of its fields. */
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) var(--arrow-w) minmax(0, 1fr);
-		column-gap: var(--gap-3);
+		column-gap: var(--ui-space-4);
 		row-gap: 0;
 		align-items: start;
 	}
 
 	.row-head {
 		grid-column: 1 / -1;
-		margin: var(--gap-4) 0 var(--gap-2);
-		font-size: var(--fs-xs);
+		margin: var(--ui-space-5) 0 var(--ui-space-3);
+		font-size: var(--ui-fs-sm);
 		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: var(--track-wide);
-		color: var(--accent);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-accent-ink);
 	}
 
 	.row-head:first-of-type {
@@ -114,27 +113,27 @@
 	.cell {
 		min-width: 0;
 		padding: var(--cell-py) 0;
-		border-bottom: 1px solid var(--line);
+		border-bottom: 1px solid var(--ui-line);
 	}
 
 	.pair-head {
 		grid-column: 1 / -1;
 		display: grid;
-		/* Те же треки, что у формы: метки стоят ровно над своими полями. */
+		/* NOTE: same tracks as .pair, so the labels sit above their fields. */
 		grid-template-columns: minmax(0, 1fr) var(--arrow-w) minmax(0, 1fr);
-		column-gap: var(--gap-3);
+		column-gap: var(--ui-space-4);
 		align-items: center;
-		padding-bottom: var(--gap-3);
-		border-bottom: 1px solid var(--line-strong);
+		padding-bottom: var(--ui-space-4);
+		border-bottom: 1px solid var(--ui-line-strong);
 	}
 
 	.pair-head h2 {
 		margin: 0;
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
 		font-weight: 700;
-		letter-spacing: var(--track-wide);
-		color: var(--text-faint);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-fg-muted);
 	}
 
 	.pair-head-en {
@@ -147,20 +146,20 @@
 
 	.gh-status {
 		grid-column: 1 / -1;
-		margin: var(--gap-3) 0 0;
-		padding: var(--gap-2) var(--gap-2);
-		border: 1px solid var(--accent-dim);
-		border-radius: var(--r-control);
-		background: var(--accent-wash);
-		font-size: var(--fs-sm);
-		line-height: var(--lh-copy);
-		color: var(--text-dim);
+		margin: var(--ui-space-4) 0 0;
+		padding: var(--ui-space-3) var(--ui-space-3);
+		border: 1px solid var(--ui-accent);
+		border-radius: var(--ui-r-control);
+		background: var(--ui-accent-surface);
+		font-size: var(--ui-fs-md);
+		line-height: var(--ui-lh);
+		color: var(--ui-fg-secondary);
 	}
 
 	@media (width <= 1100px) {
 		.pair {
 			grid-template-columns: minmax(0, 1fr);
-			gap: var(--gap-4);
+			gap: var(--ui-space-5);
 		}
 
 		.row-head,

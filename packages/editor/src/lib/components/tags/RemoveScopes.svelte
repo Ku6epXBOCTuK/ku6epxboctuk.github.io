@@ -47,19 +47,19 @@
 	.scopes {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		flex-wrap: wrap;
-		padding: var(--gap-2) var(--gap-3);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-panel);
-		background: var(--surface-2);
-		font-size: var(--fs-md);
+		padding: var(--ui-space-3) var(--ui-space-4);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-panel);
+		background: var(--ui-panel);
+		font-size: var(--ui-fs-lg);
 	}
 
 	.scopes label {
 		display: inline-flex;
 		align-items: center;
-		gap: var(--gap-05);
+		gap: var(--ui-space-1);
 		cursor: pointer;
 	}
 </style>

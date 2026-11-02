@@ -44,33 +44,33 @@
 
 <style>
 	.slug-zone {
-		border: 1px solid var(--line);
-		border-radius: var(--r-panel);
-		padding: var(--gap-3);
+		border: 1px solid var(--ui-line);
+		border-radius: var(--ui-r-panel);
+		padding: var(--ui-space-4);
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-2);
-		background: var(--surface);
+		gap: var(--ui-space-3);
+		background: var(--ui-surface);
 	}
 
 	.slug-zone h2 {
 		margin: 0;
-		font-size: var(--fs-sm);
+		font-size: var(--ui-fs-md);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: var(--track-caps);
-		color: var(--text-faint);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-fg-muted);
 	}
 
 	.slug-zone p {
 		margin: 0;
-		font-size: var(--fs-md);
-		color: var(--text-dim);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-secondary);
 	}
 
 	.row {
 		display: flex;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		flex-wrap: wrap;
 	}
 
@@ -80,6 +80,6 @@
 	}
 
 	.bad {
-		color: var(--danger);
+		color: var(--ui-danger);
 	}
 </style>

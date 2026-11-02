@@ -49,7 +49,7 @@
 	.edit-row {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		flex: 1;
 		flex-wrap: wrap;
 	}
@@ -59,11 +59,11 @@
 	}
 
 	.note {
-		font-size: var(--fs-sm);
-		color: var(--warn);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-warning);
 	}
 
 	.note.bad {
-		color: var(--danger);
+		color: var(--ui-danger);
 	}
 </style>

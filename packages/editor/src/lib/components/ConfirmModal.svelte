@@ -34,8 +34,8 @@
 <style>
 	p {
 		margin: 0;
-		font-size: var(--fs-md);
-		line-height: var(--lh-copy);
-		color: var(--text-dim);
+		font-size: var(--ui-fs-lg);
+		line-height: var(--ui-lh);
+		color: var(--ui-fg-secondary);
 	}
 </style>

@@ -21,31 +21,31 @@
 <style>
 	textarea {
 		font: inherit;
-		font-size: var(--fs-md);
-		line-height: var(--lh-field);
+		font-size: var(--ui-fs-lg);
+		line-height: var(--ui-lh);
 		padding: var(--pad-field);
-		color: var(--text);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+		color: var(--ui-fg);
+		background: var(--ui-bg);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-control);
 		resize: vertical;
 	}
 
 	textarea::placeholder {
-		color: var(--text-faint);
+		color: var(--ui-fg-muted);
 	}
 
 	textarea:disabled {
-		background: var(--surface);
-		color: var(--text-faint);
+		background: var(--ui-surface);
+		color: var(--ui-fg-muted);
 	}
 
 	textarea:focus {
 		outline: none;
-		border-color: var(--accent);
+		border-color: var(--ui-accent-ink);
 	}
 
 	textarea:hover:not(:disabled):not(:focus) {
-		border-color: var(--line-hover);
+		border-color: var(--ui-line-strong);
 	}
 </style>

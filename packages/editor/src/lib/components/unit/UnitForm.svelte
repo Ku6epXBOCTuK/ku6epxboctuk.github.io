@@ -39,8 +39,7 @@
 	let renameTo = $state("");
 	let clearing = $state<ContentLang | null>(null);
 
-	// SvelteKit переиспользует компонент при смене slug: засеваем состояние
-	// из данных только когда сменилась единица, а не на каждый рендер.
+	// NOTE: SvelteKit reuses the component when the slug changes, so state is seeded only on a unit switch.
 	let seeded = "";
 
 	$effect(() => {
@@ -376,6 +375,6 @@
 	.unit {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-4);
+		gap: var(--ui-space-5);
 	}
 </style>

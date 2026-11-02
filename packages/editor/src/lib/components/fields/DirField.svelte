@@ -96,12 +96,12 @@
 	.dir-field {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 	}
 
 	.row {
 		display: flex;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		align-items: center;
 	}
 </style>

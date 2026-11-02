@@ -38,9 +38,9 @@
 	.filter {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		flex-wrap: wrap;
-		padding: var(--gap-2) 0;
+		padding: var(--ui-space-3) 0;
 	}
 
 	.filter :global(input) {
@@ -49,8 +49,8 @@
 	}
 
 	.found {
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-fg-muted);
 	}
 </style>

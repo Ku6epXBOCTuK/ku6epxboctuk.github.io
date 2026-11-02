@@ -38,7 +38,7 @@
 	header {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		flex-wrap: wrap;
 	}
 
@@ -46,51 +46,51 @@
 		flex: 1;
 		display: flex;
 		align-items: baseline;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		margin: 0;
 		min-width: 0;
-		font-family: var(--font-mono);
-		font-size: var(--fs-md);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-lg);
 		font-weight: 600;
-		color: var(--text);
+		color: var(--ui-fg);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
 	.kind {
-		font-family: var(--font-ui);
-		font-size: var(--fs-xs);
+		font-family: var(--ui-font);
+		font-size: var(--ui-fs-sm);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: var(--track-caps);
-		color: var(--text-faint);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-fg-muted);
 	}
 
 	.back {
-		font-size: var(--fs-md);
-		color: var(--text-dim);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-secondary);
 		text-decoration: none;
 	}
 
 	.back:hover {
-		color: var(--text);
+		color: var(--ui-fg);
 	}
 
 	.confirm {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		flex-wrap: wrap;
-		padding: var(--gap-3);
-		border: 1px solid var(--line-danger);
-		border-radius: var(--r-control);
-		background: var(--danger-wash);
-		font-size: var(--fs-md);
+		padding: var(--ui-space-4);
+		border: 1px solid color-mix(in srgb, var(--ui-danger) 50%, var(--ui-line));
+		border-radius: var(--ui-r-control);
+		background: var(--ui-danger-surface);
+		font-size: var(--ui-fs-lg);
 	}
 
 	.confirm code {
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
 	}
 </style>

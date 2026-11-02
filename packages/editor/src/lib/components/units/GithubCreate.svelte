@@ -95,7 +95,7 @@
 	.gh {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		flex: 1 1 240px;
 		min-width: 0;
 		max-width: 440px;
@@ -105,31 +105,31 @@
 	.gh :global(input) {
 		flex: 1 1 140px;
 		min-width: 0;
-		font-size: var(--fs-sm);
+		font-size: var(--ui-fs-md);
 	}
 
 	.gh-label {
-		font-size: var(--fs-md);
-		color: var(--text-faint);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-muted);
 		white-space: nowrap;
 	}
 
 	.progress {
-		margin: var(--gap-2) 0 0;
-		font-size: var(--fs-md);
-		color: var(--text-dim);
+		margin: var(--ui-space-3) 0 0;
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-secondary);
 	}
 
 	.notes {
-		margin: var(--gap-2) 0 0;
-		padding-left: var(--gap-4);
-		font-size: var(--fs-md);
-		color: var(--warn);
+		margin: var(--ui-space-3) 0 0;
+		padding-left: var(--ui-space-5);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-warning);
 	}
 
 	.bad {
-		margin: var(--gap-2) 0 0;
-		font-size: var(--fs-md);
-		color: var(--danger);
+		margin: var(--ui-space-3) 0 0;
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-danger);
 	}
 </style>

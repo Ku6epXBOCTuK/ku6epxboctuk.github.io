@@ -40,17 +40,17 @@
 		z-index: 2;
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		height: var(--header-h);
 		padding-inline: var(--gutter);
-		background: var(--bg);
-		border-bottom: 1px solid var(--line);
+		background: var(--ui-bg);
+		border-bottom: 1px solid var(--ui-line);
 	}
 
 	.mark {
-		font-size: var(--fs-brand);
+		font-size: var(--ui-fs-lg);
 		font-weight: 600;
-		color: var(--text);
+		color: var(--ui-fg);
 		text-decoration: none;
 		letter-spacing: var(--track-tight);
 	}
@@ -62,31 +62,31 @@
 	nav a {
 		display: inline-flex;
 		align-items: center;
-		gap: var(--gap-2);
-		font-size: var(--fs-md);
-		color: var(--text-dim);
+		gap: var(--ui-space-3);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-secondary);
 		text-decoration: none;
 		padding: var(--pad-field);
-		border: 1px solid var(--line);
-		border-radius: var(--r-control);
-		background: var(--surface);
+		border: 1px solid var(--ui-line);
+		border-radius: var(--ui-r-control);
+		background: var(--ui-surface);
 	}
 
 	nav a:hover {
-		color: var(--text);
-		border-color: var(--line-strong);
+		color: var(--ui-fg);
+		border-color: var(--ui-line-strong);
 	}
 
 	nav a[aria-current] {
-		color: var(--text);
-		background: var(--surface-2);
-		border-color: var(--line-strong);
+		color: var(--ui-fg);
+		background: var(--ui-panel);
+		border-color: var(--ui-line-strong);
 	}
 
 	.dot {
 		width: var(--dot-size);
 		height: var(--dot-size);
-		border-radius: var(--r-pill);
-		background: var(--danger);
+		border-radius: var(--ui-r-pill);
+		background: var(--ui-danger);
 	}
 </style>

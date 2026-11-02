@@ -96,8 +96,7 @@
 	}
 
 	async function addNew() {
-		// Инпут не глушится на время запроса (disabled теряет фокус),
-		// поэтому повторный Enter отсекаем здесь.
+		// NOTE: the input stays enabled during the request (disabling drops focus), so a second Enter is caught here.
 		if (busy) return;
 
 		const tag = normalizeTag(newTag);
@@ -287,20 +286,20 @@
 	.tags-page {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 	}
 
 	header {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		flex-wrap: wrap;
 	}
 
 	h1 {
 		margin: 0;
-		font-family: var(--font-mono);
-		font-size: var(--fs-md);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-lg);
 		font-weight: 600;
 	}
 
@@ -308,17 +307,17 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		border: 1px solid var(--line);
-		border-radius: var(--r-panel);
+		border: 1px solid var(--ui-line);
+		border-radius: var(--ui-r-panel);
 		overflow: hidden;
 	}
 
 	li {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
-		padding: var(--gap-1) var(--gap-3);
-		border-bottom: 1px solid var(--line);
+		gap: var(--ui-space-4);
+		padding: var(--ui-space-2) var(--ui-space-4);
+		border-bottom: 1px solid var(--ui-line);
 	}
 
 	li:last-child {
@@ -328,11 +327,11 @@
 	.empty,
 	.status {
 		margin: 0;
-		font-size: var(--fs-md);
-		color: var(--text-faint);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-muted);
 	}
 
 	.status {
-		color: var(--text-dim);
+		color: var(--ui-fg-secondary);
 	}
 </style>

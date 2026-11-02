@@ -81,45 +81,45 @@
 	.image {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 	}
 
 	img {
 		max-width: 100%;
 		max-height: var(--img-preview-h);
 		object-fit: contain;
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+		background: var(--ui-bg);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-control);
 	}
 
 	input {
 		font: inherit;
-		font-family: var(--font-mono);
-		font-size: var(--fs-md);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-lg);
 		padding: var(--pad-field);
-		color: var(--text);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+		color: var(--ui-fg);
+		background: var(--ui-bg);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-control);
 	}
 
 	input:focus {
 		outline: none;
-		border-color: var(--accent);
+		border-color: var(--ui-accent-ink);
 	}
 
 	input:hover:not(:disabled):not(:focus) {
-		border-color: var(--line-hover);
+		border-color: var(--ui-line-strong);
 	}
 
 	.note {
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-fg-muted);
 	}
 
 	.bad {
-		font-size: var(--fs-md);
-		color: var(--danger);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-danger);
 	}
 </style>

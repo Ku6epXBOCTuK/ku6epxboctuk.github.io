@@ -6,7 +6,7 @@ import {
 } from "@ku6epxboctuk/content-core";
 import { expect, test } from "@playwright/test";
 
-test.describe("страница тегов", () => {
+test.describe("tags page", () => {
 	test.afterAll(() => {
 		for (const tag of ["e2e-one", "e2e-two"]) {
 			try {
@@ -17,7 +17,7 @@ test.describe("страница тегов", () => {
 		}
 	});
 
-	test("фокус остаётся в поле нового тега после Enter", async ({ page }) => {
+	test("focus stays in the new tag field after Enter", async ({ page }) => {
 		await page.goto("/tags");
 		await page.waitForResponse("**/api/tags");
 
@@ -28,18 +28,17 @@ test.describe("страница тегов", () => {
 		await input.press("Enter");
 		await expect(input).toBeFocused();
 		await expect(input).toHaveValue("");
+		await expect(page.getByRole("button", { name: "e2e-one" })).toBeVisible();
 
 		await input.pressSequentially("e2e-two");
 		await input.press("Enter");
 		await expect(input).toBeFocused();
 		await expect(input).toHaveValue("");
-
-		await expect(page.getByRole("button", { name: "e2e-one" })).toBeVisible();
 		await expect(page.getByRole("button", { name: "e2e-two" })).toBeVisible();
 	});
 });
 
-test.describe("поле тегов в форме единицы", () => {
+test.describe("tags field in the unit form", () => {
 	const TYPE = "post";
 	const SLUG = "e2e-tags-focus";
 
@@ -61,9 +60,7 @@ test.describe("поле тегов в форме единицы", () => {
 		deleteEntry(TYPE, SLUG);
 	});
 
-	test("Enter добавляет несколько тегов подряд, фокус не уходит", async ({
-		page,
-	}) => {
+	test("Enter adds several tags in a row and focus stays", async ({ page }) => {
 		await page.goto(`/${TYPE}/${SLUG}`);
 		await expect(page.locator("#ru-title")).toHaveValue("E2E");
 

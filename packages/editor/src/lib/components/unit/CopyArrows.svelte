@@ -38,14 +38,14 @@
 		flex-direction: column;
 		gap: var(--gap-half);
 		padding-top: var(--cell-py);
-		font-family: var(--font-mono);
+		font-family: var(--ui-font-mono);
 	}
 
 	@media (width <= 1100px) {
 		.arrows {
 			flex-direction: row;
 			justify-content: end;
-			padding: 0 var(--gap-2) var(--gap-2);
+			padding: 0 var(--ui-space-3) var(--ui-space-3);
 		}
 	}
 </style>

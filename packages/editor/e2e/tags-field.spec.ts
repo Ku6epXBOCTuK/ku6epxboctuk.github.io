@@ -41,9 +41,9 @@ async function openForm(page: Page) {
 	await expect(page.locator("#ru-title")).toHaveValue("E2E");
 }
 
-const chips = (page: Page) => page.locator(".tags-field .chips .tag");
+const chips = (page: Page) => page.locator(".tags-field .chips li");
 
-test("теги добавляются без Enter: запятая и пробел, регистр не важен", async ({
+test("tags are added without Enter: comma and space, case ignored", async ({
 	page,
 }) => {
 	await openForm(page);
@@ -57,9 +57,7 @@ test("теги добавляются без Enter: запятая и пробе
 	await expect(input).toHaveValue("");
 });
 
-test("подсказки подсвечивают совпадение и добавляются кликом", async ({
-	page,
-}) => {
+test("hints highlight the match and add on click", async ({ page }) => {
 	await openForm(page);
 
 	const input = page.locator("#shared-tags");
@@ -74,7 +72,7 @@ test("подсказки подсвечивают совпадение и доб
 	await expect(input).toBeFocused();
 });
 
-test("чипы перетаскиваются и меняют порядок", async ({ page }) => {
+test("chips can be dragged to change order", async ({ page }) => {
 	await openForm(page);
 
 	const input = page.locator("#shared-tags");
@@ -88,7 +86,10 @@ test("чипы перетаскиваются и меняют порядок", a
 	await expect(chips(page)).toHaveText(["two", "three", "one"]);
 });
 
-test("клик по чипу копирует тег в буфер", async ({ page, context }) => {
+test("clicking a chip copies the tag to the clipboard", async ({
+	page,
+	context,
+}) => {
 	await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 	await openForm(page);
 
@@ -96,7 +97,7 @@ test("клик по чипу копирует тег в буфер", async ({ pa
 	await input.click();
 	await input.pressSequentially("css ");
 
-	await chips(page).first().click();
+	await page.getByRole("button", { name: "скопировать тег css" }).click();
 	await expect(chips(page).first()).toHaveText("скопировано");
 
 	const clipboard = await page.evaluate(() => navigator.clipboard.readText());

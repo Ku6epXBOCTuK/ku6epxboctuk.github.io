@@ -35,11 +35,11 @@
 <style>
 	.name {
 		font: inherit;
-		font-family: var(--font-mono);
+		font-family: var(--ui-font-mono);
 		background: transparent;
 		border: none;
 		padding: var(--gap-half) 0;
-		color: var(--accent);
+		color: var(--ui-accent-ink);
 		min-width: 140px;
 		text-align: left;
 		cursor: pointer;
@@ -51,17 +51,17 @@
 	}
 
 	.count {
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-dim);
-		min-width: var(--gap-4);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-fg-secondary);
+		min-width: var(--ui-space-5);
 	}
 
 	.where {
 		flex: 1;
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-fg-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -69,7 +69,7 @@
 	}
 
 	.tag-note {
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-fg-muted);
 	}
 </style>

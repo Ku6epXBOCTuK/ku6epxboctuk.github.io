@@ -76,19 +76,19 @@
 	.errors {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-6);
+		gap: var(--ui-space-6);
 	}
 
 	header {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 	}
 
 	h1 {
 		flex: 1;
 		margin: 0;
-		font-size: var(--fs-xl);
+		font-size: var(--ui-fs-xl);
 		font-weight: 600;
 		letter-spacing: var(--track-tight);
 	}
@@ -96,44 +96,44 @@
 	h2 {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
-		margin: 0 0 var(--gap-2);
-		font-size: var(--fs-sm);
+		gap: var(--ui-space-3);
+		margin: 0 0 var(--ui-space-3);
+		font-size: var(--ui-fs-md);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: var(--track-caps);
-		color: var(--danger);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-danger);
 	}
 
 	.lead,
 	.note {
 		margin: 0;
-		font-size: var(--fs-md);
-		line-height: var(--lh-copy);
-		color: var(--text-dim);
+		font-size: var(--ui-fs-lg);
+		line-height: var(--ui-lh);
+		color: var(--ui-fg-secondary);
 	}
 
 	.lead code {
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
 	}
 
 	.all-good {
 		margin: 0;
-		padding: var(--gap-3);
-		border: 1px solid var(--accent-dim);
-		border-radius: var(--r-control);
-		background: var(--accent-wash);
-		font-size: var(--fs-md);
-		color: var(--accent);
+		padding: var(--ui-space-4);
+		border: 1px solid var(--ui-accent);
+		border-radius: var(--ui-r-control);
+		background: var(--ui-accent-surface);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-accent-ink);
 	}
 
 	ul {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border: 1px solid var(--line);
-		border-radius: var(--r-panel);
+		border: 1px solid var(--ui-line);
+		border-radius: var(--ui-r-panel);
 		overflow: hidden;
 	}
 
@@ -142,20 +142,20 @@
 	}
 
 	details {
-		border-top: 1px solid var(--line);
-		padding-top: var(--gap-4);
+		border-top: 1px solid var(--ui-line);
+		padding-top: var(--ui-space-5);
 	}
 
 	summary {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
-		margin-bottom: var(--gap-3);
+		gap: var(--ui-space-3);
+		margin-bottom: var(--ui-space-4);
 		cursor: pointer;
-		font-size: var(--fs-sm);
+		font-size: var(--ui-fs-md);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: var(--track-caps);
-		color: var(--text-faint);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-fg-muted);
 	}
 </style>

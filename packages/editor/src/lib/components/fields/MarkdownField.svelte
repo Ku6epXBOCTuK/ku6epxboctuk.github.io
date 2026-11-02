@@ -96,38 +96,38 @@
 	.markdown {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 	}
 
 	textarea {
-		font-family: var(--font-mono);
-		font-size: var(--fs-md);
-		line-height: var(--lh-code);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-lg);
+		line-height: var(--ui-lh);
 		min-height: var(--textarea-min-h);
-		padding: var(--gap-4);
-		color: var(--text);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+		padding: var(--ui-space-5);
+		color: var(--ui-fg);
+		background: var(--ui-bg);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-control);
 		resize: vertical;
 		tab-size: 2;
 	}
 
 	textarea:focus {
 		outline: none;
-		border-color: var(--accent);
+		border-color: var(--ui-accent-ink);
 	}
 
 	.foot {
 		display: flex;
 		justify-content: space-between;
-		gap: var(--gap-3);
-		font-size: var(--fs-sm);
-		color: var(--text-faint);
+		gap: var(--ui-space-4);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-fg-muted);
 	}
 
 	.bad {
-		font-size: var(--fs-md);
-		color: var(--danger);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-danger);
 	}
 </style>

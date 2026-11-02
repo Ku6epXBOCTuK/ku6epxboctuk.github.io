@@ -87,66 +87,66 @@
 	.texts {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-3);
-		padding: var(--gap-4);
-		border: 1px solid var(--line);
-		border-radius: var(--r-panel);
-		background: var(--surface);
+		gap: var(--ui-space-4);
+		padding: var(--ui-space-5);
+		border: 1px solid var(--ui-line);
+		border-radius: var(--ui-r-panel);
+		background: var(--ui-surface);
 	}
 
 	.texts-pair {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--gap-6);
+		gap: var(--ui-space-6);
 		align-items: start;
 	}
 
 	.pair-col {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		min-width: 0;
 	}
 
 	.pair-head {
 		display: flex;
 		align-items: center;
-		padding-bottom: var(--gap-3);
-		border-bottom: 1px solid var(--line-strong);
+		padding-bottom: var(--ui-space-4);
+		border-bottom: 1px solid var(--ui-line-strong);
 	}
 
 	.pair-head h2 {
 		margin: 0;
-		font-family: var(--font-mono);
-		font-size: var(--fs-sm);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-md);
 		font-weight: 700;
-		letter-spacing: var(--track-wide);
-		color: var(--text-faint);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-fg-muted);
 	}
 
 	.pair-tools {
 		display: flex;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		margin-left: auto;
 	}
 
 	.save-row {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
-		padding-top: var(--gap-2);
+		gap: var(--ui-space-4);
+		padding-top: var(--ui-space-3);
 		flex-wrap: wrap;
 	}
 
 	.status {
-		font-size: var(--fs-md);
-		color: var(--text-dim);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-secondary);
 	}
 
 	@media (width <= 1100px) {
 		.texts-pair {
 			grid-template-columns: minmax(0, 1fr);
-			gap: var(--gap-4);
+			gap: var(--ui-space-5);
 		}
 	}
 </style>

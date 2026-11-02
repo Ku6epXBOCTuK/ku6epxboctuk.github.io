@@ -68,22 +68,22 @@
 		width: 100%;
 		text-align: left;
 		font: inherit;
-		font-size: var(--fs-md);
+		font-size: var(--ui-fs-lg);
 		padding: var(--pad-btn-sm);
-		color: var(--text-dim);
+		color: var(--ui-fg-secondary);
 		background: transparent;
 		border: none;
-		border-radius: var(--r-control);
+		border-radius: var(--ui-r-control);
 		cursor: pointer;
 	}
 
 	.hint mark {
-		color: var(--accent);
+		color: var(--ui-accent-ink);
 		background: transparent;
 	}
 
 	.hint:hover:not(:disabled) {
-		color: var(--text);
-		background: var(--surface-3);
+		color: var(--ui-fg);
+		background: var(--ui-hover);
 	}
 </style>

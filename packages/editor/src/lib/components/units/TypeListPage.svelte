@@ -88,32 +88,32 @@
 	.type-page {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 	}
 
 	header {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		flex-wrap: wrap;
 	}
 
 	header h1 {
 		margin: 0;
-		font-size: var(--fs-xl);
+		font-size: var(--ui-fs-xl);
 		font-weight: 600;
 		letter-spacing: var(--track-tight);
 	}
 
 	.empty {
-		margin: var(--gap-6) 0;
-		font-size: var(--fs-md);
-		color: var(--text-faint);
+		margin: var(--ui-space-6) 0;
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-muted);
 	}
 
 	.bad {
 		margin: 0;
-		font-size: var(--fs-md);
-		color: var(--danger);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-danger);
 	}
 </style>

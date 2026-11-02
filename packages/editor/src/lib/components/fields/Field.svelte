@@ -150,14 +150,14 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-1);
-		padding: var(--gap-3) 0;
-		border-bottom: 1px solid var(--line);
+		gap: var(--ui-space-2);
+		padding: var(--ui-space-4) 0;
+		border-bottom: 1px solid var(--ui-line);
 	}
 
 	.field:last-child {
 		border-bottom: none;
-		padding-bottom: var(--gap-1);
+		padding-bottom: var(--ui-space-2);
 	}
 
 	.field[data-kind="boolean"] {
@@ -165,24 +165,24 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 	}
 
 	.label {
-		font-size: var(--fs-label);
+		font-size: var(--ui-fs-md);
 		font-weight: 700;
 		letter-spacing: var(--track-label);
-		color: var(--text);
+		color: var(--ui-fg);
 	}
 
 	.req {
-		color: var(--danger);
+		color: var(--ui-danger);
 	}
 
 	.help {
-		font-size: var(--fs-sm);
-		line-height: var(--lh-base);
-		color: var(--text-faint);
+		font-size: var(--ui-fs-md);
+		line-height: var(--ui-lh);
+		color: var(--ui-fg-muted);
 	}
 
 	.field[data-kind="boolean"] .help {

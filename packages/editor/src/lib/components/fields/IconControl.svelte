@@ -43,22 +43,22 @@
 	.icon-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(var(--icon-cell), 1fr));
-		gap: var(--gap-05);
+		gap: var(--ui-space-1);
 		max-width: var(--icon-grid-w);
 	}
 
 	.glyph {
 		font: inherit;
-		font-size: var(--fs-label);
+		font-size: var(--ui-fs-md);
 		line-height: 1;
 		aspect-ratio: 1;
 		display: grid;
 		place-items: center;
 		padding: 0;
-		color: var(--text-dim);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+		color: var(--ui-fg-secondary);
+		background: var(--ui-bg);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-control);
 		cursor: pointer;
 		transition:
 			color 100ms,
@@ -72,22 +72,22 @@
 	}
 
 	.glyph:focus-visible {
-		outline: 2px solid var(--accent);
+		outline: 2px solid var(--ui-accent-ink);
 		outline-offset: 1px;
 	}
 
 	.glyph:hover:not(:disabled) {
-		color: var(--text);
-		border-color: var(--accent);
+		color: var(--ui-fg);
+		border-color: var(--ui-accent-ink);
 	}
 
 	.glyph.on {
-		color: var(--bg);
-		background: var(--accent);
-		border-color: var(--accent);
+		color: var(--ui-bg);
+		background: var(--ui-accent-ink);
+		border-color: var(--ui-accent-ink);
 	}
 
 	.glyph.clear {
-		color: var(--text-faint);
+		color: var(--ui-fg-muted);
 	}
 </style>

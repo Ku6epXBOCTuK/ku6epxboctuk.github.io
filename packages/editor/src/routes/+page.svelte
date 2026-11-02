@@ -29,8 +29,8 @@
 
 <style>
 	.empty {
-		margin: var(--gap-6) 0;
-		font-size: var(--fs-md);
-		color: var(--text-faint);
+		margin: var(--ui-space-6) 0;
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-muted);
 	}
 </style>

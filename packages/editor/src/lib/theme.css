@@ -1,9 +1,11 @@
 :root {
 	--gap-half: 2px;
+	--track-tight: -0.01em;
+	--track-label: 0.01em;
 
 	--pad-btn-sm: 4px 9px;
 	--pad-field: 7px 9px;
-	--pad-row: 7px var(--gap-3);
+	--pad-row: 7px var(--ui-space-4);
 	--cell-py: 13px;
 
 	--gutter: 24px;
@@ -25,11 +27,11 @@
 
 html,
 body {
-	background: var(--bg);
-	color: var(--text);
-	font-family: var(--font-ui);
-	font-size: var(--fs-lg);
-	line-height: var(--lh-base);
+	background: var(--ui-bg);
+	color: var(--ui-fg);
+	font-family: var(--ui-font);
+	font-size: var(--ui-fs-lg);
+	line-height: var(--ui-lh);
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -44,17 +46,17 @@ body {
 }
 
 * {
-	scrollbar-color: var(--surface-3) transparent;
+	scrollbar-color: var(--ui-hover) transparent;
 	scrollbar-width: thin;
 }
 
 ::selection {
-	background: var(--accent-dim);
-	color: var(--on-selection);
+	background: var(--ui-accent);
+	color: var(--ui-on-accent);
 }
 
 :focus-visible {
-	outline: 2px solid var(--accent);
+	outline: 2px solid var(--ui-accent-ink);
 	outline-offset: 2px;
 }
 

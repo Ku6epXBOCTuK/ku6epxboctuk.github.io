@@ -179,7 +179,7 @@
 		/>
 	</label>
 
-	{#if open && suggestions.length > 0}
+	{#if open && needle !== "" && suggestions.length > 0}
 		<TagHints
 			anchor={box}
 			width={boxWidth}
@@ -200,7 +200,7 @@
 	.tags-field {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 	}
 
 	/* NOTE: the border sits on the wrapper, so the chips live inside one frame. */
@@ -208,11 +208,11 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--gap-05);
-		padding: var(--gap-05) var(--gap-1);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+		gap: var(--ui-space-1);
+		padding: var(--ui-space-1) var(--ui-space-2);
+		background: var(--ui-bg);
+		border: 1px solid var(--ui-line-strong);
+		border-radius: var(--ui-r-control);
 		cursor: text;
 	}
 
@@ -220,19 +220,19 @@
 		flex: 1;
 		min-width: 90px;
 		font: inherit;
-		font-size: var(--fs-md);
+		font-size: var(--ui-fs-lg);
 		padding: var(--gap-half);
-		color: var(--text);
+		color: var(--ui-fg);
 		background: transparent;
 		border: none;
 	}
 
 	.box input::placeholder {
-		color: var(--text-faint);
+		color: var(--ui-fg-muted);
 	}
 
 	.box:focus-within {
-		border-color: var(--accent);
+		border-color: var(--ui-accent-ink);
 	}
 
 	.box input:focus {
@@ -243,14 +243,14 @@
 		list-style: none;
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--gap-05);
+		gap: var(--ui-space-1);
 		margin: 0;
 		padding: 0;
 	}
 
 	.bad {
 		margin: 0;
-		font-size: var(--fs-sm);
-		color: var(--danger);
+		font-size: var(--ui-fs-md);
+		color: var(--ui-danger);
 	}
 </style>

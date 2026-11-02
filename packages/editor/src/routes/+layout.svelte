@@ -5,7 +5,6 @@
 	import "@fontsource/ibm-plex-sans/700.css";
 	import "@fontsource/ibm-plex-mono/400.css";
 	import "../lib/theme.css";
-	import "../lib/compat.css";
 	import AppHeader from "$lib/components/AppHeader.svelte";
 	import type { Snippet } from "svelte";
 
@@ -28,7 +27,7 @@
 		width: 100%;
 		min-height: 100vh;
 		/* NOTE: overflow-x must stay clip: hidden creates a scroll container and breaks the sticky header. */
-		padding: 0 0 var(--gap-8);
+		padding: 0 0 var(--ui-space-7);
 		overflow-x: clip;
 		display: flex;
 		flex-direction: column;
@@ -36,6 +35,6 @@
 
 	main {
 		flex: 1;
-		padding-top: var(--gap-6);
+		padding-top: var(--ui-space-6);
 	}
 </style>

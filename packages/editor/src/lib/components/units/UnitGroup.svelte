@@ -92,13 +92,13 @@
 	h2 {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
-		margin: var(--gap-6) 0 var(--gap-2);
-		font-size: var(--fs-sm);
+		gap: var(--ui-space-3);
+		margin: var(--ui-space-6) 0 var(--ui-space-3);
+		font-size: var(--ui-fs-md);
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: var(--track-caps);
-		color: var(--text-faint);
+		letter-spacing: var(--ui-label-track);
+		color: var(--ui-fg-muted);
 	}
 
 	h2 :global(.badge) {
@@ -109,8 +109,8 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		border: 1px solid var(--line);
-		border-radius: var(--r-panel);
+		border: 1px solid var(--ui-line);
+		border-radius: var(--ui-r-panel);
 		overflow: hidden;
 	}
 
@@ -118,9 +118,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		padding: var(--pad-row);
-		border-bottom: 1px solid var(--line);
+		border-bottom: 1px solid var(--ui-line);
 	}
 
 	li:last-child {
@@ -128,28 +128,28 @@
 	}
 
 	li:hover {
-		background: var(--surface);
+		background: var(--ui-surface);
 	}
 
 	li a {
 		display: flex;
 		align-items: baseline;
-		gap: var(--gap-3);
+		gap: var(--ui-space-4);
 		min-width: 0;
 		color: inherit;
 		text-decoration: none;
 	}
 
 	.slug {
-		font-family: var(--font-mono);
-		font-size: var(--fs-md);
-		color: var(--text);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg);
 		white-space: nowrap;
 	}
 
 	.title {
-		font-size: var(--fs-md);
-		color: var(--text-dim);
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-fg-secondary);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -158,23 +158,23 @@
 	.flags {
 		display: flex;
 		align-items: center;
-		gap: var(--gap-2);
+		gap: var(--ui-space-3);
 		flex-shrink: 0;
 	}
 
 	.flags :global(.badge) {
-		font-family: var(--font-ui);
+		font-family: var(--ui-font);
 	}
 
 	.langs {
-		font-family: var(--font-mono);
-		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		font-family: var(--ui-font-mono);
+		font-size: var(--ui-fs-sm);
+		color: var(--ui-fg-muted);
 	}
 
 	.bad {
-		margin: var(--gap-2) 0;
-		font-size: var(--fs-md);
-		color: var(--danger);
+		margin: var(--ui-space-3) 0;
+		font-size: var(--ui-fs-lg);
+		color: var(--ui-danger);
 	}
 </style>
