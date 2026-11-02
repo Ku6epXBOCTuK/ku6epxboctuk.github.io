@@ -8,7 +8,7 @@
 		type ContentType,
 		type EntrySummary,
 	} from "@ku6epxboctuk/content-core/shared";
-	import Button from "../ui/Button.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 	import GithubCreate from "./GithubCreate.svelte";
 	import UnitGroup from "./UnitGroup.svelte";
 

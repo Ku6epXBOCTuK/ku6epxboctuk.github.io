@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { tidyTags } from "@ku6epxboctuk/content-core/shared";
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
-	import Button from "../ui/Button.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 	import BooleanControl from "./BooleanControl.svelte";
 	import ChoiceControl from "./ChoiceControl.svelte";
 	import DateControl from "./DateControl.svelte";
@@ -18,7 +18,7 @@
 		value: unknown;
 		disabled?: boolean;
 		slug?: string;
-		/** Префикс `id` контрола: на странице две копии формы (RU и EN). */
+		/** NOTE: two copies of the form (RU and EN) share the page, so control ids need a prefix. */
 		scope?: string;
 		actionLabel?: string;
 		onaction?: () => void;
@@ -122,7 +122,7 @@
 
 	{#if actionLabel && onaction}
 		<div class="action">
-			<Button variant="accent" {disabled} onclick={onaction}
+			<Button variant="secondary" {disabled} onclick={onaction}
 				>{actionLabel}</Button
 			>
 		</div>

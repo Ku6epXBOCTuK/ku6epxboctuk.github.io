@@ -5,8 +5,8 @@
 		entryFromFlat,
 	} from "@ku6epxboctuk/content-core/shared";
 	import type { GitHubProjectPayload } from "../../../routes/api/github-project/+server";
-	import Button from "../ui/Button.svelte";
-	import TextInput from "../ui/TextInput.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	let creating = $state(false);
 	let errorText = $state("");
@@ -62,7 +62,7 @@
 <div class="gh">
 	<span class="gh-label">из github</span>
 	<TextInput
-		mono
+		style="font-family: var(--ui-font-mono)"
 		bind:value={ghUrl}
 		placeholder="owner/name"
 		onkeydown={(e) => e.key === "Enter" && createFromGithub()}

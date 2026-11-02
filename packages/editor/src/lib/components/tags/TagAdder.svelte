@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Button from "../ui/Button.svelte";
-	import TextInput from "../ui/TextInput.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
 		value: string;
@@ -19,7 +19,7 @@
 		placeholder="новый тег"
 		aria-label="новый тег"
 		invalid={Boolean(error)}
-		{oninput}
+		oninput={(e) => oninput(e.currentTarget.value)}
 		onkeydown={(e) => {
 			if (e.key === "Enter") onadd();
 		}}

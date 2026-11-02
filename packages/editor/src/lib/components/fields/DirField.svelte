@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DirEntry } from "@ku6epxboctuk/content-core";
-	import Button from "../ui/Button.svelte";
-	import TextInput from "../ui/TextInput.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 	import DirBrowser from "./DirBrowser.svelte";
 
 	interface Listing {
@@ -65,11 +65,11 @@
 	<div class="row">
 		<TextInput
 			{id}
-			mono
+			style="font-family: var(--ui-font-mono)"
 			{disabled}
 			{value}
 			placeholder="C:\projects\example-repo"
-			oninput={onchange}
+			oninput={(e) => onchange(e.currentTarget.value)}
 		/>
 		<Button size="sm" {disabled} onclick={toggle}>
 			{open ? "закрыть" : "обзор"}

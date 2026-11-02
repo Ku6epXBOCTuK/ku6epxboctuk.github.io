@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TextInput from "../ui/TextInput.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
 		value: string;
@@ -16,7 +16,7 @@
 		{value}
 		placeholder="найти тег"
 		aria-label="поиск тега"
-		{oninput}
+		oninput={(e) => oninput(e.currentTarget.value)}
 	/>
 	{#if value !== ""}
 		<button

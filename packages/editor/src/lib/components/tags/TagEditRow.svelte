@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TagPlan } from "$lib/types";
-	import Button from "../ui/Button.svelte";
-	import TextInput from "../ui/TextInput.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
 		draft: string;
@@ -21,7 +21,7 @@
 	<TextInput
 		value={draft}
 		invalid={Boolean(error)}
-		oninput={ondraft}
+		oninput={(e) => ondraft(e.currentTarget.value)}
 		onkeydown={(e) => {
 			if (e.key === "Enter") oncommit();
 			if (e.key === "Escape") oncancel();

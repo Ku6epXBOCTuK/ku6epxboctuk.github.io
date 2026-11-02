@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ProjectPathReport } from "@ku6epxboctuk/content-core/shared";
-	import Badge from "../ui/Badge.svelte";
+	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
 
 	const STATE_TEXT: Record<ProjectPathReport["state"], string> = {
 		ok: "найдена",
@@ -27,7 +27,7 @@
 		{/if}
 	{:else}
 		<span class="title">{report.title}</span>
-		<Badge tone="danger" pill>{STATE_TEXT[report.state]}</Badge>
+		<Badge tone="danger">{STATE_TEXT[report.state]}</Badge>
 		<code>{report.declared}</code>
 		{#if report.resolved && report.resolved !== report.declared}
 			<code class="resolved">{report.resolved}</code>

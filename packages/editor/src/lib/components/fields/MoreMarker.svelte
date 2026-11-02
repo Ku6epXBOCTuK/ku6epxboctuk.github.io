@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from "../ui/Button.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 
 	interface Props {
 		hasMarker: boolean;
@@ -23,10 +23,10 @@
 		<span>
 			<strong>&lt;!--more--&gt;</strong> · тизер {teaserLength}
 		</span>
-		<Button size="xs" {disabled} onclick={onremove}>убрать</Button>
+		<Button size="sm" {disabled} onclick={onremove}>убрать</Button>
 	{:else}
 		<span><strong>&lt;!--more--&gt;</strong> · обязателен для статьи</span>
-		<Button size="xs" {disabled} onclick={oninsert}>вставить</Button>
+		<Button size="sm" {disabled} onclick={oninsert}>вставить</Button>
 	{/if}
 </div>
 

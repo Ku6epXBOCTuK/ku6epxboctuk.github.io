@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ContentType } from "@ku6epxboctuk/content-core/shared";
-	import Button from "../ui/Button.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 
 	interface Props {
 		type: ContentType;

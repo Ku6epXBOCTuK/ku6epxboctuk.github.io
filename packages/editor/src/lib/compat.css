@@ -15,12 +15,9 @@
 	--accent: var(--ui-accent-ink);
 	--accent-dim: var(--ui-accent);
 	--accent-wash: var(--ui-accent-surface);
-	--accent-hover: var(--ui-accent-hover);
 
 	--danger: var(--ui-danger);
 	--danger-wash: var(--ui-danger-surface);
-	--danger-strong: var(--ui-danger);
-	--on-danger: var(--ui-on-danger);
 	--warn: var(--ui-warning);
 	--warn-wash: var(--ui-warning-surface);
 
@@ -28,10 +25,7 @@
 	--line-warn: color-mix(in srgb, var(--ui-warning) 50%, var(--ui-line));
 	--backdrop: var(--ui-backdrop);
 	--on-selection: var(--ui-on-accent);
-
-	--r-chip: var(--ui-r-chip);
 	--r-control: var(--ui-r-control);
-	--r-group: var(--ui-r-control);
 	--r-panel: var(--ui-r-panel);
 	--r-pill: var(--ui-r-pill);
 
@@ -54,7 +48,6 @@
 	--track-wide: var(--ui-label-track);
 
 	--shadow-panel: var(--ui-shadow-panel);
-	--shadow-pop: var(--ui-shadow-pop);
 
 	--font-ui: var(--ui-font);
 	--font-mono: var(--ui-font-mono);

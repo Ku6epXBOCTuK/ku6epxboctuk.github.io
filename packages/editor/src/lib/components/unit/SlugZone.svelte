@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isValidSlug } from "@ku6epxboctuk/content-core/shared";
-	import Button from "../ui/Button.svelte";
-	import TextInput from "../ui/TextInput.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
 		renameFrom: string;
@@ -26,11 +26,11 @@
 	</p>
 	<div class="row">
 		<TextInput
-			mono
+			style="font-family: var(--ui-font-mono)"
 			{value}
 			invalid={!slugOk}
 			placeholder="my-slug"
-			oninput={onchange}
+			oninput={(e) => onchange(e.currentTarget.value)}
 		/>
 		<Button onclick={onsuggest}>из заголовка</Button>
 		<Button disabled={!renameChanged || busy} onclick={onrename}>

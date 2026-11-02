@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { invalidateAll } from "$app/navigation";
 	import ReportRow from "$lib/components/errors/ReportRow.svelte";
-	import Badge from "$lib/components/ui/Badge.svelte";
-	import Button from "$lib/components/ui/Button.svelte";
+	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();
@@ -37,7 +37,7 @@
 
 	{#if broken.length > 0}
 		<section>
-			<h2>не обойти <Badge pill>{broken.length}</Badge></h2>
+			<h2>не обойти <Badge>{broken.length}</Badge></h2>
 			<ul>
 				{#each broken as report (report.slug)}
 					<ReportRow {report} />
@@ -48,7 +48,7 @@
 
 	{#if unset.length > 0}
 		<section>
-			<h2>не участвуют <Badge pill>{unset.length}</Badge></h2>
+			<h2>не участвуют <Badge>{unset.length}</Badge></h2>
 			<p class="note">
 				Папка не указана. Это не поломка: не каждый проект нужен в weekly.
 			</p>
@@ -62,7 +62,7 @@
 
 	{#if ok.length > 0}
 		<details>
-			<summary>найдено <Badge pill>{ok.length}</Badge></summary>
+			<summary>найдено <Badge>{ok.length}</Badge></summary>
 			<ul class="plain">
 				{#each ok as report (report.slug)}
 					<ReportRow {report} plain />

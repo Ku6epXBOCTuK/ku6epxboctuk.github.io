@@ -4,7 +4,7 @@
 		ContentType,
 		Entry,
 	} from "@ku6epxboctuk/content-core/shared";
-	import Button from "../ui/Button.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 	import MarkdownField from "../fields/MarkdownField.svelte";
 
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };

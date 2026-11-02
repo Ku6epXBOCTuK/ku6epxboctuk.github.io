@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TextInput from "../ui/TextInput.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
 		id: string;
@@ -24,7 +24,7 @@
 	{id}
 	type={kind === "url" ? "url" : "text"}
 	{disabled}
-	{mono}
 	{value}
-	oninput={onchange}
+	style={mono ? "font-family: var(--ui-font-mono)" : undefined}
+	oninput={(e) => onchange(e.currentTarget.value)}
 />

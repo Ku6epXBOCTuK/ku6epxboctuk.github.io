@@ -2,8 +2,8 @@
 	import { invalidateAll } from "$app/navigation";
 	import type { EntrySummary } from "@ku6epxboctuk/content-core/shared";
 	import ConfirmModal from "../ConfirmModal.svelte";
-	import Badge from "../ui/Badge.svelte";
-	import Button from "../ui/Button.svelte";
+	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 
 	interface Props {
 		units: EntrySummary[];
@@ -45,7 +45,7 @@
 {#if label}
 	<h2>
 		{label}
-		<Badge pill>{units.length}</Badge>
+		<Badge>{units.length}</Badge>
 	</h2>
 {/if}
 
@@ -63,7 +63,7 @@
 			<span class="flags">
 				{#if unit.draft}<Badge>черновик</Badge>{/if}
 				{#if unit.needsTranslation}
-					<Badge tone="warn">перевод</Badge>
+					<Badge tone="warning">перевод</Badge>
 				{/if}
 				<span class="langs">{unit.langs.join(" ")}</span>
 				<Button

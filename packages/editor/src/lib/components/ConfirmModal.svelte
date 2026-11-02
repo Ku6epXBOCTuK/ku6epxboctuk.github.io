@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from "./ui/Button.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button";
 
 	interface Props {
 		title: string;
@@ -42,7 +42,7 @@
 		<p>{body}</p>
 		<div class="actions">
 			<Button onclick={oncancel}>отмена</Button>
-			<Button variant="danger-solid" {disabled} onclick={onconfirm}
+			<Button variant="danger" {disabled} onclick={onconfirm}
 				>{confirmLabel}</Button
 			>
 		</div>
