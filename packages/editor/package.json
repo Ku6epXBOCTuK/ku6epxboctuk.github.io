@@ -12,7 +12,10 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
+		"@fontsource/ibm-plex-mono": "^5.3.0",
+		"@fontsource/ibm-plex-sans": "^5.3.0",
 		"@ku6epxboctuk/content-core": "link:../content-core",
+		"@ku6epxboctuk/ui-kit": "link:C:/+XBOCTuK/+life_projects/ui-kit",
 		"prettier": "^3.9.8",
 		"sharp": "^0.35.5"
 	},

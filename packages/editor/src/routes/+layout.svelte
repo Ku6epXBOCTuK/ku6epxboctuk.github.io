@@ -1,4 +1,9 @@
 <script lang="ts">
+	import "@ku6epxboctuk/ui-kit/tokens.css";
+	import "@fontsource/ibm-plex-sans/400.css";
+	import "@fontsource/ibm-plex-sans/600.css";
+	import "@fontsource/ibm-plex-sans/700.css";
+	import "@fontsource/ibm-plex-mono/400.css";
 	import "../lib/theme.css";
 	import AppHeader from "$lib/components/AppHeader.svelte";
 	import type { Snippet } from "svelte";
@@ -21,7 +26,7 @@
 	.app {
 		width: 100%;
 		min-height: 100vh;
-		/* clip, а не hidden: иначе ломается position: sticky у шапки. */
+		/* NOTE: overflow-x must stay clip: hidden creates a scroll container and breaks the sticky header. */
 		padding: 0 0 var(--gap-8);
 		overflow-x: clip;
 		display: flex;
