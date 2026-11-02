@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { uploadImage } from "$lib/upload";
+	import TextArea from "@ku6epxboctuk/ui-kit/components/TextArea";
 	import ImageDrop from "./ImageDrop.svelte";
 	import MoreMarker from "./MoreMarker.svelte";
 
@@ -20,6 +21,7 @@
 	}: Props = $props();
 
 	const MARKER = "<!--more-->";
+	const ROWS = 10;
 
 	let uploading = $state(false);
 	let uploadError = $state("");
@@ -70,12 +72,14 @@
 		/>
 	{/if}
 
-	<textarea
+	<TextArea
 		{disabled}
-		rows="10"
+		rows={ROWS}
+		mono
+		class="md-input"
 		{value}
 		oninput={(e) => onchange(e.currentTarget.value)}
-	></textarea>
+	/>
 
 	<ImageDrop
 		{disabled}
@@ -99,23 +103,10 @@
 		gap: var(--ui-space-3);
 	}
 
-	textarea {
-		font-family: var(--ui-font-mono);
-		font-size: var(--ui-fs-lg);
-		line-height: var(--ui-lh);
+	:global(.md-input) {
 		min-height: var(--textarea-min-h);
-		padding: var(--ui-space-5);
-		color: var(--ui-fg);
-		background: var(--ui-bg);
-		border: 1px solid var(--ui-line-strong);
-		border-radius: var(--ui-r-control);
-		resize: vertical;
+		font-size: var(--ui-fs-lg);
 		tab-size: 2;
-	}
-
-	textarea:focus {
-		outline: none;
-		border-color: var(--ui-accent-ink);
 	}
 
 	.foot {

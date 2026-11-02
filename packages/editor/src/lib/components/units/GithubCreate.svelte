@@ -62,7 +62,7 @@
 <div class="gh">
 	<span class="gh-label">из github</span>
 	<TextInput
-		style="font-family: var(--ui-font-mono)"
+		mono
 		bind:value={ghUrl}
 		placeholder="owner/name"
 		onkeydown={(e) => e.key === "Enter" && createFromGithub()}

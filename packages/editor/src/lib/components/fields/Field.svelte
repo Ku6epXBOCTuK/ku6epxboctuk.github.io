@@ -2,17 +2,14 @@
 	import { tidyTags } from "@ku6epxboctuk/content-core/shared";
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Checkbox from "@ku6epxboctuk/ui-kit/components/Checkbox";
 	import FieldShell from "@ku6epxboctuk/ui-kit/components/Field";
-	import BooleanControl from "./BooleanControl.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 	import ChoiceControl from "./ChoiceControl.svelte";
-	import DateControl from "./DateControl.svelte";
 	import DirField from "./DirField.svelte";
 	import IconControl from "./IconControl.svelte";
 	import ImageField from "./ImageField.svelte";
-	import NumberControl from "./NumberControl.svelte";
 	import TagsField from "./TagsField.svelte";
-	import TextAreaControl from "./TextAreaControl.svelte";
-	import TextControl from "./TextControl.svelte";
 
 	interface Props {
 		field: FieldDef;
@@ -50,6 +47,27 @@
 	const MONO_FIELDS = new Set(["slug", "path", "repo", "image"]);
 
 	const mono = $derived(MONO_FIELDS.has(field.name));
+
+	const inputType = $derived(
+		field.kind === "number"
+			? "number"
+			: field.kind === "date"
+				? "date"
+				: field.kind === "url"
+					? "url"
+					: "text",
+	);
+
+	const shown = $derived(String(scalar));
+
+	function ontext(event: Event) {
+		const raw = (event.currentTarget as HTMLInputElement).value;
+		if (field.kind === "number") {
+			onchange(raw === "" ? undefined : Number(raw));
+			return;
+		}
+		onchange(raw);
+	}
 </script>
 
 {#snippet control(id: string)}
@@ -78,22 +96,6 @@
 			choices={field.choices ?? []}
 			onchange={(next) => onchange(next)}
 		/>
-	{:else if field.kind === "number"}
-		<NumberControl {id} {disabled} value={scalar} {onchange} />
-	{:else if field.kind === "date"}
-		<DateControl
-			{id}
-			{disabled}
-			value={String(scalar)}
-			onchange={(next) => onchange(next)}
-		/>
-	{:else if field.kind === "text"}
-		<TextAreaControl
-			{id}
-			{disabled}
-			value={String(scalar)}
-			onchange={(next) => onchange(next)}
-		/>
 	{:else if field.kind === "image"}
 		<ImageField
 			{id}
@@ -103,48 +105,48 @@
 			onchange={(next) => onchange(next)}
 		/>
 	{:else}
-		<TextControl
+		<TextInput
 			{id}
 			{disabled}
 			{mono}
-			kind={field.kind === "url" ? "url" : "string"}
-			value={String(scalar)}
-			onchange={(next) => onchange(next)}
+			type={inputType}
+			value={shown}
+			oninput={ontext}
 		/>
 	{/if}
 {/snippet}
 
-{#if field.kind === "boolean"}
-	<div class="field" data-kind="boolean">
-		<label class="label" for={controlId}>
-			{field.label}{#if field.required}<span class="req" title="обязательное"
-					>*</span
-				>{/if}
-		</label>
-		<BooleanControl id={controlId} {value} {disabled} {onchange} />
-		{#if field.help}
-			<span class="help">{field.help}</span>
-		{/if}
-	</div>
-{:else}
-	<div class="field">
-		<FieldShell
-			label={field.label}
-			required={field.required}
-			hint={field.help}
-			id={controlId}
-		>
+{#snippet check(id: string)}
+	<Checkbox
+		{id}
+		{disabled}
+		checked={value === true}
+		onchange={(e) => onchange(e.currentTarget.checked)}
+	/>
+{/snippet}
+
+<div class="field" data-kind={field.kind}>
+	<FieldShell
+		label={field.label}
+		required={field.required}
+		hint={field.help}
+		id={controlId}
+		orientation={field.kind === "boolean" ? "row" : "stack"}
+	>
+		{#if field.kind === "boolean"}
+			{@render check(controlId)}
+		{:else}
 			{@render control(controlId)}
-		</FieldShell>
-		{#if actionLabel && onaction}
-			<div class="action">
-				<Button variant="secondary" {disabled} onclick={onaction}
-					>{actionLabel}</Button
-				>
-			</div>
 		{/if}
-	</div>
-{/if}
+	</FieldShell>
+	{#if actionLabel && onaction}
+		<div class="action">
+			<Button variant="secondary" {disabled} onclick={onaction}
+				>{actionLabel}</Button
+			>
+		</div>
+	{/if}
+</div>
 
 <style>
 	.field {
@@ -158,37 +160,6 @@
 	.field:last-child {
 		border-bottom: none;
 		padding-bottom: var(--ui-space-2);
-	}
-
-	.field[data-kind="boolean"] {
-		flex-direction: row;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--ui-space-3);
-	}
-
-	.label {
-		font-size: var(--ui-fs-md);
-		font-weight: 700;
-		letter-spacing: var(--track-label);
-		color: var(--ui-fg);
-	}
-
-	.req {
-		color: var(--ui-danger);
-	}
-
-	.help {
-		font-size: var(--ui-fs-md);
-		line-height: var(--ui-lh);
-		color: var(--ui-fg-muted);
-	}
-
-	.field[data-kind="boolean"] .help {
-		order: 3;
-		flex-basis: 100%;
-		margin: 0;
 	}
 
 	.action {

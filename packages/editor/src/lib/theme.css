@@ -1,7 +1,6 @@
 :root {
 	--gap-half: 2px;
 	--track-tight: -0.01em;
-	--track-label: 0.01em;
 
 	--pad-btn-sm: 4px 9px;
 	--pad-field: 7px 9px;
@@ -13,7 +12,6 @@
 	--header-h: 56px;
 	--drop-min-h: 48px;
 	--arrow-w: 30px;
-	--check-size: 16px;
 	--icon-cell: 34px;
 	--icon-grid-w: 340px;
 	--textarea-min-h: 360px;

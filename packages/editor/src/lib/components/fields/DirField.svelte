@@ -65,7 +65,7 @@
 	<div class="row">
 		<TextInput
 			{id}
-			style="font-family: var(--ui-font-mono)"
+			mono
 			{disabled}
 			{value}
 			placeholder="C:\projects\example-repo"

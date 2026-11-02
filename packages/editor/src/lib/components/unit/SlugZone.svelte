@@ -26,7 +26,7 @@
 	</p>
 	<div class="row">
 		<TextInput
-			style="font-family: var(--ui-font-mono)"
+			mono
 			{value}
 			invalid={!slugOk}
 			placeholder="my-slug"

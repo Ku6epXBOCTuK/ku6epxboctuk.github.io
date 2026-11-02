@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { describeSize, uploadImage } from "$lib/upload";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 	import ImageDrop from "./ImageDrop.svelte";
 
 	interface Props {
@@ -59,11 +60,11 @@
 		<img src={value} alt="предпросмотр обложки" />
 	{/if}
 
-	<input
+	<TextInput
 		{id}
-		type="text"
 		{disabled}
 		{value}
+		mono
 		placeholder="/images/oblozhka.webp"
 		oninput={(e) => onchange(e.currentTarget.value)}
 	/>
@@ -91,26 +92,6 @@
 		background: var(--ui-bg);
 		border: 1px solid var(--ui-line-strong);
 		border-radius: var(--ui-r-control);
-	}
-
-	input {
-		font: inherit;
-		font-family: var(--ui-font-mono);
-		font-size: var(--ui-fs-lg);
-		padding: var(--pad-field);
-		color: var(--ui-fg);
-		background: var(--ui-bg);
-		border: 1px solid var(--ui-line-strong);
-		border-radius: var(--ui-r-control);
-	}
-
-	input:focus {
-		outline: none;
-		border-color: var(--ui-accent-ink);
-	}
-
-	input:hover:not(:disabled):not(:focus) {
-		border-color: var(--ui-line-strong);
 	}
 
 	.note {
