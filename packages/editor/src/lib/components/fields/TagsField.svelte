@@ -13,8 +13,7 @@
 
 	let { id = "", value, disabled = false, onchange }: Props = $props();
 
-	// Подсказки закрываются по blur, но клик по подсказке — тоже blur:
-	// без паузы в кадр кнопка не успевает сработать.
+	// NOTE: a click on a hint is also a blur, so closing at once swallows the click.
 	const HINT_CLOSE_MS = 150;
 	const COPIED_MS = 900;
 
@@ -37,6 +36,8 @@
 	const typedError = $derived(typed ? tagError(typed) : null);
 
 	let input = $state<HTMLInputElement | null>(null);
+	let box = $state<HTMLLabelElement | null>(null);
+	let boxWidth = $state(0);
 
 	async function loadKnown() {
 		try {
@@ -45,7 +46,7 @@
 			const data = (await res.json()) as { tags: { tag: string }[] };
 			known = data.tags.map((entry) => entry.tag);
 		} catch {
-			// Подсказки — удобство, а не условие работы: теги добавляются и вручную.
+			known = [];
 		}
 	}
 
@@ -70,7 +71,7 @@
 		onchange([...chosen, tag]);
 		query = "";
 
-		// Фокус — после обновления дерева: до tick input может быть старым узлом.
+		// NOTE: before tick() the input may still be the old node.
 		await tick();
 		input?.focus();
 	}
@@ -79,7 +80,6 @@
 		onchange(chosen.filter((item) => item !== tag));
 	}
 
-	// Разделитель (пробел, запятая) заканчивает тег прямо по мере ввода.
 	function onType(event: Event) {
 		const next = event.currentTarget as HTMLInputElement;
 		const text = next.value;
@@ -135,14 +135,18 @@
 				if (copied === tag) copied = "";
 			}, COPIED_MS);
 		} catch {
-			// Буфер может быть недоступен (права, не secure context).
+			copied = "";
 		}
 	}
 </script>
 
 <div class="tags-field">
-	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-	<div class="box" onclick={() => input?.focus()}>
+	<label
+		class="box"
+		bind:this={box}
+		bind:clientWidth={boxWidth}
+		for={id || undefined}
+	>
 		{#if chosen.length > 0}
 			<ul class="chips">
 				{#each chosen as tag, index (tag)}
@@ -173,14 +177,17 @@
 			onblur={() => setTimeout(() => (open = false), HINT_CLOSE_MS)}
 			onkeydown={onKeydown}
 		/>
-	</div>
+	</label>
 
 	{#if open && suggestions.length > 0}
 		<TagHints
+			anchor={box}
+			width={boxWidth}
 			{suggestions}
 			{needle}
 			{disabled}
 			onpick={(tag) => void add(tag)}
+			onclose={() => (open = false)}
 		/>
 	{/if}
 
@@ -194,10 +201,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gap-2);
-		position: relative;
 	}
 
-	/* Рамка у обёртки, а не у input: чипы лежат внутри той же рамки. */
+	/* NOTE: the border sits on the wrapper, so the chips live inside one frame. */
 	.box {
 		display: flex;
 		flex-wrap: wrap;

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ContentLang } from "@ku6epxboctuk/content-core/shared";
+	import IconButton from "@ku6epxboctuk/ui-kit/components/IconButton";
 
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
 
@@ -13,18 +14,22 @@
 </script>
 
 <div class="arrows">
-	<button
-		type="button"
+	<IconButton
+		size="sm"
 		{disabled}
-		title={`${label}: ${LANG_LABEL.ru} → ${LANG_LABEL.en}`}
-		onclick={() => oncopy("ru", "en")}>→</button
+		label={`${label}: ${LANG_LABEL.ru} → ${LANG_LABEL.en}`}
+		onclick={() => oncopy("ru", "en")}
 	>
-	<button
-		type="button"
+		→
+	</IconButton>
+	<IconButton
+		size="sm"
 		{disabled}
-		title={`${label}: ${LANG_LABEL.en} → ${LANG_LABEL.ru}`}
-		onclick={() => oncopy("en", "ru")}>←</button
+		label={`${label}: ${LANG_LABEL.en} → ${LANG_LABEL.ru}`}
+		onclick={() => oncopy("en", "ru")}
 	>
+		←
+	</IconButton>
 </div>
 
 <style>
@@ -33,31 +38,7 @@
 		flex-direction: column;
 		gap: var(--gap-half);
 		padding-top: var(--cell-py);
-	}
-
-	.arrows button {
-		width: var(--arrow-w);
-		height: var(--arrow-h);
-		padding: 0;
 		font-family: var(--font-mono);
-		font-size: var(--fs-md);
-		line-height: 1;
-		color: var(--text-dim);
-		background: var(--surface-2);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
-		cursor: pointer;
-	}
-
-	.arrows button:disabled {
-		opacity: 0.4;
-		cursor: default;
-	}
-
-	.arrows button:hover:not(:disabled) {
-		color: var(--accent);
-		background: var(--surface-3);
-		border-color: var(--accent-dim);
 	}
 
 	@media (width <= 1100px) {

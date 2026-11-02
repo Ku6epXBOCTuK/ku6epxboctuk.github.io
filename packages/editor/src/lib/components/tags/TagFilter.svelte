@@ -1,4 +1,5 @@
 <script lang="ts">
+	import IconButton from "@ku6epxboctuk/ui-kit/components/IconButton";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
 
 	interface Props {
@@ -19,15 +20,14 @@
 		oninput={(e) => oninput(e.currentTarget.value)}
 	/>
 	{#if value !== ""}
-		<button
-			type="button"
-			class="clear"
-			aria-label="сбросить поиск"
+		<IconButton
+			size="sm"
+			label="сбросить поиск"
 			title="сбросить"
 			onclick={() => oninput("")}
 		>
 			×
-		</button>
+		</IconButton>
 		<span class="found">
 			{found} из {total}
 		</span>
@@ -46,21 +46,6 @@
 	.filter :global(input) {
 		flex: 1;
 		min-width: 160px;
-	}
-
-	.clear {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: 0 var(--gap-2);
-		background: transparent;
-		border: none;
-		color: var(--text-faint);
-		line-height: 1;
-		cursor: pointer;
-	}
-
-	.clear:hover {
-		color: var(--danger);
 	}
 
 	.found {

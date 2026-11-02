@@ -23,7 +23,6 @@
 
 	--line-danger: color-mix(in srgb, var(--ui-danger) 50%, var(--ui-line));
 	--line-warn: color-mix(in srgb, var(--ui-warning) 50%, var(--ui-line));
-	--backdrop: var(--ui-backdrop);
 	--on-selection: var(--ui-on-accent);
 	--r-control: var(--ui-r-control);
 	--r-panel: var(--ui-r-panel);
@@ -46,8 +45,6 @@
 	--track-label: 0.01em;
 	--track-caps: var(--ui-label-track);
 	--track-wide: var(--ui-label-track);
-
-	--shadow-panel: var(--ui-shadow-panel);
 
 	--font-ui: var(--ui-font);
 	--font-mono: var(--ui-font-mono);

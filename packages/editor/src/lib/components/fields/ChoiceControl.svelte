@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Select from "@ku6epxboctuk/ui-kit/components/Select";
+	import { createSelect } from "@ku6epxboctuk/ui-kit/headless/select";
+
 	interface Props {
 		id: string;
 		value: string;
@@ -8,42 +11,52 @@
 	}
 
 	let { id, value, choices, disabled = false, onchange }: Props = $props();
+
+	const options = $derived<string[]>(["", ...choices]);
+
+	const label = $derived(value === "" ? "—" : value);
+
+	const picker = createSelect<string>({
+		items: () => options,
+		getLabel: (option: string) => (option === "" ? "—" : option),
+		onPick: (option: string) => onchange(option),
+	});
 </script>
 
-<select
-	{id}
-	{disabled}
-	{value}
-	onchange={(e) => onchange(e.currentTarget.value)}
+<Select
+	select={picker}
+	getKey={(option: string) => option}
+	isSelected={(option: string) => option === value}
+	variant="field"
+	listLabel="варианты"
 >
-	<option value="">—</option>
-	{#each choices as choice (choice)}
-		<option value={choice}>{choice}</option>
-	{/each}
-</select>
+	{#snippet trigger()}
+		<button
+			{id}
+			type="button"
+			class="ui-select-trigger"
+			{disabled}
+			aria-haspopup="listbox"
+			aria-expanded={picker.open}
+			onclick={() => picker.toggle()}
+		>
+			<span class="ui-select-trigger-label">{label}</span>
+			<span class="ui-select-trigger-caret" aria-hidden="true">▾</span>
+		</button>
+	{/snippet}
+	{#snippet option(option)}
+		<span class="ui-select-option-label" data-empty={option === ""}>
+			{option === "" ? "—" : option}
+		</span>
+	{/snippet}
+</Select>
 
 <style>
-	select {
-		font: inherit;
-		font-size: var(--fs-md);
-		padding: var(--pad-field);
-		color: var(--text);
-		background: var(--bg);
-		border: 1px solid var(--line-strong);
-		border-radius: var(--r-control);
+	.ui-select-trigger {
+		font-family: var(--font-mono);
 	}
 
-	select:disabled {
-		background: var(--surface);
+	.ui-select-option-label[data-empty] {
 		color: var(--text-faint);
-	}
-
-	select:focus {
-		outline: none;
-		border-color: var(--accent);
-	}
-
-	select:hover:not(:disabled):not(:focus) {
-		border-color: var(--line-hover);
 	}
 </style>

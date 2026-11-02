@@ -2,6 +2,7 @@
 	import { tidyTags } from "@ku6epxboctuk/content-core/shared";
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import FieldShell from "@ku6epxboctuk/ui-kit/components/Field";
 	import BooleanControl from "./BooleanControl.svelte";
 	import ChoiceControl from "./ChoiceControl.svelte";
 	import DateControl from "./DateControl.svelte";
@@ -51,20 +52,12 @@
 	const mono = $derived(MONO_FIELDS.has(field.name));
 </script>
 
-<div class="field" data-kind={field.kind}>
-	<label class="label" for={controlId}>
-		{field.label}{#if field.required}<span class="req" title="обязательное"
-				>*</span
-			>{/if}
-	</label>
-
-	{#if field.kind === "boolean"}
-		<BooleanControl id={controlId} {value} {disabled} {onchange} />
-	{:else if field.kind === "string[]"}
-		<TagsField id={controlId} {disabled} value={list} {onchange} />
+{#snippet control(id: string)}
+	{#if field.kind === "string[]"}
+		<TagsField {id} {disabled} value={list} {onchange} />
 	{:else if field.kind === "choice"}
 		<ChoiceControl
-			id={controlId}
+			{id}
 			{disabled}
 			value={String(scalar)}
 			choices={field.choices ?? []}
@@ -72,38 +65,38 @@
 		/>
 	{:else if field.kind === "dir"}
 		<DirField
-			id={controlId}
+			{id}
 			{disabled}
 			value={String(scalar)}
 			onchange={(next) => onchange(next)}
 		/>
 	{:else if field.kind === "icon"}
 		<IconControl
-			id={controlId}
+			{id}
 			{disabled}
 			value={String(scalar)}
 			choices={field.choices ?? []}
 			onchange={(next) => onchange(next)}
 		/>
 	{:else if field.kind === "number"}
-		<NumberControl id={controlId} {disabled} value={scalar} {onchange} />
+		<NumberControl {id} {disabled} value={scalar} {onchange} />
 	{:else if field.kind === "date"}
 		<DateControl
-			id={controlId}
+			{id}
 			{disabled}
 			value={String(scalar)}
 			onchange={(next) => onchange(next)}
 		/>
 	{:else if field.kind === "text"}
 		<TextAreaControl
-			id={controlId}
+			{id}
 			{disabled}
 			value={String(scalar)}
 			onchange={(next) => onchange(next)}
 		/>
 	{:else if field.kind === "image"}
 		<ImageField
-			id={controlId}
+			{id}
 			{disabled}
 			{slug}
 			value={String(scalar)}
@@ -111,7 +104,7 @@
 		/>
 	{:else}
 		<TextControl
-			id={controlId}
+			{id}
 			{disabled}
 			{mono}
 			kind={field.kind === "url" ? "url" : "string"}
@@ -119,18 +112,39 @@
 			onchange={(next) => onchange(next)}
 		/>
 	{/if}
+{/snippet}
 
-	{#if actionLabel && onaction}
-		<div class="action">
-			<Button variant="secondary" {disabled} onclick={onaction}
-				>{actionLabel}</Button
-			>
-		</div>
-	{/if}
-	{#if field.help}
-		<span class="help">{field.help}</span>
-	{/if}
-</div>
+{#if field.kind === "boolean"}
+	<div class="field" data-kind="boolean">
+		<label class="label" for={controlId}>
+			{field.label}{#if field.required}<span class="req" title="обязательное"
+					>*</span
+				>{/if}
+		</label>
+		<BooleanControl id={controlId} {value} {disabled} {onchange} />
+		{#if field.help}
+			<span class="help">{field.help}</span>
+		{/if}
+	</div>
+{:else}
+	<div class="field">
+		<FieldShell
+			label={field.label}
+			required={field.required}
+			hint={field.help}
+			id={controlId}
+		>
+			{@render control(controlId)}
+		</FieldShell>
+		{#if actionLabel && onaction}
+			<div class="action">
+				<Button variant="secondary" {disabled} onclick={onaction}
+					>{actionLabel}</Button
+				>
+			</div>
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.field {

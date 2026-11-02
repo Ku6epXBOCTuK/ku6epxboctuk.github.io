@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Chip from "@ku6epxboctuk/ui-kit/components/Chip";
+
 	interface Props {
 		tag: string;
 		copied?: boolean;
@@ -32,60 +34,19 @@
 	{ondrop}
 	{ondragend}
 >
-	<button
-		type="button"
-		class="tag"
-		title="копировать"
-		{disabled}
-		onclick={() => oncopy(tag)}
+	<Chip
+		onopen={disabled ? undefined : () => oncopy(tag)}
+		openLabel={`скопировать тег ${tag}`}
+		onremove={disabled ? undefined : () => onremove(tag)}
+		removeLabel={`убрать тег ${tag}`}
+		unavailable={disabled}
 	>
 		{copied ? "скопировано" : tag}
-	</button>
-	<button
-		type="button"
-		class="x"
-		aria-label="убрать тег {tag}"
-		{disabled}
-		onclick={() => onremove(tag)}
-	>
-		×
-	</button>
+	</Chip>
 </li>
 
 <style>
-	li {
-		display: inline-flex;
-		align-items: center;
-		font-size: var(--fs-sm);
-		background: var(--accent-wash);
-		border: 1px solid var(--accent-dim);
-		border-radius: var(--r-control);
-	}
-
 	li.dragging {
 		opacity: 0.4;
-	}
-
-	button {
-		font: inherit;
-		font-size: var(--fs-sm);
-		background: transparent;
-		border: none;
-		line-height: 1;
-		cursor: pointer;
-	}
-
-	.tag {
-		padding: var(--gap-half) 0 var(--gap-half) var(--gap-2);
-		color: var(--text);
-	}
-
-	.x {
-		padding: var(--gap-half) var(--gap-05);
-		color: var(--text-dim);
-	}
-
-	.x:hover:not(:disabled) {
-		color: var(--danger);
 	}
 </style>

@@ -1,22 +1,16 @@
 :root {
 	--gap-half: 2px;
 
-	--pad-btn: 6px 12px;
 	--pad-btn-sm: 4px 9px;
-	--pad-btn-xs: 2px 8px;
 	--pad-field: 7px 9px;
-	--pad-chip: var(--gap-half) 8px;
-	--pad-badge: 1px 6px;
 	--pad-row: 7px var(--gap-3);
 	--cell-py: 13px;
 
 	--gutter: 24px;
 
 	--header-h: 56px;
-	--modal-w: 560px;
 	--drop-min-h: 48px;
 	--arrow-w: 30px;
-	--arrow-h: 26px;
 	--check-size: 16px;
 	--icon-cell: 34px;
 	--icon-grid-w: 340px;
