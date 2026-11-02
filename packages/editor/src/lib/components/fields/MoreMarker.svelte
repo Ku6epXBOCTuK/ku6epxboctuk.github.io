@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
 
 	interface Props {
 		hasMarker: boolean;

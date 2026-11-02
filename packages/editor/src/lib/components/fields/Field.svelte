@@ -2,11 +2,11 @@
 	import { tagError, tidyTags } from "@ku6epxboctuk/content-core/shared";
 	import type { FieldDef } from "@ku6epxboctuk/content-core/shared";
 	import { onMount } from "svelte";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Checkbox from "@ku6epxboctuk/ui-kit/components/Checkbox";
-	import FieldShell from "@ku6epxboctuk/ui-kit/components/Field";
-	import TagInput from "@ku6epxboctuk/ui-kit/components/TagInput";
-	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Checkbox from "@ku6epxboctuk/ui-kit/components/Checkbox.svelte";
+	import FieldShell from "@ku6epxboctuk/ui-kit/components/Field.svelte";
+	import TagInput from "@ku6epxboctuk/ui-kit/components/TagInput.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
 	import { knownTags } from "$lib/tags";
 	import ChoiceControl from "./ChoiceControl.svelte";
 	import DirField from "./DirField.svelte";

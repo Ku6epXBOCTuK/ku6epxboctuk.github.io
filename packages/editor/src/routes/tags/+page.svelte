@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { normalizeTag, tagError } from "@ku6epxboctuk/content-core/shared";
-	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog.svelte";
 	import RemoveScopes from "$lib/components/tags/RemoveScopes.svelte";
 	import TagAdder from "$lib/components/tags/TagAdder.svelte";
 	import TagEditRow from "$lib/components/tags/TagEditRow.svelte";

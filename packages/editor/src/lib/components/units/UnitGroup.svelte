@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { invalidateAll } from "$app/navigation";
 	import type { EntrySummary } from "@ku6epxboctuk/content-core/shared";
-	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog";
-	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog.svelte";
+	import Badge from "@ku6epxboctuk/ui-kit/components/Badge.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
 
 	interface Props {
 		units: EntrySummary[];

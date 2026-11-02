@@ -4,8 +4,8 @@
 		FieldDef,
 	} from "@ku6epxboctuk/content-core/shared";
 	import type { FieldRow } from "$lib/groups";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
 	import Field from "../fields/Field.svelte";
 	import CopyArrows from "./CopyArrows.svelte";
 

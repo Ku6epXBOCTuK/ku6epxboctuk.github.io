@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { TagRow } from "$lib/types";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
 
 	interface Props {
 		row: TagRow;

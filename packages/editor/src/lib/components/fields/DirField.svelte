@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DirEntry } from "@ku6epxboctuk/content-core";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
 	import DirBrowser from "./DirBrowser.svelte";
 
 	interface Listing {

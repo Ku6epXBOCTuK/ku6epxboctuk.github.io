@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { isValidSlug } from "@ku6epxboctuk/content-core/shared";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
-	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
 
 	interface Props {
 		renameFrom: string;

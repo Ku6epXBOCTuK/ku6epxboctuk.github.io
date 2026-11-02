@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { TagPlan } from "$lib/types";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
 
 	interface Props {
 		draft: string;

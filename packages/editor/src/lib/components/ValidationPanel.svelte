@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ValidationReport } from "$lib/types";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
 
 	interface Props {
 		report: ValidationReport | null;

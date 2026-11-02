@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { invalidateAll } from "$app/navigation";
 	import ReportRow from "$lib/components/errors/ReportRow.svelte";
-	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
+	import Badge from "@ku6epxboctuk/ui-kit/components/Badge.svelte";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();

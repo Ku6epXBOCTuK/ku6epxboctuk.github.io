@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ContentType } from "@ku6epxboctuk/content-core/shared";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Label from "@ku6epxboctuk/ui-kit/components/Label";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Label from "@ku6epxboctuk/ui-kit/components/Label.svelte";
 
 	interface Props {
 		type: ContentType;

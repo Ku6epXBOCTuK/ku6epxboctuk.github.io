@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { uploadImage } from "$lib/upload";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import TextArea from "@ku6epxboctuk/ui-kit/components/TextArea";
-	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import TextArea from "@ku6epxboctuk/ui-kit/components/TextArea.svelte";
+	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop.svelte";
 	import MoreMarker from "./MoreMarker.svelte";
 
 	interface Props {

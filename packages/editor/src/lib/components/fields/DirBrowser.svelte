@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DirEntry } from "@ku6epxboctuk/content-core";
-	import Button from "@ku6epxboctuk/ui-kit/components/Button";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
+	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
 
 	interface Props {
 		path: string;

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { describeSize, uploadImage } from "$lib/upload";
-	import Notice from "@ku6epxboctuk/ui-kit/components/Notice";
-	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
-	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop";
+	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
+	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop.svelte";
 
 	interface Props {
 		value: string;

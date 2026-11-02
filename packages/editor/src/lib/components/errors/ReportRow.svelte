@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ProjectPathReport } from "@ku6epxboctuk/content-core/shared";
-	import Badge from "@ku6epxboctuk/ui-kit/components/Badge";
+	import Badge from "@ku6epxboctuk/ui-kit/components/Badge.svelte";
 
 	const STATE_TEXT: Record<ProjectPathReport["state"], string> = {
 		ok: "найдена",

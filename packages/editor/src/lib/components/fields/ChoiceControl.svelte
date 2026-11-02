@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Select from "@ku6epxboctuk/ui-kit/components/Select";
-	import { createSelect } from "@ku6epxboctuk/ui-kit/headless/select";
+	import Select from "@ku6epxboctuk/ui-kit/components/Select.svelte";
+	import { createSelect } from "@ku6epxboctuk/ui-kit/headless/select.svelte.ts";
 
 	interface Props {
 		id: string;

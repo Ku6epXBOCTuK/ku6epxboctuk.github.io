@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { FieldRow } from "$lib/groups";
-	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle";
+	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
 	import Field from "../fields/Field.svelte";
 
 	interface FieldAction {

@@ -11,7 +11,7 @@
 	import type { EntryDetail, ValidationReport } from "$lib/types";
 	import { fieldRows } from "$lib/groups";
 	import type { GitHubProjectPayload } from "../../../routes/api/github-project/+server";
-	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog.svelte";
 	import ValidationPanel from "../ValidationPanel.svelte";
 	import ScopePanel from "./ScopePanel.svelte";
 	import SlugZone from "./SlugZone.svelte";

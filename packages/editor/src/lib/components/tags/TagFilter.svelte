@@ -1,6 +1,6 @@
 <script lang="ts">
-	import IconButton from "@ku6epxboctuk/ui-kit/components/IconButton";
-	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput";
+	import IconButton from "@ku6epxboctuk/ui-kit/components/IconButton.svelte";
+	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
 
 	interface Props {
 		value: string;

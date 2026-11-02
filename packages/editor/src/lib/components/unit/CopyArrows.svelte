@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ContentLang } from "@ku6epxboctuk/content-core/shared";
-	import IconButton from "@ku6epxboctuk/ui-kit/components/IconButton";
+	import IconButton from "@ku6epxboctuk/ui-kit/components/IconButton.svelte";
 
 	const LANG_LABEL: Record<ContentLang, string> = { ru: "RU", en: "EN" };
 
