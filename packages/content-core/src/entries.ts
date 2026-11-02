@@ -25,20 +25,10 @@ import {
 import { CONTENT_LANGS, type ContentLang, type SchemaType } from "./types.ts";
 import { parseUnit, serializeUnit } from "./yaml.ts";
 
-/*
- * Единственный, кто знает про три файла единицы. Снаружи — `Entry`: склеенное
- * представление, где потребителю всё равно, что переводимое лежит в md, а
- * общее в json.
- *
- * Раскладка определяется только `scope` из схемы. Значение, пришедшее не в той
- * корзине, куда его положил бы scope, всё равно уедет в правильный файл: иначе
- * перенос поля между файлами означал бы правки в редакторе, а это ровно то,
- * ради чего схема и вынесена отдельно.
- */
+// NOTE: only this module knows the three files of a unit; callers see `Entry`.
+// Fields are placed by schema `scope`, so moving one between files is a one-line
+// change in the schema.
 
-/**
- * Корень передаётся явно: тесты пишут в фикстуру, а не в рабочее дерево.
- */
 function assertSlug(slug: string): void {
 	if (!isValidSlug(slug)) throw new Error(`Некорректный slug: ${slug}`);
 }
@@ -64,10 +54,6 @@ function pick(
 	return out;
 }
 
-/**
- * Плоские записи по типам. Файл один на тип, поэтому читается целиком и
- * меняется в памяти, а на диск пишется снова весь.
- */
 function readMeta<T>(type: SchemaType, root: string): Record<string, unknown> {
 	const file = metaFile(type, root);
 	const record = (readJsonFile<Record<string, T>>(file) ?? {}) as Record<
@@ -97,11 +83,8 @@ function readVersion(
 	return { frontmatter, body };
 }
 
-/**
- * Пишет файл, только если содержимое изменилось. Без этого каждое сохранение
- * трогало бы mtime у всех файлов типа, и список единиц пересортировывался бы
- * по бесполезному признаку.
- */
+// NOTE: writing an unchanged file would bump its mtime and reorder the entry
+// list.
 async function writeIfChanged(file: string, raw: string): Promise<boolean> {
 	const formatted = await formatUnit(raw);
 	if (fs.existsSync(file) && fs.readFileSync(file, "utf8") === formatted) {
@@ -147,27 +130,21 @@ export function entryExists(
 export interface SplitEntry {
 	shared: Record<string, unknown>;
 	local: Record<string, unknown>;
-	/** По языку: во frontmatter попадает только `translatable`. */
+
 	frontmatter: Record<ContentLang, Record<string, unknown>>;
 	bodies: Record<ContentLang, string>;
 }
 
-/**
- * Разбор `Entry` на три файла. Ведёт себя по `scope`, а не по тому, в какой
- * корзине поле лежало на входе, поэтому общие значения, случайно попавшие в
- * языковой frontmatter, уезжают в json, а не теряются.
- */
+// NOTE: placement follows schema `scope`, not the bag a value arrived in, so a
+// shared value left in frontmatter still lands in json.
 export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 	const translatable = namesOf(type, "translatable");
 	const shared = namesOf(type, "shared");
 	const local = namesOf(type, "local");
 
-	// Поле вне схемы не знает, где ему жить, поэтому просто не попадает ни в
-	// один файл. Об этом сообщает валидация, а не отказ сохранять.
-	//
-	// Спасательное правило: значение, найденное не в своей корзине, всё равно
-	// едет в свой файл. Общее поле, забытое в языковом frontmatter, должно
-	// уехать в json, а не потеряться.
+	// NOTE: a field outside the schema belongs to no file; validation reports it
+	// rather than the save failing. Values found in the wrong bag still move to
+	// their own file.
 	const flat: Record<string, unknown> = { ...entry.local, ...entry.shared };
 	for (const lang of CONTENT_LANGS) {
 		for (const [key, value] of Object.entries(
@@ -177,10 +154,8 @@ export function splitEntry(type: SchemaType, entry: Entry): SplitEntry {
 		}
 	}
 
-	// Переводимое значение «на оба языка» берётся только из корзин, а не из
-	// языковых frontmatter. Иначе `needs_translation`, который правдив лишь у EN,
-	// размазывается на RU — а фронтmatter на диске становится не тем, что
-	// редактор прислал.
+	// NOTE: a translatable value for both languages comes from the bags only;
+	// otherwise EN-only `needs_translation` bleeds onto RU.
 	const baseline = pick({ ...entry.local, ...entry.shared }, translatable);
 
 	const frontmatter = {} as Record<ContentLang, Record<string, unknown>>;
@@ -240,11 +215,8 @@ export async function saveEntry(
 	return { entry: loadEntry(type, slug) as Entry, written };
 }
 
-/**
- * Пишет плоскую запись или убирает файл, если записей не осталось: в git не
- * должен лежать `{}` без единой записи. Записи с пустым объектом тоже
- * вычищаются — иначе файл пережил бы очистку последнего поля.
- */
+// NOTE: an empty record file is deleted and empty objects dropped, so `{}` never
+// lands in git and a file does not outlive its last field.
 function writeRecords(file: string, records: Record<string, unknown>): void {
 	const filled = Object.fromEntries(
 		Object.entries(records).filter(([, value]) => {
@@ -366,10 +338,8 @@ export function deleteEntry(
 	return true;
 }
 
-/**
- * Переименование меняет и папку, и ключ в json. Сначала папка: если упадёт
- * запись json, расхождение поймает валидация, а не чтение контента.
- */
+// NOTE: the folder moves first, so a failed json write leaves a mismatch that
+// validation catches instead of silently losing fields.
 export function renameEntry(
 	type: SchemaType,
 	slug: string,

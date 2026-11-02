@@ -1,14 +1,8 @@
 import * as fs from "node:fs";
 import { dirname, join } from "node:path";
 
-/**
- * Чтение и запись json рядом с контентом.
- *
- * Запись атомарная: сначала временный файл рядом, потом переименование. Каждая
- * правка единицы переписывает `<type>s.json` целиком, и оборванная запись
- * оставила бы файл, который не парсится, то есть потерял бы весь контент типа,
- * а не одну строку.
- */
+// NOTE: writes are atomic (temp file, then rename) because each save rewrites
+// `<type>s.json` whole and a torn write would lose the whole type.
 
 const INDENT = "\t";
 const NEWLINE = "\n";
@@ -40,10 +34,6 @@ export function readJsonFile<T>(file: string): T | undefined {
 	}
 }
 
-/**
- * Пишет через временный файл и переименование. Переименование атомарно в
- * пределах каталога, поэтому читатель увидит либо старый файл, либо новый.
- */
 export function writeJsonFile(file: string, data: unknown): void {
 	fs.mkdirSync(dirname(file), { recursive: true });
 
@@ -52,8 +42,8 @@ export function writeJsonFile(file: string, data: unknown): void {
 		fs.writeFileSync(temp, serialize(data), "utf8");
 		fs.renameSync(temp, file);
 	} catch (err) {
-		// Временный файл не должен пережить неудачную запись: иначе следующий
-		// запуск увидит мусор в каталоге контента.
+		// NOTE: a failed write must not leave the temp file behind; the next run
+		// would treat it as content.
 		fs.rmSync(temp, { force: true });
 		throw err;
 	}
@@ -68,10 +58,8 @@ function basename(file: string): string {
 	return parts[parts.length - 1] ?? file;
 }
 
-/**
- * Запись, ключ — slug. Порядок ключей стабильный, иначе каждое сохранение
- * переставляло бы строки и в git падала бы диффами без причины.
- */
+// NOTE: keys are sorted so saved files keep a stable order and git diffs stay
+// meaningful.
 export function writeJsonRecord(
 	file: string,
 	entries: Record<string, unknown>,

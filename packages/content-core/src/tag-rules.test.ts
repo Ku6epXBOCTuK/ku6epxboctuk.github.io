@@ -1,16 +1,13 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import { normalizeTag, tagError, tidyTags } from "./tag-rules.ts";
 
-/*
- * Правила тегов. Всё чистое, без файловой системы: эти функции работают прямо в
- * браузере формы, и каждая из них определяет, чем один тег отличается от
- * другого. Если `normalizeTag` и `tidyTags` разойдутся, в контент попадут дубли.
- */
-
+// NOTE: pure tag rules with no fs: the form runs them in the browser, and a drift
+// between `normalizeTag` and `tidyTags` would put duplicates into content.
 describe("normalizeTag", () => {
-	it("триммит, снимает решётку и приводит к нижнему регистру", () => {
+	it("trims, drops the hash and lowercases", () => {
 		expect(normalizeTag("  #CSS ")).toBe("css");
 		expect(normalizeTag("Rust")).toBe("rust");
 		expect(normalizeTag("##")).toBe("");
@@ -18,12 +15,12 @@ describe("normalizeTag", () => {
 });
 
 describe("tagError", () => {
-	it("пропускает обычный тег", () => {
+	it("accepts a normal tag", () => {
 		expect(tagError("css")).toBeNull();
 		expect(tagError("web-dev")).toBeNull();
 	});
 
-	it("ловит то, что распалось бы при сохранении из формы", () => {
+	it("catches what would split on save from the form", () => {
 		expect(tagError("")).toMatch(/пустой/);
 		expect(tagError("a,b")).toMatch(/запят/);
 		expect(tagError("a b")).toMatch(/пробел/);
@@ -31,19 +28,19 @@ describe("tagError", () => {
 });
 
 describe("tidyTags", () => {
-	it("приводит к нижнему регистру, убирает мусор и повторы", () => {
+	it("lowercases, drops garbage and duplicates", () => {
 		expect(
 			tidyTags(["CSS", " css ", "rust", "", 42, "a,b", "web svelte"]),
 		).toEqual(["css", "rust"]);
 	});
 
-	it("не мусорный вход даёт пустой список, а не исключение", () => {
+	it("non-array input gives an empty list, not an exception", () => {
 		expect(tidyTags("css")).toEqual([]);
 		expect(tidyTags(null)).toEqual([]);
 		expect(tidyTags([null, undefined, {}])).toEqual([]);
 	});
 
-	it("убирает решётку: #css и css — один тег", () => {
+	it("drops the hash: #css and css are one tag", () => {
 		expect(tidyTags(["#css", "css"])).toEqual(["css"]);
 	});
 });

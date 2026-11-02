@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -47,30 +48,30 @@ const readContentSchema = (): ContentSchema =>
 		fs.readFileSync(join(repoRoot(), "content.schema.json"), "utf8"),
 	) as ContentSchema;
 
-// Раскладка для сверки со схемой: `needs_translation` помечен `auto` и в форме
-// его нет, но в frontmatter.json он обязан быть.
+// NOTE: `needs_translation` is `auto` and hidden from the form, but
+// frontmatter.json must still declare it.
 const scopeNames = (type: string, scope: FieldScope): string[] =>
 	fieldsWithScope(type, scope)
 		.map((field) => field.name)
 		.sort();
 
-describe("схема разделена по месту хранения", () => {
+describe("schema is split by storage", () => {
 	const cms = readCms();
 	const schema = readContentSchema();
 	const ALL = Object.keys(ALL_FIELDS);
 
-	it.each(ALL)("%s: translatable совпадает с frontmatter.json", (type) => {
+	it.each(ALL)("%s: translatable matches frontmatter.json", (type) => {
 		const declared = cms.find((item) => item.name === type);
-		expect(declared, `${type}: нет в frontmatter.json`).toBeDefined();
+		expect(declared, `${type}: missing from frontmatter.json`).toBeDefined();
 
 		expect(scopeNames(type, "translatable")).toEqual(
 			(declared?.fields ?? []).map((field) => field.name).sort(),
 		);
 	});
 
-	it.each(ALL)("%s: shared и local совпадают с content.schema.json", (type) => {
+	it.each(ALL)("%s: shared and local match content.schema.json", (type) => {
 		const declared = schema.types[type];
-		expect(declared, `${type}: нет в content.schema.json`).toBeDefined();
+		expect(declared, `${type}: missing from content.schema.json`).toBeDefined();
 
 		expect(scopeNames(type, "shared")).toEqual(
 			(declared?.shared ?? []).map((field) => field.name).sort(),
@@ -80,7 +81,7 @@ describe("схема разделена по месту хранения", () =>
 		);
 	});
 
-	it.each(ALL)("%s: поле объявлено ровно одним scope", (type) => {
+	it.each(ALL)("%s: a field is declared by exactly one scope", (type) => {
 		const declared = new Set(
 			(scopeNames(type, "translatable") as string[]).concat(
 				scopeNames(type, "shared"),
@@ -92,7 +93,7 @@ describe("схема разделена по месту хранения", () =>
 		expect([...declared].sort()).toEqual([...new Set(actual)].sort());
 	});
 
-	it.each(ALL)("%s: shared-поле не попало в frontmatter.json", (type) => {
+	it.each(ALL)("%s: no shared field leaked into frontmatter.json", (type) => {
 		const declared = new Set(
 			(cms.find((item) => item.name === type)?.fields ?? []).map(
 				(field) => field.name,
@@ -107,19 +108,19 @@ describe("схема разделена по месту хранения", () =>
 		}
 	});
 
-	it("weekly остаётся в схеме, но не редактируется руками", () => {
+	it("weekly stays in the schema but is not edited by hand", () => {
 		expect(cms.map((item) => item.name)).toContain("weekly");
 		expect(schema.types).toHaveProperty("weekly");
 		expect(FIELDS).not.toHaveProperty("weekly");
 	});
 
-	it("выход за CONTENT_TYPES не ломает fieldsForType", () => {
+	it("a type outside CONTENT_TYPES does not break fieldsForType", () => {
 		expect(fieldsForType("weekly")).toHaveLength(ALL_FIELDS.weekly.length);
 		expect(fieldsForType("nope")).toEqual([]);
 	});
 
 	it.each(CONTENT_TYPES)(
-		"defaultsFor не выдаёт полей вне схемы: %s",
+		"defaultsFor emits no fields outside the schema: %s",
 		(type) => {
 			const allowed = new Set(fieldNames(type));
 			for (const key of Object.keys(defaultsFor(type))) {
@@ -128,12 +129,12 @@ describe("схема разделена по месту хранения", () =>
 		},
 	);
 
-	it("у project нет date, поэтому и в дефолтах его нет", () => {
+	it("project has no date, so defaults have none either", () => {
 		expect(fieldNames("project")).not.toContain("date");
 		expect(defaultsFor("project")).not.toHaveProperty("date");
 	});
 
-	it("у post и article дефолтная дата — сегодня", () => {
+	it("post and article default to today's date", () => {
 		for (const type of ["post", "article"] as const) {
 			expect(defaultsFor(type).date).toBe(
 				new Date().toISOString().slice(0, 10),
@@ -141,14 +142,14 @@ describe("схема разделена по месту хранения", () =>
 		}
 	});
 
-	it("path — единственное local-поле, и только у project", () => {
+	it("path is the only local field, and only on project", () => {
 		const wrong: string[] = [];
 
 		for (const type of ALL) {
 			const local = scopeNames(type, "local");
 			const expected = type === "project" ? ["path"] : [];
 			if (local.join(",") !== expected.join(",")) {
-				wrong.push(`${type}: ${local.join(",") || "пусто"}`);
+				wrong.push(`${type}: ${local.join(",") || "empty"}`);
 			}
 		}
 
@@ -156,8 +157,8 @@ describe("схема разделена по месту хранения", () =>
 	});
 });
 
-describe("скелет поля по scope", () => {
-	it("fieldsByScope отдаёт только поля своего места хранения", () => {
+describe("field shape by scope", () => {
+	it("fieldsByScope returns only fields of its storage", () => {
 		expect(scopeNames("post", "translatable")).toEqual([
 			"needs_translation",
 			"title",
@@ -171,18 +172,18 @@ describe("скелет поля по scope", () => {
 		]);
 	});
 
-	it("fieldsByScope не отдаёт поля, ставящиеся кодом", () => {
+	it("fieldsByScope omits fields set by code", () => {
 		expect(fieldsByScope("post", "translatable").map((f) => f.name)).toEqual([
 			"title",
 		]);
 	});
 
-	it("editableFields — это FIELDS минус auto", () => {
+	it("editableFields is FIELDS minus auto", () => {
 		const expected = FIELDS.post.filter((f) => !f.auto).map((f) => f.name);
 		expect(editableFields("post").map((f) => f.name)).toEqual(expected);
 	});
 
-	it("каждое видимое поле попадает ровно в один scope", () => {
+	it("every visible field lands in exactly one scope", () => {
 		for (const type of Object.keys(ALL_FIELDS)) {
 			const counts = new Map<string, number>();
 			for (const scope of ["translatable", "shared", "local"] as const) {
@@ -198,16 +199,16 @@ describe("скелет поля по scope", () => {
 	});
 });
 
-describe("нужны ли кавычки", () => {
+describe("whether quotes are needed", () => {
 	it.each([
-		["обычный текст", false],
-		["текст: с двоеточием", true],
-		["- начинается с дефиса", true],
+		["plain text", false],
+		["text: with colon", true],
+		["- starts with a dash", true],
 		["true", true],
 		["42", true],
 		["", true],
-		["пробел в начале ", true],
-		["перенос\nстроки", true],
+		[" leading space", true],
+		["line\nbreak", true],
 		["#hash", true],
 	])("%s", (value, expected) => {
 		expect(needsQuotes(value)).toBe(expected);
@@ -219,30 +220,30 @@ describe("round-trip frontmatter", () => {
 		[string, Record<string, unknown>, string, Record<string, unknown>]
 	> = [
 		[
-			"обычная единица",
+			"a normal unit",
 			{ title: "Мой пост", date: "2026-09-30", tags: ["svelte", "css"] },
 			"Текст поста.",
 			{ title: "Мой пост", date: "2026-09-30", tags: ["svelte", "css"] },
 		],
 		[
-			"пустые значения отбрасываются",
+			"empty values are dropped",
 			{ title: "T", draft: true, tags: [], image: undefined },
 			"Тело.",
 			{ title: "T", draft: true },
 		],
 		[
-			"значения, которые YAML прочитал бы не как строку",
+			"values YAML would not read as strings",
 			{ title: "true", subtitle: "42", description: "да" },
 			"Тело.",
 			{ title: "true", subtitle: "42", description: "да" },
 		],
 		[
-			"многострочное описание",
+			"a multiline description",
 			{ title: "T", description: "первая строка\nвторая строка" },
 			"Тело.",
 			{ title: "T", description: "первая строка\nвторая строка" },
 		],
-		["тело в обрамлении", { title: "T" }, "\n\nТело.\n\n", { title: "T" }],
+		["a wrapped body", { title: "T" }, "\n\nBody.\n\n", { title: "T" }],
 	];
 
 	it.each(cases)("%s", (_name, frontmatter, body, expected) => {
@@ -251,20 +252,20 @@ describe("round-trip frontmatter", () => {
 		expect(parsed.body).toBe(body.replace(/^\n+/, "").replace(/\s+$/, ""));
 	});
 
-	it("порядок полей сохраняется, числа-как-строки кавычатся", () => {
+	it("field order is kept and numeric strings are quoted", () => {
 		expect(serializeUnit({ b: "1", a: "2", c: 3 }, "Тело.")).toBe(
 			'---\nb: "1"\na: "2"\nc: 3\n---\nТело.\n',
 		);
 	});
 
-	it("файл без frontmatter читается как пустые метаданные", () => {
+	it("a file without frontmatter reads as empty metadata", () => {
 		const parsed = parseUnit("просто текст\n");
 		expect(parsed.frontmatter).toEqual({});
 		expect(parsed.body).toBe("просто текст");
 	});
 });
 
-describe("файл после записи устойчив к prettier", () => {
+describe("the written file is stable under prettier", () => {
 	const frontmatter = {
 		title: "Заголовок",
 		date: "2026-09-30",
@@ -287,7 +288,7 @@ describe("файл после записи устойчив к prettier", () => 
 		expect(await isFormatted(once)).toBe(true);
 	});
 
-	it("после форматирования тело читается обратно без обрамления", async () => {
+	it("after formatting the body reads back unwrapped", async () => {
 		const parsed = parseUnit(
 			await formatUnit(serializeUnit(frontmatter, "Тело.")),
 		);
@@ -295,7 +296,7 @@ describe("файл после записи устойчив к prettier", () => 
 		expect(parsed.frontmatter).toEqual(frontmatter);
 	});
 
-	it("формат соответствует тому, что ожидает prettier", async () => {
+	it("the format matches what prettier expects", async () => {
 		const raw = await formatUnit(serializeUnit({ title: "T" }, "Тело."));
 		expect(raw).toBe("---\ntitle: T\n---\n\nТело.\n");
 	});
@@ -317,12 +318,12 @@ describe("slug", () => {
 		expect(isValidSlug(slug)).toBe(expected);
 	});
 
-	it("паттерн совпадает с проверкой", () => {
+	it("the pattern matches the validator", () => {
 		expect(new RegExp(`^${SLUG_PATTERN}$`).test("my-slug")).toBe(true);
 		expect(new RegExp(`^${SLUG_PATTERN}$`).test("../x")).toBe(false);
 	});
 
-	it("чтение за пределами каталога бросает ошибку", () => {
+	it("reading outside the directory throws", () => {
 		expect(() => loadEntry("post", "../../etc")).toThrow(/Некорректный slug/);
 		expect(() => deleteEntry("post", "../escape")).toThrow(/Некорректный slug/);
 	});
@@ -338,19 +339,19 @@ describe("slug", () => {
 			expect(draftSlug(type, when)).toBe(expected);
 		});
 
-		it("минуты с ведущим нулём не теряются", () => {
+		it("minutes with a leading zero are kept", () => {
 			expect(draftSlug("post", new Date(2026, 0, 2, 9, 7))).toBe(
 				"post-20260102-0907",
 			);
 		});
 
-		it("на выходе всегда валидный slug", () => {
+		it("the result is always a valid slug", () => {
 			for (const type of ["post", "article", "project"]) {
 				expect(isValidSlug(draftSlug(type, when))).toBe(true);
 			}
 		});
 
-		it("два клика в одну минуту дают разные slug", () => {
+		it("two clicks in one minute give different slugs", () => {
 			expect(draftSlug("post", when)).not.toBe(draftSlug("article", when));
 		});
 	});

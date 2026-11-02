@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -24,30 +25,30 @@ function makePlainDir(relative: string): string {
 	return dir;
 }
 
-describe("пути локальных клонов", () => {
+describe("local clone paths", () => {
 	afterAll(() => {
 		fs.rmSync(root, { recursive: true, force: true });
 	});
 
 	describe("resolveProjectPath", () => {
-		it("пустое значение — null", () => {
+		it("an empty value is null", () => {
 			expect(resolveProjectPath(undefined, root)).toBeNull();
 			expect(resolveProjectPath("", root)).toBeNull();
 			expect(resolveProjectPath("   ", root)).toBeNull();
 		});
 
-		it("относительный путь резолвится от корня сайта", () => {
+		it("a relative path resolves from the site root", () => {
 			expect(resolveProjectPath("../example-repo", root)).toBe(
 				join(root, "..", "example-repo"),
 			);
 		});
 
-		it("абсолютный путь оставляем как есть", () => {
+		it("an absolute path stays as is", () => {
 			const absolute = join(root, "clone");
 			expect(resolveProjectPath(absolute, root)).toBe(absolute);
 		});
 
-		it("лишние пробелы обрезаются", () => {
+		it("extra spaces are trimmed", () => {
 			expect(resolveProjectPath("  ../example-repo  ", root)).toBe(
 				join(root, "..", "example-repo"),
 			);
@@ -55,7 +56,7 @@ describe("пути локальных клонов", () => {
 	});
 
 	describe("classifyProjectPath", () => {
-		it("путь не задан", () => {
+		it("path is not set", () => {
 			expect(classifyProjectPath(undefined, root)).toEqual({
 				declared: null,
 				resolved: null,
@@ -63,40 +64,40 @@ describe("пути локальных клонов", () => {
 			});
 		});
 
-		it("папки нет — missing, резолв сохраняем для подсказки", () => {
+		it("no folder is missing, but the resolution is kept for the hint", () => {
 			const verdict = classifyProjectPath("../нет-такого", root);
 			expect(verdict.state).toBe("missing");
 			expect(verdict.declared).toBe("../нет-такого");
 			expect(verdict.resolved).toBe(join(root, "..", "нет-такого"));
 		});
 
-		it("папка есть, но это не git-репозиторий", () => {
+		it("the folder exists but is not a git repository", () => {
 			makePlainDir("not-a-repo");
 			expect(classifyProjectPath("./not-a-repo", root).state).toBe(
 				"not-a-repo",
 			);
 		});
 
-		it("git-репозиторий — ok", () => {
+		it("a git repository is ok", () => {
 			makeRepo("example-repo");
 			const verdict = classifyProjectPath("./example-repo", root);
 			expect(verdict.state).toBe("ok");
 			expect(verdict.resolved).toBe(join(root, "example-repo"));
 		});
 
-		it(".git файлом (worktree) тоже считается репозиторием", () => {
+		it(".git as a file (worktree) also counts as a repository", () => {
 			const dir = join(root, "worktree");
 			fs.mkdirSync(dir, { recursive: true });
 			fs.writeFileSync(join(dir, ".git"), "gitdir: elsewhere\n");
 			expect(classifyProjectPath("./worktree", root).state).toBe("ok");
 		});
 
-		it("абсолютный путь проверяется так же", () => {
+		it("an absolute path is checked the same way", () => {
 			const dir = makeRepo("abs-clone");
 			expect(classifyProjectPath(dir, root).state).toBe("ok");
 		});
 
-		it("папка исчезла после успешной проверки — снова missing", () => {
+		it("a folder gone after a successful check is missing again", () => {
 			const dir = makeRepo("transient");
 			expect(classifyProjectPath("./transient", root).state).toBe("ok");
 			fs.rmSync(join(dir, ".git"), { recursive: true });
@@ -106,7 +107,7 @@ describe("пути локальных клонов", () => {
 	});
 
 	describe("projectPathProblems", () => {
-		it("в репозитории без проектов проблем нет", () => {
+		it("a repository without projects has no problems", () => {
 			expect(projectPathProblems({ base: root })).toEqual([]);
 		});
 	});

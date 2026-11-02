@@ -1,7 +1,5 @@
-// `weekly` генерируется автоматически и не редактируется руками, поэтому в
-// CONTENT_TYPES его нет. Но схема и файлы у него есть, поэтому есть отдельный
-// список: SCHEMA_TYPES — «у чего есть раскладка на диске», CONTENT_TYPES —
-// «что редактор правит руками».
+// NOTE: `weekly` is generated and never edited by hand, so it has no entry in
+// CONTENT_TYPES, but its files and schema exist and live in SCHEMA_TYPES.
 export const SCHEMA_TYPES = ["post", "article", "project", "weekly"] as const;
 
 export type SchemaType = (typeof SCHEMA_TYPES)[number];
@@ -50,18 +48,17 @@ export interface UnitSummary {
 }
 
 /**
- * Разбор `path` из frontmatter проекта. Живёт в types.ts, а не рядом с
- * разбором: страница ошибок в браузере тоже нуждается в типе, а сам разбор
- * ходит в fs.
+ * Parsing of a project's frontmatter `path`; the type lives here because the
+ * browser error page needs it while the parser itself touches fs.
  */
 export type ProjectPathState = "ok" | "not-set" | "missing" | "not-a-repo";
 
 export interface ProjectPathReport {
 	slug: string;
 	title: string;
-	/** Как записано в frontmatter, `null` если поля нет. */
+
 	declared: string | null;
-	/** Абсолютный путь, если объявленный удалось разрешить. */
+
 	resolved: string | null;
 	state: ProjectPathState;
 }

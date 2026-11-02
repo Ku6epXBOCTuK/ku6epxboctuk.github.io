@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import { describe, expect, it, afterAll } from "vitest";
@@ -15,15 +16,9 @@ import { metaFile } from "./paths.ts";
 import { collectTags, planTagRename, removeTag, renameTag } from "./tags.ts";
 import type { SchemaType } from "./types.ts";
 
-/*
- * Теги живут внутри единиц, поэтому «переименовать тег» — это переписать его во
- * всех единицах. Главное, что тут можно сломать, — потерять запись: теги лежат в
- * общем json, а он переписывается целиком, так что две записи подряд могут
- * затереть друг друга. Проверяется именно это.
- *
- * Правила самих тегов — в `tag-rules.test.ts`.
- */
-
+// NOTE: tags live inside units, so a rename rewrites them everywhere. The real
+// risk is losing a record: the shared json is rewritten whole, so two writes in a
+// row can overwrite each other.
 async function seed(
 	root: string,
 	type: SchemaType,
@@ -35,9 +30,9 @@ async function seed(
 	await saveEntry(type, slug, entry, root);
 }
 
-describe("теги в контенте", () => {
+describe("tags in content", () => {
 	afterAll(dropFixtureRoots);
-	it("считает использования по всем типам и сортирует по частоте", async () => {
+	it("counts usage across all types and sorts by frequency", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "svelte"]);
 		await seed(root, "article", "b", ["css"]);
@@ -50,18 +45,18 @@ describe("теги в контенте", () => {
 		expect(index[0].units.map((u) => u.slug).sort()).toEqual(["a", "b", "c"]);
 	});
 
-	it("не считает один тег дважды, даже если он повторён в единице", async () => {
+	it("does not count a tag twice even when repeated in one unit", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "css"]);
 
 		expect(collectTags(root)[0].units).toHaveLength(1);
 	});
 
-	it("пустое дерево даёт пустой список", () => {
+	it("an empty tree gives an empty list", () => {
 		expect(collectTags(fixtureRoot())).toEqual([]);
 	});
 
-	it("переименование переписывает тег во всех единицах и не теряет записи", async () => {
+	it("a rename rewrites the tag in every unit and loses no records", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "svelte"]);
 		await seed(root, "article", "b", ["css"]);
@@ -71,8 +66,8 @@ describe("теги в контенте", () => {
 
 		expect(result.changed).toBe(3);
 
-		// Все три записи должны остаться на диске: главный риск — что запись
-		// без тегов затёрла предыдущую при переписывании общего json.
+		// NOTE: all three records must stay on disk; the real risk is a record
+		// without tags overwriting the previous one when the shared json is rewritten.
 		const posts = readJsonFile<Record<string, { tags?: string[] }>>(
 			metaFile("post", root),
 		);
@@ -97,7 +92,7 @@ describe("теги в контенте", () => {
 		]);
 	});
 
-	it("переименование схлопывает дубль, а не сам тег", async () => {
+	it("a rename collapses the duplicate, not the tag", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "style"]);
 
@@ -106,7 +101,7 @@ describe("теги в контенте", () => {
 		expect(loadEntry("post", "a", root)?.shared.tags).toEqual(["style"]);
 	});
 
-	it("переименование в себя ничего не делает", async () => {
+	it("renaming to itself does nothing", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css"]);
 
@@ -114,7 +109,7 @@ describe("теги в контенте", () => {
 		expect(loadEntry("post", "a", root)?.shared.tags).toEqual(["css"]);
 	});
 
-	it("пустое имя нового тега равносильно удалению", async () => {
+	it("an empty new name is a removal", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "svelte"]);
 
@@ -123,7 +118,7 @@ describe("теги в контенте", () => {
 		expect(loadEntry("post", "a", root)?.shared.tags).toEqual(["svelte"]);
 	});
 
-	it("кривое имя не трогает контент", async () => {
+	it("an invalid name leaves content alone", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css"]);
 
@@ -131,7 +126,7 @@ describe("теги в контенте", () => {
 		expect(loadEntry("post", "a", root)?.shared.tags).toEqual(["css"]);
 	});
 
-	it("удаление убирает тег везде, но не трогает остальные", async () => {
+	it("removal drops the tag everywhere and leaves the rest", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "svelte"]);
 		await seed(root, "article", "b", ["css"]);
@@ -143,7 +138,7 @@ describe("теги в контенте", () => {
 		expect(collectTags(root).map((entry) => entry.tag)).toEqual(["svelte"]);
 	});
 
-	it("удаление тега, которого нигде нет, ничего не делает", async () => {
+	it("removing an absent tag does nothing", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css"]);
 
@@ -151,7 +146,7 @@ describe("теги в контенте", () => {
 		expect(loadEntry("post", "a", root)?.shared.tags).toEqual(["css"]);
 	});
 
-	it("последний тег исчезает, а запись остаётся", async () => {
+	it("the last tag goes, the record stays", async () => {
 		const root = fixtureRoot();
 		await seed(root, "project", "p", ["css"]);
 
@@ -163,7 +158,7 @@ describe("теги в контенте", () => {
 		expect(entry?.versions.ru.frontmatter.title).toBe("p");
 	});
 
-	it("удаление по разному регистру находит тот же тег", async () => {
+	it("removal matches the tag regardless of case", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["CSS"]);
 
@@ -172,7 +167,7 @@ describe("теги в контенте", () => {
 		expect(loadEntry("post", "a", root)?.shared.tags ?? []).toEqual([]);
 	});
 
-	it("предпросмотр видит слияние заранее, а не после", async () => {
+	it("the preview sees the merge in advance, not after", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css", "style"]);
 		await seed(root, "post", "b", ["css", "style"]);
@@ -182,14 +177,14 @@ describe("теги в контенте", () => {
 
 		expect(merge.merge).toBe(true);
 		expect(merge.affected).toBe(2);
-		// `a` и `b` уже содержат оба тега — они и есть дубли.
+		// NOTE: `a` and `b` already carry both tags, so they are the duplicates.
 		expect(merge.duplicates).toBe(2);
-		// `css` и так стоит в `a` и `b`, а `c` с `css5` слияние не касается:
-		// после него `css` остаётся в тех же двух записях.
+		// NOTE: `c` with `css5` is not part of the merge, so `css` stays in the
+		// same two records.
 		expect(merge.resultCount).toBe(2);
 	});
 
-	it("предпросмотр переименования без слияния", async () => {
+	it("rename preview without a merge", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["style"]);
 
@@ -202,7 +197,7 @@ describe("теги в контенте", () => {
 		expect(plan.resultCount).toBe(1);
 	});
 
-	it("предпросмотр переименования в себя ничего не ломает", async () => {
+	it("renaming to itself breaks nothing", async () => {
 		const root = fixtureRoot();
 		await seed(root, "post", "a", ["css"]);
 
@@ -212,7 +207,7 @@ describe("теги в контенте", () => {
 		expect(plan.affected).toBe(1);
 	});
 
-	it("предпросмотр несуществующего тега не падает", () => {
+	it("previewing an absent tag does not throw", () => {
 		const plan = planTagRename("nope", "css", fixtureRoot());
 
 		expect(plan.exists).toBe(false);
@@ -220,7 +215,7 @@ describe("теги в контенте", () => {
 		expect(plan.merge).toBe(false);
 	});
 
-	it("предпросмотр отвергает кривое имя", () => {
+	it("the preview rejects an invalid name", () => {
 		expect(() => planTagRename("css", "a,b", fixtureRoot())).toThrow(/запят/);
 	});
 });

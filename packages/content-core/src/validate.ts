@@ -4,16 +4,8 @@ import { contentDir, metaFile, repoRoot } from "./paths.ts";
 import { SCHEMA_TYPES, type SchemaType } from "./types.ts";
 import { parseUnit } from "./yaml.ts";
 
-/*
- * Валидация проверяет две схемы, потому что данные лежат в двух файлах.
- * `frontmatter.json` описывает переводимое (его читает фронтматтер в
- * редакторе), `content.schema.json` — общее и локальное.
- *
- * Отдельная проверка важна не ради удобства: если не запретить общие поля в
- * frontmatter явно, кто-нибудь рано или поздно туда вернёт `date`, и разъезд
- * двух файлов заметит только сравнение глазом.
- */
-
+// NOTE: two schema files, two checks. Without the explicit ban on shared fields
+// in frontmatter someone would put `date` back and only an eyeball would notice.
 interface SchemaField {
 	name: string;
 	type: string;
@@ -32,11 +24,10 @@ interface ContentSchema {
 }
 
 interface TypeRules {
-	/** Переводимое: frontmatter `index.<lang>.md`. */
 	translatable: SchemaField[];
-	/** Общее: `<type>s.json`. */
+
 	shared: SchemaField[];
-	/** Локальное: `<type>s.local.json`, в гитигноре. */
+
 	local: SchemaField[];
 }
 
@@ -145,7 +136,7 @@ function checkRecord(
 	data: Record<string, unknown>,
 	rules: SchemaField[],
 	report: Report,
-	/** Ключи, о которых уже сказано иначе — чтобы не сообщать дважды. */
+	/** Keys already reported elsewhere, so they are not reported twice. */
 	skip: Set<string> = new Set(),
 ): void {
 	const allowed = new Map(rules.map((field) => [field.name, field]));
@@ -172,14 +163,9 @@ function checkRecord(
 	}
 }
 
-/**
- * Общие и локальные поля в языковом frontmatter — главный запрет новой модели.
- * Сообщение называет правильный файл: «unknown field» оставило бы вопрос, куда
- * девать значение.
- *
- * Возвращает множество ключей, о которых уже сказано, чтобы проверка типов не
- * продублировала то же самое общим словом про неизвестное поле.
- */
+// NOTE: names the file a misplaced field belongs to, because "unknown field"
+// would leave the reader guessing. Returns keys already reported so type checks
+// do not repeat them.
 function reportForeignFields(
 	display: string,
 	frontmatter: Record<string, unknown>,
@@ -294,8 +280,8 @@ function validateUnit(
 	unit: string,
 ): void {
 	const type = targetOf(schemaType);
-	// Имя файла берём из настоящего пути, а не собираем из имени папки: из
-	// `posts` так получалось `postss.json`.
+	// NOTE: the file name comes from the real path; deriving it from the folder
+	// name gave `postss.json`.
 	const sharedName = basename(metaFile(schemaType, root));
 	const localName = basename(
 		metaFile(schemaType, root).replace(/\.json$/, ".local.json"),
@@ -306,9 +292,9 @@ function validateUnit(
 		: [];
 
 	if (files.length === 0) {
-		// Папка без языковых файлов — это мусор, а не сломанный контент: в git
-		// пустая папка не попадает и на сайт ничего не уносит. Ошибкой это было бы,
-		// если бы запись была видна где-то ещё: в json или в списке.
+		// NOTE: a folder with no language files is litter, not broken content; git
+		// does not keep empty folders. It would be an error only if a record in
+		// json or the list could still see it.
 		report.warnings.push(
 			`[${type}] ${unit}: папка без index.*.md — удалить или наполнить`,
 		);
@@ -342,8 +328,8 @@ function validateUnit(
 		);
 	}
 
-	// Общие поля лежат в json типа, а не в папке: запись без них не значит, что
-	// полей нет, но запись о них без папки — мусор.
+	// NOTE: shared fields live in the type json, not the folder: a record without
+	// them does not mean they are absent, but a record without a folder is litter.
 	const meta = readJson(metaFile(schemaType, root)) ?? {};
 	const shared = meta[unit];
 	if (shared && typeof shared === "object" && !Array.isArray(shared)) {
@@ -410,8 +396,8 @@ function checkFolderConsistency(
 		);
 	}
 
-	// Ключ обязан совпадать с именем папки: иначе переименование папки оставит
-	// общие поля под старым slug, и единица станет невидимой в списке.
+	// NOTE: the key must match the folder name, or a folder rename leaves shared
+	// fields under the old slug and the unit disappears from the list.
 	for (const slug of folders) {
 		if (!SLUG_RE.test(slug)) {
 			report.errors.push(`[${type}] ${slug}: недопустимое имя папки`);
@@ -452,10 +438,8 @@ export function validateContent(root = repoRoot()): Report {
 	return report;
 }
 
-/**
- * Проверка одной единицы: редактор зовёт её после каждого сохранения, а не
- * гоняет всё дерево и не выковыривает свои строки из общего отчёта.
- */
+// NOTE: the editor calls this after every save instead of walking the whole tree
+// and picking its own lines out of the report.
 export function validateEntry(
 	type: SchemaType,
 	slug: string,

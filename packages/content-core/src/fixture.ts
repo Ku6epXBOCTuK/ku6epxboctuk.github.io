@@ -1,3 +1,4 @@
+﻿// NOTE: these tests touch the filesystem, so they run in the node environment.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -5,13 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ensureContentTree } from "./paths.ts";
 
-/*
- * Фикстура вместо настоящего дерева. Тест, пишущий в `src/content`, оставляет
- * мусор в рабочей копии и падает, если упадёт посередине; корневой каталог
- * подменить нельзя, он определяется один раз. Поэтому тест создаёт корень с
- * той же раскладкой и передаёт его явно.
- */
-
+// NOTE: the root is computed once and cannot be swapped, so tests build the same
+// layout in a temp dir and pass it explicitly.
 export const roots: string[] = [];
 
 export function fixtureRoot(): string {

@@ -27,7 +27,7 @@ function readRaw(root: string): string[] {
 
 		return out.sort((a, b) => a.localeCompare(b));
 	} catch {
-		// Битый файл — пустой словарь, а не падение редактора.
+		// NOTE: a broken file means an empty dictionary, not a crashed editor.
 		return [];
 	}
 }
@@ -87,7 +87,7 @@ export function renameTagInRegistry(
 	if (error) throw new Error(error);
 	if (source === target) return readRaw(root);
 
-	// Если целевой уже есть, это слияние словаря: один тег вместо двух.
+	// NOTE: if the target already exists this merges the dictionary: one tag instead of two.
 	const next = readRaw(root).map((tag) => (tag === source ? target : tag));
 	writeRaw(next, root);
 	return readRaw(root);

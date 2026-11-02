@@ -4,19 +4,8 @@ import { normalizeTag, tagError } from "./tag-rules.ts";
 import type { Entry } from "./entry-types.ts";
 import type { ContentType } from "./types.ts";
 
-/*
- * Операции над тегами, которые переписывают контент.
- *
- * Тег не отдельная сущность: он лежит в `shared.tags` у конкретной единицы.
- * Поэтому «переименовать тег» — это переписать его во всех единицах всех типов,
- * где он встречается. Своего хранилища у тегов нет, и это осознанно: список
- * тегов всегда ровно тот, что реально используется, и разойтись с контентом
- * он не может.
- *
- * Правила для самих тегов живут в `tag-rules.ts`, без `node:fs`, чтобы форма
- * в браузере могла их использовать.
- */
-
+// NOTE: a tag is not an entity: it lives in `shared.tags` of each unit, so a
+// rename rewrites every unit and the list can never drift from the content.
 export interface TaggedUnit {
 	type: ContentType;
 	slug: string;
@@ -28,7 +17,6 @@ export interface TagUsage {
 }
 
 export interface TagChange {
-	/** Сколько единиц переписано. */
 	changed: number;
 	units: TaggedUnit[];
 }
@@ -39,13 +27,9 @@ function tagsOf(entry: Entry): string[] {
 	return tags.filter((tag): tag is string => typeof tag === "string");
 }
 
-/** Типы, в которых теги вообще бывают. `weekly` генерируется и не правится. */
 const TAGGED: ContentType[] = ["post", "article", "project"];
 
-/**
- * Все теги по всем типам. Порядок — по убыванию частоты, при равном по
- * алфавиту, чтобы список не прыгал между открытиями страницы.
- */
+// NOTE: frequency first, then alphabetically, so the list does not reshuffle between opens.
 export function collectTags(root: string = repoRoot()): TagUsage[] {
 	const buckets = new Map<string, TaggedUnit[]>();
 
@@ -87,8 +71,8 @@ async function rewriteTags(
 			const current = tagsOf(entry);
 			if (!current.some((tag) => normalizeTag(tag) === from)) continue;
 
-			// Дубли схлопываются: после переименования «css» в «style» в единице,
-			// где уже был «style», тег должен остаться один.
+			// NOTE: duplicates collapse: renaming `css` to `style` leaves one tag
+			// where both already existed.
 			const next: string[] = [];
 			for (const tag of current) {
 				const value =
@@ -102,11 +86,8 @@ async function rewriteTags(
 				shared: { ...entry.shared, tags: next },
 			};
 
-			/*
-			 * Записи строго по одной: `saveEntry` перечитывает `<type>s.json` и
-			 * пишет его целиком, поэтому параллельные вызовы затерели бы друг
-			 * друга. Здесь это обычный цикл с ожиданием — медленно, но верно.
-			 */
+			// NOTE: `saveEntry` rewrites `<type>s.json` whole, so writes must be
+			// sequential or they clobber each other.
 			await saveEntry(type, summary.slug, input, root);
 			units.push({ type, slug: summary.slug });
 		}
@@ -115,12 +96,8 @@ async function rewriteTags(
 	return { changed: units.length, units };
 }
 
-/**
- * Переименовать тег во всех единицах.
- *
- * Проверка имён живёт здесь, а не в роуте: правило должно работать для любого
- * вызывающего, а HTTP-слой — лишь приятно ответить «400» вместо исключения.
- */
+// NOTE: name validation lives here, not in the route: every caller gets it,
+// and HTTP only maps the error to 400.
 export async function renameTag(
 	from: string,
 	to: string,
@@ -136,7 +113,6 @@ export async function renameTag(
 	return rewriteTags(source, target, root);
 }
 
-/** Убрать тег из всех единиц. */
 export async function removeTag(
 	tag: string,
 	root: string = repoRoot(),
@@ -148,27 +124,21 @@ export async function removeTag(
 	return rewriteTags(value, null, root);
 }
 
-/*
- * Предпросмотр переименования.
- *
- * Главное, о чём человек должен узнать до нажатия, — слияние. Если нового имени
- * уже нет, «переименовать» превращается в «склеить два тега», и это меняет
- * смысл: `css5` и `css` станут одним тегом, а не двумя похожими. Молча такое
- * делать нельзя.
- */
+// NOTE: a rename onto an existing tag merges them, which changes meaning; the
+// preview reports that merge before anyone presses the button.
 
 export interface TagPlan {
 	from: string;
 	to: string;
-	/** Тег существует. */
+
 	exists: boolean;
-	/** Целевой тег уже есть — будет слияние. */
+
 	merge: boolean;
-	/** Сколько единиц переписывается. */
+
 	affected: number;
-	/** Сколько из них содержат оба тега: дубли, которые схлопнутся. */
+
 	duplicates: number;
-	/** Куда попадёт тег после слияния. */
+
 	resultCount: number;
 	units: TaggedUnit[];
 }

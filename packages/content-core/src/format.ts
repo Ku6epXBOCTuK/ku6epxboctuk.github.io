@@ -2,7 +2,7 @@
 import * as prettier from "prettier";
 import { repoRoot } from "./paths.ts";
 
-// Имя файла нужно, чтобы сработали overrides по `*.md` из prettier.config.js.
+// NOTE: the filename makes prettier's `*.md` overrides apply.
 const SAMPLE = join(repoRoot(), "src", "content", "posts", "index.ru.md");
 
 let cached: Promise<prettier.Options> | undefined;

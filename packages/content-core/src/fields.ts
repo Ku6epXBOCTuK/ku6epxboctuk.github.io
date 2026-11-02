@@ -1,7 +1,6 @@
 import type { ContentType, SchemaType } from "./types.ts";
 
-// Виды редактора не совпадают с типами Frontmatter CMS: там `string`,
-// здесь `text` для многострочного ввода и `markdown` для тела поста.
+// NOTE: "text" is a multiline input and "markdown" is the post body; `string` matches Frontmatter CMS.
 export type FieldKind =
 	| "string"
 	| "text"
@@ -13,23 +12,13 @@ export type FieldKind =
 	| "url"
 	| "image"
 	| "choice"
-	/** Глиф из фиксированного набора — не печатается, а выбирается. */
 	| "icon"
-	/** Папка на этой машине: выбор обзором, значение абсолютное. */
 	| "dir";
 
 /**
- * Куда поле физически лежит. Единственная ось вместо прежних `only` и
- * `shared`, которые означали разное и не выражались друг через друга.
- *
- * - `translatable` — frontmatter `index.<lang>.md`, своё значение на язык.
- * - `shared` — `<type>s.json`, одно значение на единицу контента: теги,
- *   ссылки, дата, обложка, статус.
- * - `local` — `<type>s.local.json` в гитигноре: факты о машине, не о контенте.
- *
- * Раскладка хранится только здесь. Репозиторий раскладывает поля по `scope` и
- * ничего не знает про конкретные имена, поэтому перенос поля между файлами —
- * смена одной строки, а не правка чтения и записи.
+ * Where a field physically lives: `translatable` in `index.<lang>.md`, `shared`
+ * in `<type>s.json`, `local` in the gitignored `<type>s.local.json`. Storage
+ * reads only `scope`, so moving a field between files is one line.
  */
 export type FieldScope = "translatable" | "shared" | "local";
 
@@ -39,21 +28,14 @@ export interface FieldDef {
 	label: string;
 	required: boolean;
 	scope: FieldScope;
-	/** Скрыть из формы, но оставить в схеме. */
+
 	hidden?: boolean;
 	help?: string;
 	choices?: readonly string[];
 	default?: string | boolean;
-	/** Ставится кодом, в форме не редактируется. */
+	/** Set by code; not editable in the form. */
 	auto?: boolean;
 }
-
-/*
- * Дальше схема объявлена через `as const`, и это не косметика: из неё выводятся
- * имена полей, и `Entry` типизируется конкретными ключами, а не
- * `Record<string, unknown>`. Ручные интерфейсы полей продублировали бы схему и
- * разошлись бы с ней на первой же правке.
- */
 
 const DRAFT = {
 	name: "draft",
@@ -68,8 +50,7 @@ const IMAGE = {
 	kind: "image",
 	label: "Обложка",
 	required: false,
-	// Сейчас одна картинка на оба языка: так проще. Если понадобится своя
-	// картинка для перевода, меняется только эта строка.
+
 	scope: "shared",
 } as const;
 
@@ -91,11 +72,8 @@ const TAGS = {
 	scope: "shared",
 } as const;
 
-/**
- * Глифы для карточки проекта. Набор закрытый: иконка печатается в текст рядом с
- * названием, и произвольный символ сломал бы вид списка. `color` ограничен так
- * же — ровно три значения читает `ProjectDetail`.
- */
+// NOTE: the glyph set is closed because the glyph is printed into the project
+// card; `color` is bounded the same way, `ProjectDetail` reads three values.
 const PROJECT_ICONS = [
 	"◈",
 	"◇",
@@ -128,12 +106,6 @@ const DATE = {
 	scope: "shared",
 } as const;
 
-/**
- * Литеральная схема, приватная. Из неё выводятся имена полей для типов, а
- * наружу отдаётся `readonly FieldDef[]`: `as const` не оставляет у записи
- * необязательные свойства (`auto`, `default`, `help`), и любое их чтение
- * требовало бы каста в каждом месте.
- */
 const SCHEMA = {
 	post: [
 		TITLE,
@@ -227,11 +199,8 @@ const SCHEMA = {
 		DRAFT,
 		NEEDS_TRANSLATION,
 	],
-	/**
-	 * `weekly` генерируется из git-логов, руками не редактируется и типа в
-	 * `FIELDS` не имеет. Схема ему всё равно нужна: файлы есть, и валидация их
-	 * читает.
-	 */
+	// NOTE: `weekly` is generated from git logs and has no entry in `FIELDS`,
+	// but its files exist and validation reads this schema.
 	weekly: [
 		{
 			name: "title",
@@ -261,20 +230,17 @@ export type FieldsByScope<T extends SchemaType, S extends FieldScope> = Extract<
 	{ scope: S }
 >;
 
-/** Имена полей места хранения — выведены из схемы, рукописных списков нет. */
 export type FieldNames<
 	T extends SchemaType,
 	S extends FieldScope,
 > = FieldsByScope<T, S>["name"];
 
-/** Типы, которые редактор правит руками. */
 export const FIELDS: Record<ContentType, readonly FieldDef[]> = {
 	post: SCHEMA.post,
 	article: SCHEMA.article,
 	project: SCHEMA.project,
 };
 
-/** Все типы, у которых есть схема, включая генерируемый `weekly`. */
 export const ALL_FIELDS: Record<SchemaType, readonly FieldDef[]> = SCHEMA;
 
 export function fieldsForType(type: string): readonly FieldDef[] {
@@ -287,10 +253,8 @@ export function fieldNames(type: ContentType): string[] {
 
 const DATE_LENGTH = 10;
 
-/**
- * Значения по умолчанию строго из схемы. Нельзя сеять поле, которого нет в
- * `content.schema.json`: линтер отвергнет такой файл.
- */
+// NOTE: only schema fields can be seeded; `lint:content` rejects a key that
+// `content.schema.json` does not declare.
 export function defaultsFor(type: ContentType): Record<string, unknown> {
 	const out: Record<string, unknown> = {};
 
@@ -305,38 +269,27 @@ export function defaultsFor(type: ContentType): Record<string, unknown> {
 	return out;
 }
 
-/**
- * Все поля места хранения, включая скрытые и ставящиеся кодом. По этой
- * раскладке сверяются `frontmatter.json` и `content.schema.json`: там
- * `needs_translation` есть, хотя в форме его нет.
- */
+// NOTE: hidden and auto fields are included on purpose: the schema files must
+// declare `needs_translation` even though the form never shows it.
 export function fieldsWithScope(type: string, scope: FieldScope): FieldDef[] {
 	return fieldsForType(type).filter((field) => field.scope === scope);
 }
 
-/**
- * Где поле должно лежать. `undefined` — поля нет в схеме: и репозиторий, и
- * редактор такое значение молча игнорируют, а сообщает про него валидация.
- */
+// NOTE: `undefined` means the schema has no such field; storage ignores it and
+// validation reports it.
 export function fieldScope(type: string, name: string): FieldScope | undefined {
 	return fieldsForType(type).find((field) => field.name === name)?.scope;
 }
 
-/**
- * Разбивка полей по месту хранения. Единственное место, где живёт знание о том,
- * что переводится, что общее и что локальное; репозиторий берёт готовые списки и
- * не разбирает поля по именам.
- *
- * Скрытые и ставящиеся кодом поля не отдаются: их нельзя править в форме. `scope`
- * у них при этом остаётся, и репозиторий знает, куда их класть.
- */
+// NOTE: knowledge of what is translatable, shared or local lives only here.
+// Hidden and auto fields are left out because the form cannot edit them, but
+// their scope stays so storage still files them correctly.
 export function fieldsByScope(type: string, scope: FieldScope): FieldDef[] {
 	return fieldsWithScope(type, scope).filter(
 		(field) => !field.hidden && !field.auto,
 	);
 }
 
-/** Поля, которые редактор показывает: всё, кроме скрытых и ставящихся кодом. */
 export function editableFields(type: string): FieldDef[] {
 	return fieldsForType(type).filter((field) => !field.hidden && !field.auto);
 }

@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -20,30 +21,30 @@ function tempDir(): string {
 	return dir;
 }
 
-describe("временные каталоги", () => {
+describe("temporary directories", () => {
 	afterAll(() => {
 		for (const root of roots) fs.rmSync(root, { recursive: true, force: true });
 	});
 
-	it("создан и живёт", () => {
+	it("is created and exists", () => {
 		expect(fs.existsSync(tempDir())).toBe(true);
 	});
 });
 
-describe("чтение json", () => {
-	it("нет файла — undefined, а не исключение", () => {
+describe("reading json", () => {
+	it("a missing file is undefined, not an exception", () => {
 		const dir = tempDir();
 		expect(readJsonFile(join(dir, "absent.json"))).toBeUndefined();
 	});
 
-	it("читает записанное", () => {
+	it("reads what was written", () => {
 		const dir = tempDir();
 		const file = join(dir, "projects.json");
 		writeJsonFile(file, { one: { order: 1 } });
 		expect(readJsonFile(file)).toEqual({ one: { order: 1 } });
 	});
 
-	it("битый json падает с именем файла", () => {
+	it("broken json throws with the file name", () => {
 		const dir = tempDir();
 		const file = join(dir, "broken.json");
 		fs.writeFileSync(file, "{ не json", "utf8");
@@ -60,8 +61,8 @@ describe("чтение json", () => {
 	});
 });
 
-describe("запись json", () => {
-	it("создаёт недостающие каталоги", () => {
+describe("writing json", () => {
+	it("creates missing directories", () => {
 		const dir = tempDir();
 		const file = join(dir, "deep", "nested", "projects.json");
 		writeJsonFile(file, {});
@@ -69,7 +70,7 @@ describe("запись json", () => {
 		expect(fs.existsSync(file)).toBe(true);
 	});
 
-	it("перезаписывает существующий файл целиком", () => {
+	it("overwrites the existing file whole", () => {
 		const dir = tempDir();
 		const file = join(dir, "projects.json");
 		writeJsonFile(file, { a: { order: 1 }, b: { order: 2 } });
@@ -78,7 +79,7 @@ describe("запись json", () => {
 		expect(readJsonFile(file)).toEqual({ a: { order: 9 } });
 	});
 
-	it("формат — табы и перевод строки в конце", () => {
+	it("format is tabs and a trailing newline", () => {
 		const dir = tempDir();
 		const file = join(dir, "projects.json");
 		writeJsonFile(file, { a: { order: 1 } });
@@ -89,7 +90,7 @@ describe("запись json", () => {
 		expect(raw).not.toContain("    ");
 	});
 
-	it("не оставляет временный файл", () => {
+	it("leaves no temp file", () => {
 		const dir = tempDir();
 		const file = join(dir, "projects.json");
 		writeJsonFile(file, { a: 1 });
@@ -97,9 +98,9 @@ describe("запись json", () => {
 		expect(fs.readdirSync(dir)).toEqual(["projects.json"]);
 	});
 
-	it("временный файл убирается, если запись сорвалась", () => {
+	it("the temp file is removed when the write fails", () => {
 		const dir = tempDir();
-		// Каталог вместо файла: rename в него не пройдёт.
+		// NOTE: a directory instead of a file makes rename fail.
 		const file = join(dir, "projects.json");
 		fs.mkdirSync(file);
 
@@ -110,8 +111,8 @@ describe("запись json", () => {
 	});
 });
 
-describe("порядок ключей", () => {
-	it("сортируется, иначе диффы в git скачут без причины", () => {
+describe("key order", () => {
+	it("sorted, otherwise git diffs jump for no reason", () => {
 		const dir = tempDir();
 		const file = join(dir, "projects.json");
 		writeJsonRecord(file, { zebra: 1, alpha: 2, middle: 3 });
@@ -123,7 +124,7 @@ describe("порядок ключей", () => {
 		]);
 	});
 
-	it("serialize не трогает порядок — это делает writeJsonRecord", () => {
+	it("serialize leaves order alone; writeJsonRecord sorts", () => {
 		expect(Object.keys(JSON.parse(serialize({ b: 1, a: 2 })))).toEqual([
 			"b",
 			"a",

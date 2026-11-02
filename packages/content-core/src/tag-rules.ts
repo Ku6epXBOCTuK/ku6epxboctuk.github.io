@@ -1,26 +1,12 @@
-/*
- * Правила для тегов, которые не ходят в файловую систему.
- *
- * Вынесены отдельно от `tags.ts`, который переписывает записи на диске: форма
- * редактора работает в браузере и не должна тянуть за собой `node:fs`. Всё, что
- * тут есть, — чистые функции над строкой и списком.
- */
+// NOTE: kept apart from `tags.ts` so the browser form can use these pure string
+// helpers without pulling in `node:fs`.
 
-/**
- * Тег приводится к виду, в котором он хранится: без решётки, без краёв и в
- * нижнем регистре. Так один и тот же тег не может появиться двумя записями
- * (`CSS`, `css`, `#css`).
- */
 export function normalizeTag(raw: string): string {
 	return raw.trim().replace(/^#+/, "").toLowerCase();
 }
 
-/**
- * Почему тег не годится, либо `null`, если годится.
- *
- * Пробелы и запятая запрещены не по вкусу: теги хранятся списком, а форма
- * принимает их строкой, и такой тег распался бы молча при следующем сохранении.
- */
+// NOTE: spaces and commas are banned because tags are stored as a list but typed
+// as one string, and such a tag would silently split on the next save.
 export function tagError(tag: string): string | null {
 	if (!tag) return "пустой тег";
 	if (tag.includes(",")) return "тег не может содержать запятую";
@@ -28,7 +14,6 @@ export function tagError(tag: string): string | null {
 	return null;
 }
 
-/** Теги одной единицы прибраны: без мусора, повторов и регистра. */
 export function tidyTags(raw: unknown): string[] {
 	if (!Array.isArray(raw)) return [];
 

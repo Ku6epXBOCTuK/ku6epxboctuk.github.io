@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -12,7 +13,7 @@ import {
 	tagInRegistry,
 } from "./tag-registry.ts";
 
-describe("словарь тегов", () => {
+describe("tag dictionary", () => {
 	const roots: string[] = [];
 
 	function fixture(): string {
@@ -28,11 +29,11 @@ describe("словарь тегов", () => {
 
 	const file = (root: string) => join(root, "src", "content", "tags.json");
 
-	it("нет файла — пустой список, а не ошибка", () => {
+	it("a missing file is an empty list, not an error", () => {
 		expect(readTagRegistry(fixture())).toEqual([]);
 	});
 
-	it("добавление пишет файл и держит порядок", () => {
+	it("adding writes the file and keeps order", () => {
 		const root = fixture();
 
 		addTagToRegistry("svelte", root);
@@ -44,7 +45,7 @@ describe("словарь тегов", () => {
 		});
 	});
 
-	it("повторное добавление ничего не ломает", () => {
+	it("adding twice changes nothing", () => {
 		const root = fixture();
 
 		addTagToRegistry("css", root);
@@ -53,7 +54,7 @@ describe("словарь тегов", () => {
 		expect(readTagRegistry(root)).toEqual(["css"]);
 	});
 
-	it("пустой словарь удаляет файл, а не оставляет `{}`", () => {
+	it("an empty dictionary deletes the file instead of leaving `{}`", () => {
 		const root = fixture();
 		addTagToRegistry("css", root);
 
@@ -63,7 +64,7 @@ describe("словарь тегов", () => {
 		expect(readTagRegistry(root)).toEqual([]);
 	});
 
-	it("переименование в уже существующее имя схлопывает два тега в один", () => {
+	it("renaming onto an existing name collapses two tags into one", () => {
 		const root = fixture();
 		addTagToRegistry("css", root);
 		addTagToRegistry("css5", root);
@@ -73,14 +74,14 @@ describe("словарь тегов", () => {
 		expect(readTagRegistry(root)).toEqual(["css"]);
 	});
 
-	it("битый файл читается как пустой словарь, а не роняет редактор", () => {
+	it("a broken file reads as an empty dictionary instead of crashing the editor", () => {
 		const root = fixture();
 		fs.writeFileSync(file(root), "{ не json", "utf8");
 
 		expect(readTagRegistry(root)).toEqual([]);
 	});
 
-	it("мусор внутри файла не попадает в список", () => {
+	it("garbage inside the file never reaches the list", () => {
 		const root = fixture();
 		fs.writeFileSync(
 			file(root),
@@ -91,7 +92,7 @@ describe("словарь тегов", () => {
 		expect(readTagRegistry(root)).toEqual(["css", "ok"]);
 	});
 
-	it("кривое имя не пишется", () => {
+	it("an invalid name is not written", () => {
 		const root = fixture();
 
 		expect(() => addTagToRegistry("a,b", root)).toThrow(/запят/);
@@ -99,7 +100,7 @@ describe("словарь тегов", () => {
 		expect(fs.existsSync(file(root))).toBe(false);
 	});
 
-	it("проверка наличия не падает на пустом словаре", () => {
+	it("the membership check does not throw on an empty dictionary", () => {
 		const root = fixture();
 
 		expect(tagInRegistry("css", root)).toBe(false);
@@ -107,7 +108,7 @@ describe("словарь тегов", () => {
 		expect(tagInRegistry("CSS", root)).toBe(true);
 	});
 
-	it("файл не трогается, пока содержимое то же", () => {
+	it("the file is untouched while the content is the same", () => {
 		const root = fixture();
 		addTagToRegistry("css", root);
 		const before = fs.statSync(file(root)).mtimeMs;

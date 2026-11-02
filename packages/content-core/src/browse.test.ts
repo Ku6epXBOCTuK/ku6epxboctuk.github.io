@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -5,14 +6,9 @@ import { dirname, join, parse, resolve } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { browseRoots, dirOf, listDirs } from "./browse.ts";
 
-/*
- * Обзор папок — единственное место, где редактор смотрит в файловую систему
- * шире, чем в `src/content`. Ошибка здесь выглядит как «в списке пусто» или,
- * что хуже, как обход вверх за пределы диска, поэтому проверяется и то, и
- * другое.
- */
-
-describe("обзор папок", () => {
+// NOTE: folder browsing is the only place the editor looks outside `src/content`;
+// a bug here shows as an empty list or a walk above the disk root.
+describe("folder browsing", () => {
 	const roots: string[] = [];
 
 	function fixture(): string {
@@ -31,12 +27,12 @@ describe("обзор папок", () => {
 		for (const root of roots) fs.rmSync(root, { recursive: true, force: true });
 	});
 
-	it("перечисляет подкаталоги и помечает репозитории", () => {
+	it("lists subdirectories and marks repositories", () => {
 		const base = fixture();
 		dir(base, "example-repo");
 		dir(base, "web-site");
 		fs.writeFileSync(join(base, "notes.txt"), "не папка");
-		// worktree и submodule хранят `.git` файлом, а не папкой.
+		// NOTE: worktrees and submodules keep `.git` as a file.
 		fs.writeFileSync(
 			join(dir(base, "example-repo"), ".git"),
 			"gitdir: ../.git/x",
@@ -44,8 +40,8 @@ describe("обзор папок", () => {
 
 		const { dirs, path, parent } = listDirs(base);
 
-		// Путь нормализуется: разделители приводятся к одному виду, иначе в
-		// поле уехало бы то, что на диске, и сравнение с сохранённым не сошлось бы.
+		// NOTE: the path is normalized, so the field never stores a raw disk
+		// separator and comparisons keep working.
 		expect(path).toBe(resolve(base));
 		expect(dirs.map((d) => d.name)).toEqual(["example-repo", "web-site"]);
 		expect(dirs.find((d) => d.name === "example-repo")?.isRepo).toBe(true);
@@ -53,7 +49,7 @@ describe("обзор папок", () => {
 		expect(parent).toBe(dirname(resolve(base)));
 	});
 
-	it("отдаёт готовый путь: форма не склеивает его сама", () => {
+	it("returns a ready path: the form does not join it", () => {
 		const base = fixture();
 		dir(base, "nested");
 
@@ -62,7 +58,7 @@ describe("обзор папок", () => {
 		expect(entry?.full).toBe(resolve(base, "nested"));
 	});
 
-	it("прячет скрытые и служебные папки", () => {
+	it("hides hidden and service folders", () => {
 		const base = fixture();
 		dir(base, ".git");
 		dir(base, ".cache");
@@ -72,26 +68,26 @@ describe("обзор папок", () => {
 		expect(listDirs(base).dirs.map((d) => d.name)).toEqual(["project"]);
 	});
 
-	it("не падает на отсутствующей папке, а отдаёт пустой список", () => {
+	it("returns an empty listing for a missing folder instead of throwing", () => {
 		const base = fixture();
 		const missing = join(base, "нет-такой");
 
 		const listing = listDirs(missing);
 
 		expect(listing.dirs).toEqual([]);
-		// Подняться из несуществующей папки всё равно можно, иначе обзор
-		// застревает.
+		// NOTE: you can still climb out of a missing folder, otherwise browsing
+		// gets stuck.
 		expect(listing.parent).toBeTypeOf("string");
 	});
 
-	it("не падает, когда папка есть, а читать её нельзя", () => {
+	it("does not throw when an existing folder cannot be read", () => {
 		const base = fixture();
 		const locked = dir(base, "locked");
 		fs.chmodSync(locked, 0o000);
 
 		try {
-			// Под рукой Windows права не работают, и проверка молча теряет смысл:
-			// пропускаем, а не пишем тест, который врёт.
+			// NOTE: permissions do not work on Windows, so skip instead of
+			// writing a test that lies.
 			if (process.platform === "win32") return;
 			expect(listDirs(locked).dirs).toEqual([]);
 		} finally {
@@ -99,14 +95,14 @@ describe("обзор папок", () => {
 		}
 	});
 
-	it("пустое значение открывает обзор с корня сайта", () => {
+	it("an empty value opens browsing at the site root", () => {
 		const base = fixture();
 
 		expect(dirOf(undefined, base)).toBe(resolve(base));
 		expect(dirOf("   ", base)).toBe(resolve(base));
 	});
 
-	it("относительный путь разрешается от корня сайта", () => {
+	it("a relative path resolves from the site root", () => {
 		const base = fixture();
 
 		expect(dirOf("../example-repo", base)).toBe(
@@ -114,14 +110,14 @@ describe("обзор папок", () => {
 		);
 	});
 
-	it("абсолютный путь остаётся собой", () => {
+	it("an absolute path stays as is", () => {
 		const base = fixture();
 		const absolute = dir(base, "target");
 
 		expect(dirOf(absolute, "C:\\совсем\\другое\\место")).toBe(absolute);
 	});
 
-	it("предлагает родителя и выше, но не корень диска", () => {
+	it("offers the parent and above, but not the disk root", () => {
 		const out = browseRoots(fixture());
 
 		expect(out.length).toBeGreaterThan(0);

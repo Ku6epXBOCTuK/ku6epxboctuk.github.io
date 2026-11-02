@@ -2,15 +2,6 @@ import { fieldScope } from "./fields.ts";
 import type { FieldNames, FieldScope } from "./fields.ts";
 import { CONTENT_LANGS, type ContentLang, type SchemaType } from "./types.ts";
 
-/*
- * Форма единицы контента — то, что видит потребитель: редактор, сайт, weekly.
- * Где именно лежит каждое поле, отсюда не видно и знать не нужно: репозиторий
- * разложил при чтении и сложит обратно при записи.
- *
- * Имена полей выведены из схемы, а не написаны руками. Ручной интерфейс
- * продублировал бы `fields.ts` и разошёлся с ним на первой же правке.
- */
-
 export type SharedOf<T extends SchemaType> = Partial<
 	Record<FieldNames<T, "shared">, unknown>
 >;
@@ -23,7 +14,6 @@ export type TranslatableOf<T extends SchemaType> = Partial<
 	Record<FieldNames<T, "translatable">, unknown>
 >;
 
-/** Языковая версия: frontmatter с переводимыми полями и тело markdown. */
 export interface Version<T extends SchemaType = SchemaType> {
 	frontmatter: TranslatableOf<T>;
 	body: string;
@@ -42,19 +32,13 @@ export interface Entry<T extends SchemaType = SchemaType> {
 	versions: Versions<T>;
 }
 
-/**
- * Что приходит на сохранение. Отличается от `Entry` только типом: принимается
- * ровно то, что вернул `loadEntry`, поэтому редактор не может придумать поля.
- */
 export type EntryInput<T extends SchemaType = SchemaType> = Entry<T>;
 
-/** Плоская запись `<type>s.json`: ключ — slug. */
 export type MetaRecord<T extends SchemaType = SchemaType> = Record<
 	string,
 	SharedOf<T>
 >;
 
-/** Плоская запись `<type>s.local.json`: ключ — slug. */
 export type LocalRecord<T extends SchemaType = SchemaType> = Record<
 	string,
 	LocalOf<T>
@@ -64,7 +48,7 @@ export interface EntrySummary<T extends SchemaType = SchemaType> {
 	type: T;
 	slug: string;
 	langs: ContentLang[];
-	/** Заголовок RU для списка; EN может быть пустым. */
+	/** List title comes from RU; EN may be empty. */
 	title: string;
 	draft: boolean;
 	needsTranslation: boolean;
@@ -73,7 +57,7 @@ export interface EntrySummary<T extends SchemaType = SchemaType> {
 
 export interface SaveResult<T extends SchemaType = SchemaType> {
 	entry: Entry<T>;
-	/** Какие файлы тронуты — редактору не нужно, но тестам и логам полезно. */
+
 	written: string[];
 }
 
@@ -104,13 +88,8 @@ function asBag(raw: unknown): Bag {
 	return raw as Bag;
 }
 
-/**
- * Разбор плоской карты в `Entry` по `scope` поля.
- *
- * Нужна там, где значения ещё не разложены: `defaultsFor` отдаёт одну карту, и
- * GitHub тоже присылает поля вперемешку. Поле вне схемы не попадает ни в одну
- * корзину — про него скажет валидация, а не отказ работать.
- */
+// NOTE: flat maps arrive from `defaultsFor` and GitHub; a field outside the
+// schema lands nowhere and validation reports it instead of rejecting the save.
 export function entryFromFlat<T extends SchemaType>(
 	type: T,
 	slug: string,
@@ -137,13 +116,8 @@ export function entryFromFlat<T extends SchemaType>(
 	return entry;
 }
 
-/**
- * Приведение произвольного JSON к `Entry`.
- *
- * Единственная точка, где недоверенный вход превращается в запись: всё, чего
- * нет или что не объект, заменяется пустым. Чистить пустые значения не нужно —
- * это делает `splitEntry` при раскладке по файлам.
- */
+// NOTE: the only place untrusted input becomes an Entry; missing or non-object
+// values become empty, and `splitEntry` drops empty ones when writing.
 export function entryFromInput<T extends SchemaType>(
 	type: T,
 	slug: string,
@@ -169,10 +143,6 @@ export function entryFromInput<T extends SchemaType>(
 	return entry;
 }
 
-/**
- * Все поля единицы в одной плоской карте, независимо от места хранения.
- * Нужна валидации и статистике: они не должны знать про три файла.
- */
 export function flattenEntry(entry: Entry): Record<string, unknown> {
 	const out: Record<string, unknown> = { ...entry.shared, ...entry.local };
 

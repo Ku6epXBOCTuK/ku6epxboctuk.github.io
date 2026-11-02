@@ -17,10 +17,9 @@ export function slugFromTitle(title: string): string {
 }
 
 /**
- * Черновой slug для единицы, у которой ещё нет заголовка: пост создаётся
- * кнопкой без ввода, а папке нужно имя. По времени — два клика в одну минуту
- * не столкнутся, а по типу видно, что это за черновик. Дальше переименовывается
- * кнопкой «из заголовка».
+ * Draft slug for a unit without a title: the post is created by a button with no
+ * input, and the folder needs a name. A timestamp keeps two clicks in the same
+ * minute apart; the type prefix says what the draft is.
  */
 export function draftSlug(type: string, now = new Date()): string {
 	const pad = (value: number) => String(value).padStart(2, "0");

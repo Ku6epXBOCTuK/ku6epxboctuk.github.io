@@ -3,8 +3,7 @@ import type { Frontmatter } from "./types.ts";
 
 const DELIMITER = "---";
 
-// Без кавычек YAML прочитает такие значения не как строки: "1" станет числом,
-// "да" — булевым, а "текст: с двоеточием" развалит структуру.
+// NOTE: unquoted YAML turns "1" into a number and "a: b" into structure.
 const AMBIGUOUS = /[:#[\]{},&*!|>'"%@`\n]/;
 
 const LEADING_INDICATOR = /^[-?:,[\]{}#&*!|>'"%@`]/;
@@ -34,9 +33,8 @@ export interface ParsedUnit {
 
 export function parseUnit(raw: string): ParsedUnit {
 	const text = raw.replace(/^\\uFEFF/, "");
-	// Блок может быть пустым: `---\n---` читается как «полей нет». Раньше
-	// требовалась непустая строка между разделителями, и такой файл отдавался
-	// целиком в тело вместе с самими `---`.
+	// NOTE: an empty block means no fields; older parsing returned `---\n---`
+	// as body text.
 	const match = /^---[ \t]*\r?\n([\s\S]*?)---[ \t]*\r?\n?/.exec(text);
 
 	if (!match) return { frontmatter: {}, body: normalizeBody(text) };
@@ -51,8 +49,8 @@ export function parseUnit(raw: string): ParsedUnit {
 	return { frontmatter, body: normalizeBody(text.slice(match[0].length)) };
 }
 
-// prettier ставит пустую строку после `---` и переносит текст, поэтому тело
-// хранится без обрамления — иначе чтение и запись перестанут быть обратными.
+// NOTE: prettier adds a blank line after `---`, so the body is stored unwrapped
+// to keep read and write a round trip.
 export function normalizeBody(body: string): string {
 	return body.replace(/^\n+/, "").replace(/\s+$/, "");
 }

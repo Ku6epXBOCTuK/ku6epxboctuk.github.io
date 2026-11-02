@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -20,22 +21,15 @@ import { isFormatted } from "./format.ts";
 import type { ContentLang, SchemaType } from "./types.ts";
 import { CONTENT_LANGS } from "./types.ts";
 
-/*
- * Тесты ходят по настоящей раскладке: пишут файлы в корень репозитория и убирают
- * за собой. Репозиторий считает корень один раз и не умеет переопределить его
- * на время теста, поэтому подменять его через аргумент было бы обходом того,
- * что как раз проверяется.
- */
-
+// NOTE: the tests use the real layout in a fixture root and clean up after
+// themselves; `repoRoot()` is computed once, so passing a root explicitly is the
+// only way to avoid writing into the working tree.
 const TYPE: SchemaType = "post";
 const SLUG = "zz-entries-fixture";
 const PROJECT_SLUG = "zz-entries-project-fixture";
 
-/**
- * Корень пересоздаётся перед каждым тестом: один запуск не должен видеть
- * файлы предыдущего, а падение посередине не должно оставлять мусор в дереве.
- * Заполняется в `beforeEach`, поэтому вне тестов пуст.
- */
+// NOTE: the root is recreated before every test, so a run never sees the previous
+// files and a mid-test crash leaves no litter; set in `beforeEach`.
 const state: { root: string } = { root: "" };
 
 function fixture(): string {
@@ -83,15 +77,15 @@ function readLocal(
 	return readJson(localFile(type, fixture()));
 }
 
-describe("репозиторий", () => {
+describe("repository", () => {
 	beforeEach(() => {
 		state.root = fixtureRoot();
 	});
 
 	afterAll(dropFixtureRoots);
 
-	describe("раскладка по scope", () => {
-		it("переводимое в md, общее в json", async () => {
+	describe("layout by scope", () => {
+		it("translatable in md, shared in json", async () => {
 			const input = entry();
 			input.versions.ru.frontmatter.title = "Заголовок";
 			input.versions.ru.body = "Тело RU";
@@ -111,14 +105,14 @@ describe("репозиторий", () => {
 			});
 		});
 
-		it("локальное в .local.json, а не в md", async () => {
+		it("local goes in .local.json, not md", async () => {
 			await saveEntry(TYPE, SLUG, entry(), fixture());
 			expect(fs.existsSync(localFile(TYPE, fixture()))).toBe(false);
 		});
 
-		it("файлы после записи устойчивы к prettier", async () => {
-			// Иначе `prettier --check` в CI спорил бы с редактором: каждый проход
-			// переформатировал бы файл заново и правка жила бы вечно.
+		it("written files are stable under prettier", async () => {
+			// NOTE: otherwise `prettier --check` in CI would fight the editor and
+			// rewrite the file on every run.
 			const input = entry();
 			input.versions.ru.frontmatter.title = "Заголовок";
 			input.versions.ru.body =
@@ -134,7 +128,7 @@ describe("репозиторий", () => {
 			}
 		});
 
-		it("пустой блок frontmatter читается как «полей нет»", async () => {
+		it("an empty frontmatter block reads as no fields", async () => {
 			await saveEntry(TYPE, SLUG, entry(), fixture());
 			const raw = readFile(TYPE, SLUG, "en");
 
@@ -143,10 +137,9 @@ describe("репозиторий", () => {
 			expect(readBody(TYPE, SLUG, "en")).toBe("");
 		});
 
-		it("общее поле в языковом frontmatter уезжает в json, а не теряется", async () => {
-			// Ключевая гарантия: раскладку ведёт scope, а не то, в какой корзине
-			// значение пришло. Иначе перенос поля между файлами потребовал бы правки
-			// в редакторе.
+		it("a shared field in frontmatter lands in json, not lost", async () => {
+			// NOTE: layout follows scope, not the bag a value arrived in; otherwise
+			// moving a field would require editor changes.
 			const input = entry();
 			input.versions.ru.frontmatter.title = "T";
 			input.versions.ru.frontmatter.date = "2026-09-30";
@@ -158,7 +151,7 @@ describe("репозиторий", () => {
 			expect(readMeta()[SLUG]).toEqual({ date: "2026-09-30", tags: ["из ru"] });
 		});
 
-		it("переводимое поле в shared уезжает в md, а не теряется", async () => {
+		it("a translatable field in shared lands in md, not lost", async () => {
 			const input = entry();
 			input.shared = { date: "2026-09-30", title: "из shared" };
 
@@ -169,9 +162,9 @@ describe("репозиторий", () => {
 			expect(readFrontmatter(TYPE, SLUG, "en")).toEqual({ title: "из shared" });
 		});
 
-		it("поле не из схемы отбрасывается молча", async () => {
-			// Сохранение не должно падать из-за значения, которому некуда лечь:
-			// теряется одно поле, а человек всё равно правит текст.
+		it("a field outside the schema is dropped silently", async () => {
+			// NOTE: a save must not fail over a value with nowhere to go; one field
+			// is lost while the text is still edited.
 			const input = entry();
 			input.versions.ru.frontmatter.title = "T";
 			input.shared = { date: "2026-09-30", nope: 1 } as never;
@@ -184,7 +177,7 @@ describe("репозиторий", () => {
 			expect(readFrontmatter(TYPE, SLUG, "ru")).toEqual({ title: "T" });
 		});
 
-		it("splitEntry ничего не пишет на диск", () => {
+		it("splitEntry writes nothing to disk", () => {
 			const input = entry();
 			input.versions.ru.frontmatter.title = "T";
 			input.shared = { date: "2026-09-30" };
@@ -195,10 +188,9 @@ describe("репозиторий", () => {
 			expect(entryExists(TYPE, SLUG, fixture())).toBe(false);
 		});
 
-		it("переводимое поле одного языка не размазывается на другой", () => {
-			// `needs_translation` правдив только у EN. Если он попадёт в baseline
-			// «на оба языка», RU-файл на диске будет врать, а редактор этого не
-			// покажет: он отдал ровно то, что хотел.
+		it("a translatable field of one language does not bleed into the other", () => {
+			// NOTE: `needs_translation` is true only on EN; in a both-languages
+			// baseline the RU file would lie and the editor would not show it.
 			const input = entry();
 			input.versions.ru.frontmatter.title = "Заголовок";
 			input.versions.en.frontmatter = {
@@ -214,10 +206,9 @@ describe("репозиторий", () => {
 			});
 		});
 
-		it("переводимое в общей корзине всё-таки читается как «на оба языка»", () => {
-			// Обратная сторона предыдущего правила: значение, положенное не в свой
-			// файл, применяется к обоим языкам, иначе спасательное правило было бы
-			// бессмысленным.
+		it("a translatable field in the shared bag still reads as both languages", () => {
+			// NOTE: the other side of the previous rule: a value in the wrong file
+			// applies to both languages, or the rescue rule would be pointless.
 			const input = entry();
 			input.shared = { date: "2026-09-30", title: "Один на всех" };
 
@@ -228,8 +219,8 @@ describe("репозиторий", () => {
 		});
 	});
 
-	describe("языковые файлы", () => {
-		it("сохранение создаёт оба файла сразу", async () => {
+	describe("language files", () => {
+		it("saving creates both files at once", async () => {
 			const input = entry();
 			input.versions.ru.body = "RU";
 
@@ -240,7 +231,7 @@ describe("репозиторий", () => {
 			}
 		});
 
-		it("en без текста не считается существующим языком", async () => {
+		it("an empty en does not count as an existing language", async () => {
 			const input = entry();
 			input.versions.ru.body = "RU";
 			input.versions.en.body = "";
@@ -253,7 +244,7 @@ describe("репозиторий", () => {
 			expect(summary?.langs).toEqual(["ru"]);
 		});
 
-		it("повторное сохранение без изменений не трогает файл", async () => {
+		it("saving again without changes leaves the file alone", async () => {
 			const input = entry();
 			input.versions.ru.body = "RU";
 			await saveEntry(TYPE, SLUG, input, fixture());
@@ -273,8 +264,8 @@ describe("репозиторий", () => {
 		});
 	});
 
-	describe("чтение и список", () => {
-		it("склеивает три файла в один Entry", async () => {
+	describe("reading and listing", () => {
+		it("glues the three files into one Entry", async () => {
 			const input = entry();
 			input.versions.ru.frontmatter.title = "Заголовок";
 			input.versions.ru.body = "Тело";
@@ -290,11 +281,11 @@ describe("репозиторий", () => {
 			expect(loaded?.slug).toBe(SLUG);
 		});
 
-		it("нет папки — нет Entry", () => {
+		it("no folder means no Entry", () => {
 			expect(loadEntry(TYPE, "zz-absent-fixture", fixture())).toBeUndefined();
 		});
 
-		it("round-trip сохранить и прочитать", async () => {
+		it("save and read round trip", async () => {
 			const input = entry();
 			input.versions.ru.frontmatter.title = "Заголовок";
 			input.versions.ru.body = "Тело RU";
@@ -310,7 +301,7 @@ describe("репозиторий", () => {
 			expect(loadEntry(TYPE, SLUG, fixture())).toEqual(first);
 		});
 
-		it("список берёт slug из json и из папок", async () => {
+		it("the list takes slugs from json and folders", async () => {
 			const input = entry();
 			input.versions.ru.frontmatter.title = "Из json";
 			input.shared = { date: "2026-09-30" };
@@ -321,15 +312,15 @@ describe("репозиторий", () => {
 		});
 	});
 
-	describe("жизненный цикл", () => {
-		it("создание отказывается, если папка уже есть", async () => {
+	describe("lifecycle", () => {
+		it("create refuses when the folder already exists", async () => {
 			await createEntry(TYPE, SLUG, entry(), fixture());
 			await expect(createEntry(TYPE, SLUG, entry(), fixture())).rejects.toThrow(
 				/уже существует/,
 			);
 		});
 
-		it("переименование меняет и папку, и ключ в json", async () => {
+		it("rename moves the folder and the json key", async () => {
 			const input = entry();
 			input.versions.ru.frontmatter.title = "T";
 			input.shared = { date: "2026-09-30" };
@@ -349,7 +340,7 @@ describe("репозиторий", () => {
 			}
 		});
 
-		it("удаление убирает и папку, и запись в json", async () => {
+		it("delete removes the folder and the json record", async () => {
 			const input = entry();
 			input.shared = { date: "2026-09-30" };
 			await saveEntry(TYPE, SLUG, input, fixture());
@@ -360,7 +351,7 @@ describe("репозиторий", () => {
 			expect(deleteEntry(TYPE, SLUG, fixture())).toBe(false);
 		});
 
-		it("очистка последнего общего поля убирает запись из json", async () => {
+		it("clearing the last shared field removes the json record", async () => {
 			const input = entry();
 			input.shared = { date: "2026-09-30" };
 			await saveEntry(TYPE, SLUG, input, fixture());
@@ -373,14 +364,14 @@ describe("репозиторий", () => {
 		});
 	});
 
-	describe("локальные поля", () => {
+	describe("local fields", () => {
 		afterAll(() => {
 			deleteEntry("project", PROJECT_SLUG, fixture());
 			fs.rmSync(metaFile("project", fixture()), { force: true });
 			fs.rmSync(localFile("project", fixture()), { force: true });
 		});
 
-		it("path уезжает в .local.json и не попадает в md и не в json", async () => {
+		it("path lands in .local.json, not in md and not in json", async () => {
 			const input = emptyEntry("project", PROJECT_SLUG);
 			input.versions.ru.frontmatter.title = "Проект";
 			input.versions.ru.frontmatter.path = "../example-repo";
@@ -391,7 +382,7 @@ describe("репозиторий", () => {
 			expect(readLocal("project")[PROJECT_SLUG]).toEqual({
 				path: "../example-repo",
 			});
-			// Обычный json знать о машине не должен: он в git.
+			// NOTE: the plain json must not know about the machine; it is committed.
 			expect(readMeta("project")[PROJECT_SLUG]).toEqual({
 				repo: "https://github.com/o/n",
 			});
@@ -401,8 +392,8 @@ describe("репозиторий", () => {
 		});
 	});
 
-	describe("чужой slug", () => {
-		it("невалидный slug отвергается, а не уходит в файловую систему", () => {
+	describe("foreign slug", () => {
+		it("an invalid slug is rejected, not passed to the filesystem", () => {
 			for (const bad of ["../escape", "with space", "a/b", ""]) {
 				expect(() => loadEntry(TYPE, bad, fixture())).toThrow();
 				expect(() => deleteEntry(TYPE, bad, fixture())).toThrow();
@@ -410,8 +401,9 @@ describe("репозиторий", () => {
 			}
 		});
 
-		it("тест пишет в фикстуру, а не в рабочее дерево", () => {
-			// Без явного корня тест писал бы в src/content и оставлял бы мусор.
+		it("the test writes into a fixture, not the working tree", () => {
+			// NOTE: without an explicit root the test would write into src/content
+			// and leave litter.
 			expect(fixture()).not.toBe("");
 			expect(metaFile(TYPE, fixture()).startsWith(fixture())).toBe(true);
 		});

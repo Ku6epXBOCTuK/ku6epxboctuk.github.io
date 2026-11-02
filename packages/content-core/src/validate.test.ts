@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -5,12 +6,8 @@ import { afterAll, describe, expect, it } from "vitest";
 import { validateContent } from "./validate.ts";
 import { repoRoot } from "./paths.ts";
 
-/*
- * Валидация проверяет раскладку, поэтому фикстура повторяет её целиком: обе
- * схемы, папки типов и файлы `<type>s.json`. Иначе проверка «общее поле в
- * frontmatter» работала бы на схеме, которой нет на диске.
- */
-
+// NOTE: validation checks the layout, so the fixture copies it whole: both
+// schemas, type folders and `<type>s.json` files.
 const REPO = repoRoot();
 
 const ARTICLE = ["title: Статья"];
@@ -81,10 +78,10 @@ function pair(
 	};
 }
 
-describe("валидация", () => {
+describe("validation", () => {
 	afterAll(dropRoots);
 
-	it("чистое дерево не даёт замечаний", () => {
+	it("a clean tree reports nothing", () => {
 		const result = tree({
 			files: {
 				...pair(
@@ -114,14 +111,11 @@ describe("валидация", () => {
 		expect(result.warnings).toEqual([]);
 	});
 
-	describe("папка без файлов", () => {
-		it("папка без языковых md — предупреждение, а не ошибка", () => {
-			// Папка, в которой нет ни одного `index.*.md`, — это мусор: в git
-			// пустая папка не попадает и на сайт ничего не уносит. Но заметить её
-			// надо: скорее всего единица не доехала при создании.
-			//
-			// Кладём не-md файл, потому что по-настоящему пустую папку через
-			// фикстуру не создать, а по смыслу случай тот же.
+	describe("folder without files", () => {
+		it("a folder without language md is a warning, not an error", () => {
+			// NOTE: a folder with no `index.*.md` is litter, but worth a warning:
+			// the unit likely failed to be created. A non-md file stands in so the
+			// fixture can make a non-empty folder.
 			const result = tree({ files: { "posts/ghost/notes.txt": "мусор" } });
 
 			expect(result.errors).toEqual([]);
@@ -130,7 +124,7 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("папка с чужим md — ошибка: языковых файлов нет", () => {
+		it("a folder with a foreign md is an error: no language files", () => {
 			const result = tree({ files: { "posts/ghost/README.md": "мусор" } });
 
 			expect(
@@ -138,9 +132,9 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("запись в json без папки — ошибка", () => {
-			// Обратная сторона: если запись видна в json, пустая папка её не
-			// оправдывает, иначе на сайте будет карточка без текста.
+		it("a json record without a folder is an error", () => {
+			// NOTE: the other side: a record visible in json does not excuse an
+			// empty folder, or the site gets a card without text.
 			const result = tree({
 				json: { "posts.json": { ghost: { date: "2026-09-30" } } },
 			});
@@ -149,8 +143,8 @@ describe("валидация", () => {
 		});
 	});
 
-	describe("запрет разъезда", () => {
-		it("общее поле в frontmatter называет правильный файл", () => {
+	describe("keeping the files aligned", () => {
+		it("a shared field in frontmatter names the right file", () => {
 			const result = tree({
 				files: pair("posts/x", ["title: T", "date: 2026-09-30"], POST),
 			});
@@ -161,7 +155,7 @@ describe("валидация", () => {
 			expect(found).toContain("posts.json");
 		});
 
-		it("локальное поле в frontmatter тоже запрещено", () => {
+		it("a local field in frontmatter is banned too", () => {
 			const result = tree({
 				files: pair(
 					"projects/x",
@@ -175,7 +169,7 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("переводимое поле в json — ошибка", () => {
+		it("a translatable field in json is an error", () => {
 			const result = tree({
 				files: pair("posts/x", POST, POST),
 				json: { "posts.json": { x: { title: "Лишнее" } } },
@@ -188,7 +182,7 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("запись в json без папки — ошибка", () => {
+		it("a json record without a folder is an error", () => {
 			const result = tree({
 				files: pair("posts/ok", POST, POST),
 				json: {
@@ -201,7 +195,7 @@ describe("валидация", () => {
 			);
 		});
 
-		it("обязательное поле json проверяется", () => {
+		it("a required json field is checked", () => {
 			const result = tree({
 				files: pair("projects/x", PROJECT, PROJECT),
 				json: { "projects.json": { x: {} } },
@@ -214,7 +208,7 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("тип поля в json проверяется", () => {
+		it("a json field type is checked", () => {
 			const result = tree({
 				files: pair("projects/x", PROJECT, PROJECT),
 				json: { "projects.json": { x: { repo: "r", order: "много" } } },
@@ -225,7 +219,7 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("choice проверяется по списку", () => {
+		it("choice is checked against its list", () => {
 			const result = tree({
 				files: pair("projects/x", PROJECT, PROJECT),
 				json: { "projects.json": { x: { repo: "r", status: "nope" } } },
@@ -236,7 +230,7 @@ describe("валидация", () => {
 			).toBe(true);
 		});
 
-		it("local json проверяется отдельно от общего", () => {
+		it("local json is checked apart from shared", () => {
 			const result = tree({
 				files: pair("projects/x", PROJECT, PROJECT),
 				local: { "projects.local.json": { x: { path: 42 } } },
@@ -260,12 +254,12 @@ describe("валидация", () => {
 			/missing required field "title"/,
 		],
 		[
-			"неверный тип поля",
+			"wrong field type",
 			{ files: pair("posts/x", [...POST, "needs_translation: да"], POST) },
 			/field "needs_translation" must be a boolean/,
 		],
 		[
-			"не ISO дата в json",
+			"non-ISO date in json",
 			{
 				files: pair("weekly/x", ["title: T"], ["title: T"]),
 				json: { "weekly.json": { x: { date: "30.09.2026" } } },
@@ -273,34 +267,34 @@ describe("валидация", () => {
 			/must be ISO YYYY-MM-DD/,
 		],
 		[
-			"нет маркера в статье",
+			"no marker in the article",
 			{ files: pair("articles/x", ARTICLE, ARTICLE, "Текст.", "<!--more-->") },
 			/article must contain/,
 		],
 		[
-			"needs_translation в ru",
+			"needs_translation in ru",
 			{ files: pair("posts/x", [...POST, "needs_translation: true"], POST) },
 			/only allowed in index\.en\.md/,
 		],
 		[
-			"нет en",
+			"no en",
 			{ files: { "posts/x/index.ru.md": md(POST, "Б") } },
 			/missing index\.en\.md/,
 		],
 		[
-			"excerpt у поста",
+			"excerpt on a post",
 			{ files: pair("posts/x", [...POST, "excerpt: нельзя"], POST) },
 			/"excerpt" is not used for post/,
 		],
 	];
 
-	it.each(errors)("ошибка: %s", (_name, fixture, pattern) => {
+	it.each(errors)("error: %s", (_name, fixture, pattern) => {
 		expect(tree(fixture).errors.some((line) => pattern.test(line))).toBe(true);
 	});
 
 	const warnings: Array<[string, Fixture, RegExp]> = [
 		[
-			"draft в продакшене",
+			"draft in production",
 			{
 				files: pair("posts/x", POST, POST),
 				json: { "posts.json": { x: { date: "2026-09-30", draft: true } } },
@@ -308,18 +302,18 @@ describe("валидация", () => {
 			/"draft: true" — снять перед публикацией/,
 		],
 		[
-			"маркер в посте",
+			"marker in a post",
 			{ files: pair("posts/x", POST, POST, "Б\n\n<!--more-->") },
 			/"<!--more-->" is not used in posts/,
 		],
 		[
-			"лишний файл",
+			"unexpected file",
 			{ files: { ...pair("posts/x", POST, POST), "posts/x/notes.md": "x" } },
 			/unexpected file "notes\.md"/,
 		],
 	];
 
-	it.each(warnings)("предупреждение: %s", (_name, fixture, pattern) => {
+	it.each(warnings)("warning: %s", (_name, fixture, pattern) => {
 		expect(tree(fixture).warnings.some((line) => pattern.test(line))).toBe(
 			true,
 		);

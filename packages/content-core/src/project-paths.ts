@@ -5,9 +5,8 @@ import { repoRoot } from "./paths.ts";
 import type { ProjectPathReport } from "./types.ts";
 
 /**
- * Путь к локальному клону лежит в `<type>s.local.json` — файле, который в
- * гитигноре, относительно корня сайта: `path: ../example-repo`. Так в git не попадает
- * ни `C:\Users\...`, ни вообще структура диска.
+ * The clone path lives in the gitignored `<type>s.local.json`, relative to the
+ * site root, so no user directory or disk structure reaches git.
  */
 export function resolveProjectPath(
 	declared: string | undefined,
@@ -33,7 +32,7 @@ export function classifyProjectPath(
 		return { declared: value, resolved, state: "missing" };
 	}
 
-	// worktree и submodule хранят .git файлом, а не папкой — existsSync ловит оба.
+	// NOTE: worktrees and submodules keep `.git` as a file, and existsSync catches both.
 	if (!existsSync(join(resolved as string, ".git"))) {
 		return { declared: value, resolved, state: "not-a-repo" };
 	}
@@ -45,7 +44,7 @@ export interface CheckOptions {
 	base?: string;
 }
 
-/** Разбор всех проектов: не только проблемные, чтобы форма знала текущий статус. */
+/** Every project, not only broken ones, so the form knows the current status. */
 export function checkProjectPaths(
 	options: CheckOptions = {},
 ): ProjectPathReport[] {
@@ -66,8 +65,7 @@ export function checkProjectPaths(
 	});
 }
 
-/** Проекты, с которыми weekly не сможет поработать. Путь не задан — не поломка:
- * часть проектов может просто не быть склонирована. */
+/** Projects weekly cannot work with; a missing path is not a failure, it may simply not be cloned. */
 export function projectPathProblems(
 	options: CheckOptions = {},
 ): ProjectPathReport[] {

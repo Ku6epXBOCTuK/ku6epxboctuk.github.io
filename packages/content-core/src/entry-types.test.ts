@@ -1,17 +1,13 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import { entryFromFlat, entryFromInput } from "./entry-types.ts";
 
-/*
- * Граница, где произвольный JSON превращается в `Entry`. Здесь важно не то,
- * какие поля выживут, а то, что репозиторий дальше получает запись, а не
- * мусор: сломанный вход не должен ронять сохранение, а пустые значения не
- * должны попадать на диск (это уже делает `splitEntry`).
- */
-
+// NOTE: the boundary where arbitrary JSON becomes an Entry; broken input must not
+// fail a save, and empty values are dropped later by `splitEntry`.
 describe("entryFromFlat", () => {
-	it("разносит поля по scope, а не по тому, откуда они пришли", () => {
+	it("splits fields by scope, not by where they came from", () => {
 		const entry = entryFromFlat("project", "p", {
 			title: "Заголовок",
 			description: "Описание",
@@ -26,7 +22,7 @@ describe("entryFromFlat", () => {
 			tags: ["a"],
 		});
 		expect(entry.local).toEqual({ path: "../n" });
-		// Переводимое без языка значит «одно на оба».
+		// NOTE: a translatable value without a language means the same for both.
 		expect(entry.versions.ru.frontmatter).toEqual({
 			title: "Заголовок",
 			description: "Описание",
@@ -36,7 +32,7 @@ describe("entryFromFlat", () => {
 		);
 	});
 
-	it("поле вне схемы не попадает ни в одну корзину", () => {
+	it("a field outside the schema lands in no bag", () => {
 		const entry = entryFromFlat("post", "p", { выдумка: 1, title: "T" });
 
 		expect(entry.shared).toEqual({});
@@ -46,7 +42,7 @@ describe("entryFromFlat", () => {
 });
 
 describe("entryFromInput", () => {
-	it("мусор на входе заменяется пустым, а не роняет сохранение", () => {
+	it("garbage input becomes empty instead of failing the save", () => {
 		const entry = entryFromInput("post", "p", {
 			shared: "не объект",
 			local: [1, 2],
@@ -59,7 +55,7 @@ describe("entryFromInput", () => {
 		expect(entry.versions.en).toEqual({ frontmatter: {}, body: "" });
 	});
 
-	it("принимает ровно то, что вернул loadEntry, без потерь", () => {
+	it("accepts exactly what loadEntry returned, without loss", () => {
 		const original = entryFromFlat("project", "p", {
 			title: "T",
 			repo: "https://github.com/o/n",
