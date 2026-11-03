@@ -3,14 +3,6 @@ import { createPairLoader } from "$lib/loaders";
 import { mergeShared, sharedFrom } from "$lib/shared";
 import type { MarkdownModule } from "$lib/content";
 
-/*
- * Сайт читает общие поля из `<type>s.json`, а переводимые — из языковых файлов.
- * Проверяется ровно эта склейка: если она развалится, на страницах пропадут
- * даты, теги и обложки, и заметить это можно только глазами.
- *
- * Glob в тест не тащится: наполнение подставляется напрямую.
- */
-
 const module = (frontmatter: Record<string, unknown>): MarkdownModule =>
 	({ default: () => null, frontmatter }) as unknown as MarkdownModule;
 
@@ -28,8 +20,8 @@ const SHARED = {
 	},
 };
 
-describe("общие поля из json", () => {
-	it("доезжают до записи вместе с переводимыми из md", () => {
+describe("shared fields from json", () => {
+	it("reach the entry together with the translatable md fields", () => {
 		const loader = createPairLoader({
 			modules: MODULES,
 			shared: SHARED,
@@ -45,7 +37,7 @@ describe("общие поля из json", () => {
 		expect(item.image).toBe("/images/hello.png");
 	});
 
-	it("перевод читает свой файл, общее — то же самое значение", () => {
+	it("a translation reads its own file while shared fields stay the same", () => {
 		const loader = createPairLoader({
 			modules: MODULES,
 			shared: SHARED,
@@ -59,7 +51,7 @@ describe("общие поля из json", () => {
 		expect(en?.tags).toEqual(["svelte", "будни"]);
 	});
 
-	it("общего json нет — запись собирается из md и не падает", () => {
+	it("no shared json: the entry is built from md and does not crash", () => {
 		const loader = createPairLoader({
 			modules: MODULES,
 			toItem: (entry) => entry,
@@ -71,7 +63,7 @@ describe("общие поля из json", () => {
 		expect(item.tags).toEqual([]);
 	});
 
-	it("склеенный frontmatter отдаётся в toItem", () => {
+	it("merged frontmatter is passed to toItem", () => {
 		const loader = createPairLoader({
 			modules: MODULES,
 			shared: SHARED,
@@ -83,21 +75,19 @@ describe("общие поля из json", () => {
 });
 
 describe("sharedFrom", () => {
-	it("разворачивает карту `{путь: запись}` в саму запись", () => {
+	it("unwraps the `{path: record}` map into the record itself", () => {
 		const glob = { "/src/content/articles.json": SHARED };
 		expect(sharedFrom(glob)).toEqual(SHARED);
 	});
 
-	it("пустой glob даёт undefined, а не пустой объект с путём", () => {
-		// Именно тут была ошибка: путь принимался за slug, и общие поля молча
-		// терялись — страницы оставались без дат и тегов.
+	it("empty glob gives undefined, not an object keyed by path", () => {
 		expect(sharedFrom({})).toBeUndefined();
 		expect(sharedFrom(undefined)).toBeUndefined();
 	});
 });
 
 describe("mergeShared", () => {
-	it("поздний источник перекрывает ранний по полям, а не по slug", () => {
+	it("a later source overrides the earlier one by field, not by slug", () => {
 		const merged = mergeShared(
 			{ hello: { date: "2026-01-01", tags: ["старые"] } },
 			{ hello: { date: "2026-09-30" }, other: { date: "2026-09-01" } },

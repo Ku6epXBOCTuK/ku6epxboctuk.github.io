@@ -1,25 +1,16 @@
 import type { SharedRecord } from "$lib/content";
 
-/*
- * Общие поля лежат в `<type>s.json` рядом с папками контента, а не в языковых
- * файлах. Сайт читает и то, и другое, поэтому glob нужен на оба.
- *
- * Файла может не быть вовсе: контента нет, и пустой glob — это норма, а не
- * ошибка сборки. Проверено сборкой, а не предположением.
- */
+// NOTE: a type with no content has no `<type>s.json`, and an empty glob is
+// normal there, not a build error.
 
-/**
- * Glob по конкретному файлу отдаёт карту `{путь: содержимое}`, а нужна сама
- * запись. Файл один, поэтому берётся первое значение — если совпадений не было,
- * возвращается `undefined` и склейка его пропустит.
- */
+// NOTE: a single-file glob yields one record; the path key is discarded.
 export function sharedFrom(
 	glob: Record<string, SharedRecord> | undefined,
 ): SharedRecord | undefined {
 	return Object.values(glob ?? {})[0];
 }
 
-/** Склейка нескольких плоских записей; последняя перекрывает предыдущую. */
+// NOTE: sources merge in order; a later one wins per field.
 export function mergeShared(
 	...sources: (SharedRecord | undefined)[]
 ): SharedRecord {

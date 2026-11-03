@@ -18,14 +18,8 @@ export function readingMinutes(raw: string): number {
 	return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
 
-/**
- * Тизер статьи — всё, что стоит до `<!--more-->`.
- *
- * Маркер требует валидатор и запрещает для постов: у поста в ленту идёт весь
- * текст, у статьи — первая часть, остальное открывается по клику. Разметка
- * выкидывается, потому что в карточке она не рендерится, а чистый текст можно
- * показать как есть.
- */
+// NOTE: the validator requires <!--more--> for articles and forbids it for posts;
+// posts feed the whole text, articles only the part before the marker.
 export function teaserOf(raw: string): string {
 	const body = raw.replace(/^---[\s\S]*?---\s*/, "");
 	const [head] = body.split(MORE_MARKER);
@@ -33,19 +27,15 @@ export function teaserOf(raw: string): string {
 }
 
 function plainText(markdown: string): string {
-	return (
-		markdown
-			// Ссылка: [текст](адрес) → текст. Картинка целиком выбрасывается.
-			.replace(/!\[[^\]]*\]\([^)]*\)/g, "")
-			.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-			// Заголовки, цитаты и списки теряют маркеры, но не текст.
-			.replace(/^\s{0,3}#{1,6}\s+/gm, "")
-			.replace(/^\s{0,3}>\s?/gm, "")
-			.replace(/^\s*[-*+]\s+/gm, "")
-			.replace(/[*_`]/g, "")
-			.replace(/\s+/g, " ")
-			.trim()
-	);
+	return markdown
+		.replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+		.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+		.replace(/^\s{0,3}#{1,6}\s+/gm, "")
+		.replace(/^\s{0,3}>\s?/gm, "")
+		.replace(/^\s*[-*+]\s+/gm, "")
+		.replace(/[*_`]/g, "")
+		.replace(/\s+/g, " ")
+		.trim();
 }
 
 const rawBySlugLang = new Map(

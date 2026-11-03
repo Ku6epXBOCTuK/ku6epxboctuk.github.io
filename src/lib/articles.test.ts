@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readingMinutes, teaserOf } from "$lib/articles";
 
-/*
- * Тизер — это то, что человек видит в ленте вместо статьи. Ошибка здесь
- * незаметна на глаз: либо текст обрезан не там, либо в карточку уехал
- * markdown. Поэтому разбирается отдельно.
- */
-
 const ARTICLE = `---
 title: Заголовок
 ---
@@ -21,17 +15,17 @@ title: Заголовок
 `;
 
 describe("teaserOf", () => {
-	it("берёт всё до маркера и не берёт ничего после", () => {
+	it("takes everything before the marker and nothing after", () => {
 		expect(teaserOf(ARTICLE)).toBe(
 			"Первый абзац, он и есть тизер. Второй абзац — уже не тизер.",
 		);
 	});
 
-	it("выкидывает frontmatter, а не показывает его как текст", () => {
+	it("drops frontmatter instead of showing it as text", () => {
 		expect(teaserOf(ARTICLE)).not.toMatch(/Заголовок/);
 	});
 
-	it("снимает разметку: ссылки, заголовки, списки, курсив", () => {
+	it("strips markup: links, headings, lists, emphasis", () => {
 		const teaser = teaserOf(`## Заголовок раздела
 
 Ссылка на [документацию](https://example.com) и **жирное** слово.
@@ -46,25 +40,24 @@ describe("teaserOf", () => {
 		);
 	});
 
-	it("картинка не превращается в пустой пробел", () => {
+	it("an image does not become a stray space", () => {
 		expect(teaserOf(`![alt](/images/x.webp) и текст\n\n<!--more-->`)).toBe(
 			"и текст",
 		);
 	});
 
-	it("без маркера отдаёт весь текст: валидатор это поймает, а страница не должна", () => {
+	it("without the marker returns the whole text: the validator catches it, the page must not", () => {
 		expect(teaserOf("Просто текст.")).toBe("Просто текст.");
 	});
 
-	it("пустой вход даёт пустой тизер, а не строку из пробелов", () => {
+	it("empty input gives an empty teaser, not a string of spaces", () => {
 		expect(teaserOf("")).toBe("");
 		expect(teaserOf("<!--more-->\n\nТекст после.")).toBe("");
 	});
 });
 
 describe("readingMinutes", () => {
-	it("считает слова, а не символы, и не падает на пустом тексте", () => {
-		// В фикстуре 15 слов — это меньше минуты, а не две.
+	it("counts words, not characters, and handles empty text", () => {
 		expect(readingMinutes(ARTICLE)).toBe(1);
 		expect(readingMinutes("")).toBe(1);
 

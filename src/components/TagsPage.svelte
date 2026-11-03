@@ -20,11 +20,8 @@
 
 	const index = $derived(tagIndex(active));
 
-	/**
-	 * Выбранный тег живёт в адресе, а не в состоянии компонента: ссылку с
-	 * фильтром можно переслать, перезагрузка страницы его не теряет. Сайт без
-	 * SSR, поэтому параметр читается уже в браузере.
-	 */
+	// NOTE: the selected tag lives in the URL so a filtered page can be shared;
+	// there is no SSR, so it is read in the browser.
 	const selected = $derived(page.url.searchParams.get("tag") ?? "");
 
 	const shown = $derived(index.find((entry) => entry.tag === selected));
@@ -102,10 +99,6 @@
 		gap: 24px;
 	}
 
-	/*
-	 * Облако тегов — кнопки, а не ссылки: выбор фильтрует страницу на месте, без
-	 * перезагрузки. Ссылка при этом остаётся — она в адресе, её можно переслать.
-	 */
 	.cloud {
 		display: flex;
 		flex-wrap: wrap;
@@ -151,17 +144,11 @@
 		color: var(--muted-foreground);
 	}
 
-	/* Счётчик на выбранном теге наследует цвет чипа, иначе серый цифрой на
-	   коралловом фоне читался бы как отдельный, неактивный элемент. */
 	.chip.on .num {
 		color: inherit;
 		opacity: 0.75;
 	}
 
-	/*
-	 * Карточки разных типов в одной сетке: высоты у них разные, поэтому
-	 * выравнивание по верху, а не по центру.
-	 */
 	.list {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

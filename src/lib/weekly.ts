@@ -13,11 +13,7 @@ import {
 } from "$lib/loaders";
 import { sharedFrom } from "$lib/shared";
 
-/*
- * `weekly` вне таблицы `content-globs`: типа нет в `CONTENT_TYPES`, он
- * генерируется отдельно, а не редактируется. Глобы поэтому свои — но такие же
- * по форме, как у остальных типов.
- */
+// NOTE: weekly is not in CONTENT_TYPES and is generated, not edited, so it keeps its own globs.
 const modules = import.meta.glob<MarkdownModule>(
 	"/src/content/weekly/*/index.{ru,en}.md",
 	{ eager: true },

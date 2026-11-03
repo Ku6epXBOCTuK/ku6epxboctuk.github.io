@@ -104,7 +104,7 @@
 		margin: 0;
 	}
 
-	/* Карточка сама ссылка: вложенные ссылки недоступны и не должны кликаться. */
+	/* NOTE: a nested anchor inside the card link is invalid, so links stay inert. */
 	.post-body :global(a) {
 		color: inherit;
 		text-decoration: none;

@@ -19,7 +19,6 @@
 	outline-offset: 2px;
 }
 
-/* ===== DEFAULT: kawaii + light ===== */
 :root {
 	--background: oklch(0.95 0.035 60);
 	--foreground: oklch(0.42 0.08 35);
@@ -57,7 +56,6 @@
 	--dot-blue: #c7d8ff;
 }
 
-/* ===== kawaii + dark ===== */
 :root.dark {
 	--background: oklch(0.28 0.04 305);
 	--foreground: oklch(0.95 0.025 70);
@@ -88,7 +86,6 @@
 	--term-status: #b9eee3;
 }
 
-/* ===== soft + light ===== */
 [data-skin="soft"] {
 	--background: #fff9fc;
 	--foreground: #292337;
@@ -123,7 +120,6 @@
 	--term-status: #2f9e8f;
 }
 
-/* ===== soft + dark ===== */
 [data-skin="soft"].dark {
 	--background: #17131f;
 	--foreground: #f8eff8;

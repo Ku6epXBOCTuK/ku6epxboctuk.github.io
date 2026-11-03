@@ -4,8 +4,7 @@ interface Orderable {
 	order?: number;
 }
 
-// getProjects опирается на import.meta.glob, поэтому в юнит-тесте ту же
-// логику сортировки проверяем на синтетических данных.
+// NOTE: getProjects relies on import.meta.glob, so the same sort is checked here on synthetic data.
 function byOrder(items: Orderable[]): Orderable[] {
 	const unordered = Number.MAX_SAFE_INTEGER;
 	return [...items].sort(
@@ -13,13 +12,13 @@ function byOrder(items: Orderable[]): Orderable[] {
 	);
 }
 
-describe("порядок проектов", () => {
-	it("меньшее число выше", () => {
+describe("project order", () => {
+	it("a lower number comes first", () => {
 		const items: Orderable[] = [{ order: 3 }, { order: 1 }, { order: 2 }];
 		expect(byOrder(items).map((item) => item.order)).toEqual([1, 2, 3]);
 	});
 
-	it("без order уезжают в конец и не ломают список", () => {
+	it("entries without order go last and do not break the list", () => {
 		const items: Orderable[] = [{}, { order: 5 }, {}, { order: 1 }];
 		const sorted = byOrder(items);
 		expect(sorted[0]?.order).toBe(1);
@@ -29,7 +28,7 @@ describe("порядок проектов", () => {
 		);
 	});
 
-	it("пустой список не падает", () => {
+	it("an empty list does not crash", () => {
 		expect(byOrder([])).toEqual([]);
 	});
 });

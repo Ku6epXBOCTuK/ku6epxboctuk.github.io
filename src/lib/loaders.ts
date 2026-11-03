@@ -51,7 +51,7 @@ interface PairFile<T extends ContentEntry> {
 
 export function createPairLoader<T extends ContentEntry>(options: {
 	modules: ModuleMap;
-	/** Общие поля из `<type>s.json`; ключ — slug. */
+	// NOTE: shared fields from `<type>s.json`, keyed by slug.
 	shared?: SharedRecord;
 	toItem: (_entry: ContentEntry, _fm: Frontmatter) => T;
 	sortByDate?: boolean;
