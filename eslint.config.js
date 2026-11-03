@@ -64,7 +64,7 @@ export default defineConfig(
 		},
 		rules: {
 			"svelte/no-navigation-without-resolve": "off",
-			// базовый вариант не понимает members интерфейса в svelte-скрипте
+			// NOTE: the base rule does not understand interface members in a svelte script.
 			"no-unused-vars": "off",
 		},
 	},

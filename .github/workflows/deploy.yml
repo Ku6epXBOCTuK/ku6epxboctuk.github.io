@@ -34,7 +34,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          # allowBuilds в pnpm-workspace.yaml требует pnpm 10+
+          # NOTE: allowBuilds in pnpm-workspace.yaml requires pnpm 10 or newer.
           version: 12
 
       - name: Setup Node
