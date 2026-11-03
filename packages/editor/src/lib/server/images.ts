@@ -63,7 +63,7 @@ export async function saveImage(input: {
 	kind: ImageKind;
 	slug: string;
 	dir?: string;
-	/** Готовый stem вместо случайного — для парных файлов вроде тематических вариантов. */
+	// NOTE: a ready stem instead of a random one, for paired files.
 	stem?: string;
 }): Promise<ProcessedImage> {
 	const { buffer, mimeType, kind, slug } = input;
@@ -83,7 +83,7 @@ export async function saveImage(input: {
 
 	fs.mkdirSync(dir, { recursive: true });
 
-	// Анимация в webp не переносится, поэтому GIF остаётся как есть.
+	// NOTE: webp does not carry animation, so a GIF is stored as it is.
 	if (isGif(buffer) || PASS_THROUGH.has(mimeType)) {
 		const file = `${stem}.${extensionFor(mimeType) || "gif"}`;
 		fs.writeFileSync(join(dir, file), buffer);

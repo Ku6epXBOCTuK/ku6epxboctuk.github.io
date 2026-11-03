@@ -1,4 +1,5 @@
-﻿// @vitest-environment node
+﻿// NOTE: these tests need the node environment, not a DOM.
+// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import {
@@ -93,11 +94,11 @@ describe("parseRepoUrl", () => {
 		"https://github.com/features/actions",
 		"https://github.com/topics/rust",
 		"https://github.com/o/r/../../etc",
-	])("не ссылка на репозиторий: %s", (input) => {
+	])("not a repository link: %s", (input) => {
 		expect(parseRepoUrl(input)).toBeNull();
 	});
 
-	it("собирает обратно канонический url", () => {
+	it("rebuilds the canonical url", () => {
 		const ref = parseRepoUrl("github.com/Ku6epXBOCTuK/example-repo/tree/main");
 		expect(ref && repoUrl(ref)).toBe(
 			"https://github.com/Ku6epXBOCTuK/example-repo",
@@ -131,7 +132,7 @@ describe("slugifyRepoName", () => {
 });
 
 describe("firstParagraph", () => {
-	it("пропускает заголовок, бейджи и html, отдаёт первый абзац", () => {
+	it("skips heading, badges and html, returns the first paragraph", () => {
 		const readme = [
 			"# example-repo",
 			"",
@@ -156,7 +157,7 @@ describe("firstParagraph", () => {
 		);
 	});
 
-	it("пропускает списки, таблицы, цитаты и код", () => {
+	it("skips lists, tables, quotes and code", () => {
 		const readme = [
 			"- пункт один",
 			"- пункт два",
@@ -176,12 +177,12 @@ describe("firstParagraph", () => {
 		expect(firstParagraph(readme)).toBe("Настоящее описание.");
 	});
 
-	it("пустой README даёт пустую строку", () => {
+	it("an empty README gives an empty string", () => {
 		expect(firstParagraph("")).toBe("");
 		expect(firstParagraph("# Только заголовок\n")).toBe("");
 		expect(firstParagraph("<!-- комментарий -->\n")).toBe("");
 	});
-	it("понимает CRLF, как отдаёт GitHub", () => {
+	it("handles CRLF as GitHub sends it", () => {
 		const readme = [
 			"# example-repo",
 			"",
@@ -196,13 +197,13 @@ describe("firstParagraph", () => {
 		);
 	});
 
-	it("переносит строки абзаца в пробелы", () => {
+	it("turns paragraph line breaks into spaces", () => {
 		expect(firstParagraph("Первый.\nВторой.\n")).toBe("Первый. Второй.");
 	});
 });
 
 describe("inlineText", () => {
-	it("убирает разметку, оставляя текст", () => {
+	it("strips markup and keeps the text", () => {
 		expect(
 			inlineText(
 				"Смотри [`config.toml`](a) и **жирное**, курсив *вот*, код `npm i`.",
@@ -210,7 +211,7 @@ describe("inlineText", () => {
 		).toBe("Смотри config.toml и жирное, курсив вот, код npm i.");
 	});
 
-	it("выкидывает картинки целиком", () => {
+	it("drops images entirely", () => {
 		expect(inlineText("![alt](x.png) Текст")).toBe("Текст");
 	});
 });
@@ -226,7 +227,7 @@ describe("absoluteReadmeUrl", () => {
 		expect(absoluteReadmeUrl(RAW, src)).toBe(expected);
 	});
 
-	it.each(["", "   ", "data:image/png;base64,AAA"])("не ссылка: %s", (src) => {
+	it.each(["", "   ", "data:image/png;base64,AAA"])("not a link: %s", (src) => {
 		expect(absoluteReadmeUrl(RAW, src)).toBeNull();
 	});
 });
@@ -245,7 +246,7 @@ describe("isBadgeUrl", () => {
 });
 
 describe("readmeImageUrls", () => {
-	it("берёт markdown и html, чистит бейджи, резолвит относительные", () => {
+	it("takes markdown and html, drops badges, resolves relative urls", () => {
 		const readme = [
 			"[![badge](https://img.shields.io/badge/x-y-blue)](https://ci.example)",
 			"",
@@ -264,11 +265,11 @@ describe("readmeImageUrls", () => {
 		]);
 	});
 
-	it("пустой README даёт пустой список", () => {
+	it("an empty README gives an empty list", () => {
 		expect(readmeImageUrls("", RAW)).toEqual([]);
 	});
 
-	it("понимает CRLF в разметке", () => {
+	it("handles CRLF in markup", () => {
 		const readme =
 			"![Скрин](docs/screenshot.png)\r\n\r\n![Ещё](docs/two.png)\r\n";
 		expect(readmeImageUrls(readme, RAW)).toEqual([

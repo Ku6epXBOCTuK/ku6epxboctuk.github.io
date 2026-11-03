@@ -8,7 +8,7 @@ const KB = 1024;
 const MAX_IMAGE_MB = 12;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * KB * KB;
 
-/** Ниже этого размера считаем иконкой, а не скриншотом. */
+// NOTE: anything smaller is treated as an icon, not a screenshot.
 const MIN_WIDTH = 320;
 const MIN_HEIGHT = 200;
 const MAX_IMAGE_ATTEMPTS = 5;
@@ -18,7 +18,7 @@ const FORBIDDEN = 403;
 const RATE_LIMITED = 429;
 const OK = 200;
 
-/** Бейджи и иконки: хостинг сам по себе выдаёт, что картинка не нужна. */
+// NOTE: badge and icon hosts: the host itself says the image is not needed.
 const BADGE_HOSTS = [
 	"shields.io",
 	"badge.fury.io",
@@ -120,21 +120,21 @@ export function normalizeMarkdown(markdown: string): string {
 }
 
 const SKIP_BLOCK = [
-	/^#{1,6}\s/, // заголовок
-	/^>/, // цитата
-	/^[-*+]\s/, // список
-	/^\d+\.\s/, // нумерованный список
-	/^\|/, // таблица
-	/^!\[/, // картинка
-	/^\[!\[/, // бейдж
-	/^\[.*\]:/, // ссылка-определение
-	/^</, // html
-	/^```/, // код
-	/^~~~/, // код
-	/^---+$/, // разделитель
-	/^\*\*\*$/, // разделитель
-	/^={3,}$/, // подчёркивание h1
-	/^[^\S\n]*$/, // пустое
+	/^#{1,6}\s/,
+	/^>/,
+	/^[-*+]\s/,
+	/^\d+\.\s/,
+	/^\|/,
+	/^!\[/,
+	/^\[!\[/,
+	/^\[.*\]:/,
+	/^</,
+	/^```/,
+	/^~~~/,
+	/^---+$/,
+	/^\*\*\*$/,
+	/^={3,}$/,
+	/^[^\S\n]*$/,
 ];
 
 export function firstParagraph(markdown: string): string {
@@ -195,9 +195,10 @@ export function readmeImageUrls(markdown: string, rawBase: string): string[] {
 	)) {
 		push(match[1] as string);
 	}
-	for (const match of normalizeMarkdown(markdown).matchAll(
-		/<img[^>]+src=["']([^"']+)["']/gi, // impeccable-disable-line broken-image
-	)) {
+	// NOTE: this reads raw <img> tags out of a README, not markup we render.
+	// impeccable-disable-next-line broken-image
+	const htmlImage = /<img[^>]+src=["']([^"']+)["']/gi;
+	for (const match of normalizeMarkdown(markdown).matchAll(htmlImage)) {
 		push(match[1] as string);
 	}
 
@@ -297,8 +298,8 @@ export async function fetchImage(url: string): Promise<DownloadedImage | null> {
 			buffer,
 			mimeType,
 			width: meta.width ?? 0,
-			// У анимированных gifheight — это высота всех кадров, сложенных
-			// в одну полосу. Для решения «подходит ли обложка» нужен кадр.
+			// NOTE: for an animated gif height is every frame stacked into one
+			// strip; picking a cover needs a single frame, hence pageHeight.
 			height: meta.pageHeight ?? meta.height ?? 0,
 		};
 	} catch {

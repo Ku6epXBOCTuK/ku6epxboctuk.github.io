@@ -8,7 +8,7 @@ const HEIGHT = 630;
 interface Variant {
 	bg: string;
 	fg: string;
-	/** Прозрачность узора: на тёмном фоне та же прозрачность читается сильнее. */
+	// NOTE: the same opacity reads stronger on a dark background.
 	wm: number;
 }
 
@@ -78,11 +78,8 @@ function escapeXml(value: string): string {
 		.replace(/'/g, "&apos;");
 }
 
-/**
- * Кегль заголовка фиксированный: плейсхолдеры должны быть единообразными.
- * Длинное название обрезается многоточием по РЕАЛЬНОЙ ширине (бинарный поиск
- * по измеренным глифам), а не по числу символов: iii и www разной ширины.
- */
+// NOTE: the title size is fixed so placeholders look alike; a long title is cut
+// by real glyph width (binary search over measured glyphs), not by length.
 async function fitLabel(raw: string): Promise<string> {
 	const label = raw.trim() || FALLBACK_LABEL;
 	const full = await measureTextWidth(label, TITLE_SIZE);
@@ -106,18 +103,14 @@ async function fitLabel(raw: string): Promise<string> {
 }
 
 export interface TextMeasure {
-	/** Ширина bbox глифов. */
+	// NOTE: bbox width; left is the bbox shift from the text x, 0 to a few px.
 	width: number;
-	/** Левый bearing: сдвиг bbox относительно x текста (бывает 0–несколько px). */
 	left: number;
 }
 
-/**
- * Точная ширина строки: рендерим текст и обрезаем пустые поля. Единственный
- * способ получить реальные глифовые метрики — librsvg их не отдаёт.
- * threshold 1: фон чисто-белый, иначе trim съедает полупрозрачные края глифов
- * и линия выходит короче текста.
- */
+// NOTE: rendering and trimming is the only way to get real glyph metrics,
+// librsvg does not expose them. threshold 1 keeps translucent glyph edges,
+// otherwise the line comes out shorter than the text.
 export async function measureTextWidth(
 	text: string,
 	size: number,
@@ -133,8 +126,8 @@ export async function measureTextWidth(
 		.png()
 		.trim({ threshold: 1 })
 		.toBuffer({ resolveWithObject: true });
-	// trimOffsetLeft отрицательный: сдвиг контента в исходнике = -trimOffsetLeft,
-	// bearing = сдвиг минус x, куда текст был поставлен (pad).
+	// NOTE: trimOffsetLeft is negative, the content offset is its negation;
+	// bearing is that offset minus the pad the text was placed at.
 	const trimLeft = info.trimOffsetLeft ?? -pad;
 	return { width: info.width, left: -trimLeft - pad };
 }
@@ -176,9 +169,9 @@ function placeholderSvg(
 	const kindBoth = KIND_EN[kind] ? `${kind} · ${KIND_EN[kind]}` : kind;
 	const dashY = titleY + TITLE_DASH_OFFSET;
 
-	// Полоска под заголовком рвётся на выступающих вниз частях букв: она лежит
-	// ПОД текстом, а текст обведён цветом фона — обводка перекрывает линию
-	// вокруг глифов. librsvg не вычитает текст из mask, поэтому не маска, а halo.
+	// NOTE: the strip runs under the text and the text is stroked with the
+	// background color, so descenders cut it; librsvg cannot subtract text from
+	// a mask, hence a halo instead of a mask.
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <defs>
     <pattern id="watermark" width="${WATERMARK_TILE_W}" height="${WATERMARK_TILE_H}" patternUnits="userSpaceOnUse" patternTransform="rotate(${WATERMARK_ANGLE})">

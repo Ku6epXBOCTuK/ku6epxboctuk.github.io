@@ -25,7 +25,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		headers: {
 			"Content-Type": imageType(file) ?? "application/octet-stream",
 			"Content-Length": String(statSync(path).size),
-			// Имя файла содержит хеш содержимого, поэтому файл неизменяем.
+			// NOTE: the file name carries the content hash, so the file never changes.
 			"Cache-Control": "public, max-age=31536000, immutable",
 		},
 	});

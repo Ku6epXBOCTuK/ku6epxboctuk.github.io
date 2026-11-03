@@ -76,10 +76,8 @@ function resolve(plan: FieldGroup[], fields: FieldDef[]): ResolvedGroup[] {
 		.filter((group) => group.fields.length > 0);
 }
 
-/**
- * План задаёт только порядок и заголовки блоков. В какой список попадёт поле,
- * решает `scope` у самого поля, а не место в плане.
- */
+// NOTE: the plan only sets section order and titles; the field's own scope
+// decides which list it lands in.
 export function fieldRows(
 	type: ContentType,
 	ruFields: FieldDef[],

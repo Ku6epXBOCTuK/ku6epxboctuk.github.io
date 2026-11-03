@@ -1,4 +1,5 @@
-﻿// @vitest-environment node
+﻿// NOTE: these tests need the node environment, not a DOM.
+// @vitest-environment node
 
 import { describe, expect, it } from "vitest";
 import {
@@ -27,8 +28,8 @@ function localRowList(type: Type) {
 	return pairRows(type).local.filter((row) => !row.title);
 }
 
-describe("разметка полей", () => {
-	it("каждое поле встречается в строках ровно один раз", () => {
+describe("field layout", () => {
+	it("each field appears in a row exactly once", () => {
 		const doubled: string[] = [];
 
 		for (const type of ["post", "article", "project"] as const) {
@@ -45,7 +46,7 @@ describe("разметка полей", () => {
 		expect(doubled).toEqual([]);
 	});
 
-	it("в строке лежит одно и то же поле двух языков", () => {
+	it("a row holds one field across both languages", () => {
 		const mismatched: string[] = [];
 		const empty: string[] = [];
 
@@ -62,7 +63,7 @@ describe("разметка полей", () => {
 		expect(mismatched).toEqual([]);
 	});
 
-	it("path локальный, а не общий и не переводимый", () => {
+	it("path is local, neither shared nor translatable", () => {
 		const paired = fieldRowList("project").filter(
 			(row) => row.ru?.name === "path",
 		);
@@ -77,7 +78,7 @@ describe("разметка полей", () => {
 		).toBe(true);
 	});
 
-	it("все поля схемы попали в строки", () => {
+	it("every schema field lands in a row", () => {
 		const missing: string[] = [];
 
 		for (const type of ["post", "article", "project"] as const) {
@@ -95,7 +96,7 @@ describe("разметка полей", () => {
 		expect(missing).toEqual([]);
 	});
 
-	it("заголовок блока не дословно повторяет подпись поля", () => {
+	it("a section title does not repeat a field label verbatim", () => {
 		const rows = pairRows("project").translated;
 		const titles = new Set(
 			rows.filter((r) => r.title).map((r) => r.title?.toLowerCase().trim()),
@@ -108,7 +109,7 @@ describe("разметка полей", () => {
 		expect(dupes).toEqual([]);
 	});
 
-	it("новое поле в схеме не пропадает из формы", () => {
+	it("a new schema field does not disappear from the form", () => {
 		const rows = pairRows("post").shared;
 		const last = rows.at(-1);
 		const names = rows
@@ -120,10 +121,10 @@ describe("разметка полей", () => {
 	});
 });
 
-describe("разделение на переводимое и общее", () => {
+describe("translatable and shared split", () => {
 	const TYPES = ["post", "article", "project"] as const;
 
-	it("общее поле не попадает в пару RU | EN", () => {
+	it("a shared field does not land in a RU | EN pair", () => {
 		const leaked: string[] = [];
 
 		for (const type of TYPES) {
@@ -142,21 +143,21 @@ describe("разделение на переводимое и общее", () =>
 		expect(leaked).toEqual([]);
 	});
 
-	it("общие поля показаны один раз и без пары", () => {
+	it("shared fields render once and without a pair", () => {
 		const bad: string[] = [];
 
 		for (const type of TYPES) {
 			for (const row of sharedRowList(type)) {
-				if (!row.shared) bad.push(`${type}: строка без поля`);
-				if (row.ru) bad.push(`${type}.${row.shared?.name}: лишняя RU`);
-				if (row.en) bad.push(`${type}.${row.shared?.name}: лишняя EN`);
+				if (!row.shared) bad.push(`${type}: row without a field`);
+				if (row.ru) bad.push(`${type}.${row.shared?.name}: stray RU`);
+				if (row.en) bad.push(`${type}.${row.shared?.name}: stray EN`);
 			}
 		}
 
 		expect(bad).toEqual([]);
 	});
 
-	it("каждое поле схемы попало либо в пару, либо в общий, либо в локальный", () => {
+	it("every schema field lands in a pair, shared or local row", () => {
 		const lost: string[] = [];
 
 		for (const type of TYPES) {
@@ -180,7 +181,7 @@ describe("разделение на переводимое и общее", () =>
 		expect(lost).toEqual([]);
 	});
 
-	it("теги, ссылки и статус общие, заголовок и описание переводимые", () => {
+	it("tags, links and status are shared, title and description translatable", () => {
 		const shared = fieldsByScope("project", "shared").map((f) => f.name);
 		const translated = fieldsByScope("project", "translatable").map(
 			(f) => f.name,
@@ -195,15 +196,15 @@ describe("разделение на переводимое и общее", () =>
 			"draft",
 			"image",
 		]) {
-			expect(shared, `${name} должен быть общим`).toContain(name);
+			expect(shared, `${name} should be shared`).toContain(name);
 		}
 
 		for (const name of ["title", "subtitle", "description"]) {
-			expect(translated, `${name} должен переводиться`).toContain(name);
+			expect(translated, `${name} should be translatable`).toContain(name);
 		}
 	});
 
-	it("path — local: не общий и не переводимый", () => {
+	it("path is local: neither shared nor translatable", () => {
 		expect(fieldsByScope("project", "local").map((f) => f.name)).toEqual([
 			"path",
 		]);
@@ -215,7 +216,7 @@ describe("разделение на переводимое и общее", () =>
 		).not.toContain("path");
 	});
 
-	it("общие поля идут раньше переводимых", () => {
+	it("shared fields come before translatable ones", () => {
 		const rows = pairRows("project");
 		const names = [...rows.shared, ...rows.translated]
 			.filter((row) => row.shared || row.ru)

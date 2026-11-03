@@ -1,3 +1,4 @@
+// NOTE: these tests need the node environment, not a DOM.
 // @vitest-environment node
 
 import * as fs from "node:fs";
@@ -22,12 +23,12 @@ function tmpDir(): string {
 	return dir;
 }
 
-describe("временные каталоги", () => {
+describe("temp directories", () => {
 	afterAll(() => {
 		for (const dir of dirs) fs.rmSync(dir, { recursive: true, force: true });
 	});
 
-	it("начинаются пустыми", () => {
+	it("start empty", () => {
 		expect(dirs).toEqual([]);
 	});
 });
@@ -45,8 +46,8 @@ async function makePng(width: number, height: number): Promise<Buffer> {
 		.toBuffer();
 }
 
-describe("обложка приводится к 1200×630", () => {
-	it("обрезает большую картинку по центру", async () => {
+describe("a banner is fitted to 1200x630", () => {
+	it("crops a large image from the center", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(3000, 2000),
@@ -62,7 +63,7 @@ describe("обложка приводится к 1200×630", () => {
 		expect(saved.passThrough).toBe(false);
 	});
 
-	it("увеличивает маленькую до нужного размера", async () => {
+	it("upscales a small image to the target size", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(200, 150),
@@ -76,7 +77,7 @@ describe("обложка приводится к 1200×630", () => {
 		expect(saved.height).toBe(BANNER_HEIGHT);
 	});
 
-	it("файл на диске — webp нужного размера", async () => {
+	it("the file on disk is a webp of the target size", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(3000, 2000),
@@ -96,8 +97,8 @@ describe("обложка приводится к 1200×630", () => {
 	});
 });
 
-describe("картинка в тексте", () => {
-	it("ширину ужимает, высоту не трогает", async () => {
+describe("an image in the body", () => {
+	it("shrinks the width and keeps the height", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(2400, 1200),
@@ -111,7 +112,7 @@ describe("картинка в тексте", () => {
 		expect(saved.height).toBe(600);
 	});
 
-	it("мелкую не раздувает", async () => {
+	it("does not upscale a small one", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(300, 200),
@@ -125,7 +126,7 @@ describe("картинка в тексте", () => {
 		expect(saved.height).toBe(200);
 	});
 
-	it("портретная остаётся портретной", async () => {
+	it("a portrait stays a portrait", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(2000, 4000),
@@ -140,8 +141,8 @@ describe("картинка в тексте", () => {
 	});
 });
 
-describe("GIF не пережимается", () => {
-	it("остаётся gif с исходным размером", async () => {
+describe("a GIF is not re-encoded", () => {
+	it("stays a gif at the original size", async () => {
 		const dir = tmpDir();
 		const gif = await sharp({
 			create: { width: 64, height: 48, channels: 3, background: "#0f0" },
@@ -164,8 +165,8 @@ describe("GIF не пережимается", () => {
 	});
 });
 
-describe("отказы", () => {
-	it("пустой файл", async () => {
+describe("rejections", () => {
+	it("empty file", async () => {
 		await expect(
 			saveImage({
 				buffer: Buffer.alloc(0),
@@ -177,7 +178,7 @@ describe("отказы", () => {
 		).rejects.toThrow(/пустой/);
 	});
 
-	it("слишком большой", async () => {
+	it("too large", async () => {
 		const dir = tmpDir();
 		await expect(
 			saveImage({
@@ -204,7 +205,7 @@ describe("отказы", () => {
 });
 
 describe("removeImage", () => {
-	it("удаляет файл по пути /images/…", async () => {
+	it("deletes the file at an /images/... path", async () => {
 		const dir = tmpDir();
 		const saved = await saveImage({
 			buffer: await makePng(100, 100),
@@ -220,18 +221,18 @@ describe("removeImage", () => {
 	});
 
 	it.each([
-		["чужой путь", "/static/x.webp"],
-		["обход каталога", "/images/../secrets.txt"],
-		["глубокий обход", "/images/../../x.webp"],
-		["пустой", ""],
-	])("не трогает: %s", (_name, path) => {
+		["foreign path", "/static/x.webp"],
+		["directory traversal", "/images/../secrets.txt"],
+		["deep traversal", "/images/../../x.webp"],
+		["empty", ""],
+	])("leaves it alone: %s", (_name, path) => {
 		const dir = tmpDir();
 		fs.writeFileSync(join(dir, "..", "secrets.txt"), "секрет");
 		expect(removeImage(path, dir)).toBe(false);
 	});
 });
 
-describe("slug в имени файла", () => {
+describe("slug in the file name", () => {
 	it.each([
 		["example-repo", "example-repo"],
 		["../etc", "img"],

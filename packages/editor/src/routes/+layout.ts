@@ -1,6 +1,6 @@
 import type { LayoutLoad } from "./$types";
 
-// Ошибка не должна ломать страницу: без счётчика редактор покажет ноль.
+// NOTE: this error must not break the page; without a counter the editor shows zero.
 export const load: LayoutLoad = async ({ fetch }) => {
 	try {
 		const res = await fetch("/api/project-paths");
