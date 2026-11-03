@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { invalidateAll } from "$app/navigation";
-	import ReportRow from "$lib/components/errors/ReportRow.svelte";
 	import Badge from "@ku6epxboctuk/ui-kit/components/Badge.svelte";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
 	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
+	import { invalidateAll } from "$app/navigation";
+	import ReportRow from "$lib/components/errors/ReportRow.svelte";
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();
@@ -27,8 +27,8 @@
 	</header>
 
 	<p class="lead">
-		Weekly обходит проекты по папке <code>path</code> из frontmatter. Нет папки —
-		проект в отчёт не попадёт.
+		Weekly обходит проекты по папке <code>path</code> из frontmatter. Нет папки
+		— проект в отчёт не попадёт.
 	</p>
 
 	{#if data.reports.length === 0}
@@ -60,7 +60,8 @@
 				>не участвуют <Badge>{unset.length}</Badge></SectionTitle
 			>
 			<Notice size="lg"
-				>Папка не указана. Это не поломка: не каждый проект нужен в weekly.</Notice
+				>Папка не указана. Это не поломка: не каждый проект нужен в
+				weekly.</Notice
 			>
 			<ul class="plain">
 				{#each unset as report (report.slug)}

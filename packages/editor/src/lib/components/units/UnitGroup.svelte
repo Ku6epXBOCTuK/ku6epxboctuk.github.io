@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { invalidateAll } from "$app/navigation";
 	import type { EntrySummary } from "@ku6epxboctuk/content-core/shared";
-	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog.svelte";
 	import Badge from "@ku6epxboctuk/ui-kit/components/Badge.svelte";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
+	import ConfirmDialog from "@ku6epxboctuk/ui-kit/components/ConfirmDialog.svelte";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
 	import SectionTitle from "@ku6epxboctuk/ui-kit/components/SectionTitle.svelte";
+	import { invalidateAll } from "$app/navigation";
 
 	interface Props {
 		units: EntrySummary[];
@@ -63,7 +63,9 @@
 				<span class="title">{unit.title}</span>
 			</a>
 			<span class="flags">
-				{#if unit.draft}<Badge>черновик</Badge>{/if}
+				{#if unit.draft}
+					<Badge>черновик</Badge>
+				{/if}
 				{#if unit.needsTranslation}
 					<Badge tone="warning">перевод</Badge>
 				{/if}
@@ -72,7 +74,8 @@
 					variant="danger"
 					size="sm"
 					disabled={busy}
-					onclick={() => (removing = unit)}>удалить</Button
+					onclick={() => (removing = unit)}
+					>удалить</Button
 				>
 			</span>
 		</li>

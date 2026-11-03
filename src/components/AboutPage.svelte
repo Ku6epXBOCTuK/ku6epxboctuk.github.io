@@ -32,14 +32,26 @@
 <SectionTitle style="margin-top: 40px">skills</SectionTitle>
 <table class="skills-table">
 	<tbody>
-		<tr><td>frontend</td><td>svelte, rust, tauri, typescript</td></tr>
-		<tr
-			><td>creative</td><td>three.js, pixi.js, webgl, glsl, canvas, shaders</td
-			></tr
-		>
-		<tr><td>backend</td><td>rust, sql, wasm, node</td></tr>
-		<tr><td>infra</td><td>cloud, docker, ci/cd</td></tr>
-		<tr><td>design</td><td>figma, ui/ux, design systems</td></tr>
+		<tr>
+			<td>frontend</td>
+			<td>svelte, rust, tauri, typescript</td>
+		</tr>
+		<tr>
+			<td>creative</td>
+			<td>three.js, pixi.js, webgl, glsl, canvas, shaders</td>
+		</tr>
+		<tr>
+			<td>backend</td>
+			<td>rust, sql, wasm, node</td>
+		</tr>
+		<tr>
+			<td>infra</td>
+			<td>cloud, docker, ci/cd</td>
+		</tr>
+		<tr>
+			<td>design</td>
+			<td>figma, ui/ux, design systems</td>
+		</tr>
 	</tbody>
 </table>
 

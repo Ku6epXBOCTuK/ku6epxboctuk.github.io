@@ -1,8 +1,8 @@
 import type { ContentType } from "@ku6epxboctuk/content-core/shared";
-import { getArticles, type Article } from "$lib/articles";
+import { type Article, getArticles } from "$lib/articles";
+import { type ContentLang, DEFAULT_LANG } from "$lib/content";
 import { getPosts, type Post } from "$lib/posts";
 import { getProjects, type Project } from "$lib/projects";
-import { DEFAULT_LANG, type ContentLang } from "$lib/content";
 
 // NOTE: one index spans all three types, because one tag can sit on a post,
 // an article and a project at once.
@@ -51,24 +51,30 @@ export function collectTags<T extends Taggable>(items: T[]): TagIndex<T>[] {
 
 export function taggedEntries(lang: ContentLang = DEFAULT_LANG): TaggedEntry[] {
 	return [
-		...getPosts(lang).map((post): TaggedEntry => ({
-			type: "post",
-			key: `post:${post.slug}`,
-			tags: post.tags,
-			post,
-		})),
-		...getArticles(lang).map((article): TaggedEntry => ({
-			type: "article",
-			key: `article:${article.slug}`,
-			tags: article.tags,
-			article,
-		})),
-		...getProjects(lang).map((project): TaggedEntry => ({
-			type: "project",
-			key: `project:${project.slug}`,
-			tags: project.tags,
-			project,
-		})),
+		...getPosts(lang).map(
+			(post): TaggedEntry => ({
+				type: "post",
+				key: `post:${post.slug}`,
+				tags: post.tags,
+				post,
+			}),
+		),
+		...getArticles(lang).map(
+			(article): TaggedEntry => ({
+				type: "article",
+				key: `article:${article.slug}`,
+				tags: article.tags,
+				article,
+			}),
+		),
+		...getProjects(lang).map(
+			(project): TaggedEntry => ({
+				type: "project",
+				key: `project:${project.slug}`,
+				tags: project.tags,
+				project,
+			}),
+		),
 	];
 }
 

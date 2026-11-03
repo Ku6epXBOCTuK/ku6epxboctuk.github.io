@@ -51,13 +51,15 @@
 						? `скопировать текст ${LANG_LABEL[lang]} в ${LANG_LABEL[copyTo]}`
 						: `${LANG_LABEL[copyTo]} не пуст — копирование затрёт текст`}
 					onclick={() => oncopytext(lang, copyTo)}
-					>{LANG_LABEL[lang]} → {LANG_LABEL[copyTo]}</Button
+					>{LANG_LABEL[lang]}
+					→ {LANG_LABEL[copyTo]}</Button
 				>
 				<Button
 					variant="danger"
 					size="sm"
 					disabled={busy}
-					onclick={() => onclear(lang)}>очистить</Button
+					onclick={() => onclear(lang)}
+					>очистить</Button
 				>
 			</div>
 		</div>
@@ -78,9 +80,12 @@
 	</div>
 
 	<div class="save-row">
-		<Button variant="primary" disabled={busy} onclick={onsave}>сохранить</Button
+		<Button variant="primary" disabled={busy} onclick={onsave}
+			>сохранить</Button
 		>
-		{#if status}<span class="status">{status}</span>{/if}
+		{#if status}
+			<span class="status">{status}</span>
+		{/if}
 	</div>
 </section>
 

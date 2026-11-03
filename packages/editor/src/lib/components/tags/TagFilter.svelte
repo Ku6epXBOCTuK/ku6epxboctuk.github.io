@@ -28,9 +28,7 @@
 		>
 			×
 		</IconButton>
-		<span class="found">
-			{found} из {total}
-		</span>
+		<span class="found"> {found} из {total} </span>
 	{/if}
 </div>
 

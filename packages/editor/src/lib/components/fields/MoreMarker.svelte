@@ -20,9 +20,7 @@
 
 <div class="marker" class:missing={!hasMarker}>
 	{#if hasMarker}
-		<span>
-			<strong>&lt;!--more--&gt;</strong> · тизер {teaserLength}
-		</span>
+		<span> <strong>&lt;!--more--&gt;</strong> · тизер {teaserLength} </span>
 		<Button size="sm" {disabled} onclick={onremove}>убрать</Button>
 	{:else}
 		<span><strong>&lt;!--more--&gt;</strong> · обязателен для статьи</span>

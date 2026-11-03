@@ -11,7 +11,8 @@ pnpm editor
 It prints a `http://127.0.0.1:4321/` link. There is no auth: the editor binds
 loopback only and relies on that, so it must never be started on a public
 interface. The editor writes `src/content/**` on disk, formats with prettier
-before writing, and shows the result of `lint:content` for the edited unit.
+before writing, and shows the result of `lint:content` for the edited unit. Biome
+skips `src/content/**`: its markdown formatter rewrites frontmatter YAML.
 Types: `post`, `article`, `project`. `weekly` is generated automatically and is
 not editable here.
 

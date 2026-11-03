@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
 	import {
 		defaultsFor,
 		entryFromFlat,
 	} from "@ku6epxboctuk/content-core/shared";
-	import type { GitHubProjectPayload } from "../../../routes/api/github-project/+server";
 	import Button from "@ku6epxboctuk/ui-kit/components/Button.svelte";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
+	import { goto } from "$app/navigation";
+	import type { GitHubProjectPayload } from "../../../routes/api/github-project/+server";
 
 	let creating = $state(false);
 	let errorText = $state("");
@@ -26,7 +26,8 @@
 				body: JSON.stringify({ url: ghUrl }),
 			});
 			const json = (await res.json().catch(() => ({}))) as
-				(GitHubProjectPayload & { error?: string }) | { error?: string };
+				| (GitHubProjectPayload & { error?: string })
+				| { error?: string };
 			if (!res.ok || !("frontmatter" in json)) {
 				errorText = (json as { error?: string }).error ?? `HTTP ${res.status}`;
 				return;
@@ -71,7 +72,8 @@
 	<Button
 		variant="primary"
 		disabled={creating || !ghUrl.trim()}
-		onclick={createFromGithub}>{creating ? "создаю…" : "создать"}</Button
+		onclick={createFromGithub}
+		>{creating ? "создаю…" : "создать"}</Button
 	>
 </div>
 

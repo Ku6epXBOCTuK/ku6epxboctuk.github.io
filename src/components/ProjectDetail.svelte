@@ -77,7 +77,8 @@
 				target="_blank"
 				rel="noreferrer"
 			>
-				{t.project.repo} ↗
+				{t.project.repo}
+				↗
 			</a>
 		{/if}
 		{#if shown.homepage}
@@ -87,7 +88,8 @@
 				target="_blank"
 				rel="noreferrer"
 			>
-				{t.project.homepage} ↗
+				{t.project.homepage}
+				↗
 			</a>
 		{/if}
 	</div>

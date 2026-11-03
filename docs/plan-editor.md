@@ -292,10 +292,10 @@ packages/editor/src/lib/components/ImageDrop.svelte
 
 ```ts
 sharp(buffer)
-  .rotate() // учесть EXIF
-  // баннер:  .resize(1200, 630, { fit: "cover", position: "centre" })
-  // контент: .resize(1200, undefined, { fit: "inside", withoutEnlargement: true })
-  .webp({ quality: 82 });
+	.rotate() // учесть EXIF
+	// баннер:  .resize(1200, 630, { fit: "cover", position: "centre" })
+	// контент: .resize(1200, undefined, { fit: "inside", withoutEnlargement: true })
+	.webp({ quality: 82 });
 ```
 
 - имя `<slug>-<8 hex>.webp`, чтобы не перетирать

@@ -29,7 +29,9 @@
 		{/if}
 		<div class="project-info">
 			<div class="project-name">
-				{#if project.icon}<span class="project-icon">{project.icon}</span>{/if}
+				{#if project.icon}
+					<span class="project-icon">{project.icon}</span>
+				{/if}
 				{project.title}
 				{#if project.repo}
 					<span class="project-repo">{repoShort}</span>

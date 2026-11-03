@@ -72,6 +72,7 @@ const reports = checkProjectPaths();
 
 ```markdown
 ---
+
 title: weekly 2026-W37
 excerpt: 4 проекта, 23 коммита. now-playing: v1.2, git-overhooks: новый hooks api.
 ---
@@ -95,10 +96,10 @@ excerpt: 4 проекта, 23 коммита. now-playing: v1.2, git-overhooks: 
 
 ```json
 {
-  "2026-09-07": {
-    "date": "2026-09-07",
-    "draft": true
-  }
+	"2026-09-07": {
+		"date": "2026-09-07",
+		"draft": true
+	}
 }
 ```
 

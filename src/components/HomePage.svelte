@@ -3,7 +3,7 @@
 	import type { Row } from "$cmp/TerminalWindow.svelte";
 	import TerminalWindow from "$cmp/TerminalWindow.svelte";
 	import { HOME_RECENT_POSTS, SOCIAL } from "$lib/config";
-	import { DEFAULT_LANG, langUrl, type ContentLang } from "$lib/content";
+	import { type ContentLang, DEFAULT_LANG, langUrl } from "$lib/content";
 	import { ui } from "$lib/i18n";
 	import { getPosts } from "$lib/posts";
 
@@ -28,8 +28,8 @@
 	<div class="hero-copy">
 		<span class="eyebrow">{t.home.eyebrow}</span>
 		<h1>
-			{t.home.titleTop}<br /><em>{t.home.titleEm}</em>{t.home.titleMid}<br />{t
-				.home.titleBottom}
+			{t.home.titleTop}<br /><em>{t.home.titleEm}</em>{t.home.titleMid}<br />
+			{t.home.titleBottom}
 		</h1>
 		<p>{t.home.intro}</p>
 		<div class="hero-actions">

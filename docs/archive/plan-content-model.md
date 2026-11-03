@@ -6,7 +6,7 @@
 > локальному клону лежит в поле `path` проекта, публикации в соцсети нет.
 > Актуально: [plan-editor.md](../plan-editor.md),
 > [plan-weekly.md](../plan-weekly.md).
-
+>
 > Статус: на ревью. Один из трёх планов: дизайн, модель контента, автоматизация.
 > Этот — базовый: определяет типы контента, схемы frontmatter и процесс работы с
 > ручным контентом. Старт с нуля без миграций (старые статьи чисто текстовые —
@@ -150,8 +150,7 @@ draft: true
 ---
 title: now-playing
 subtitle: obs browser source
-description:
-  obs browser source widget that displays the currently playing track.
+description: obs browser source widget that displays the currently playing track.
 tags:
   - html
 image: images/now-playing.jpg # относительно папки проекта

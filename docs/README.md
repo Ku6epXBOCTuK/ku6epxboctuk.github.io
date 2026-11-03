@@ -10,7 +10,7 @@ markdown в git.
 - `vite-plugin-svelte-md` (markdown компилится в Svelte-компоненты)
 - Comfortaa + Nunito, self-hosted через `@fontsource`
 - OKLCH-токены в `src/app.css`, 4 темы (kawaii/soft × light/dark)
-- ESLint + Prettier + Stylelint, Vitest (unit) + Playwright (e2e)
+- ESLint + Biome + Stylelint, Vitest (unit) + Playwright (e2e)
 
 ## Монорепо
 
@@ -73,9 +73,10 @@ production.
 | `pnpm editor`        | локальный редактор контента          |
 | `pnpm dev`           | дев-сервер сайта                     |
 | `pnpm build`         | продакшен-сборка сайта               |
-| `pnpm format`        | prettier --write                     |
+| `pnpm format`        | biome format --write                 |
+| `pnpm format:check`  | biome format                         |
 | `pnpm check`         | svelte-check                         |
-| `pnpm lint`          | prettier --check + eslint            |
+| `pnpm lint`          | biome format + eslint                |
 | `pnpm lint:css`      | stylelint                            |
 | `pnpm lint:css-vars` | запрет прямых цветов в CSS           |
 | `pnpm lint:content`  | валидация frontmatter                |

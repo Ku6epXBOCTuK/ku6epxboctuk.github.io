@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { describeSize, uploadImage } from "$lib/upload";
+	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop.svelte";
 	import Notice from "@ku6epxboctuk/ui-kit/components/Notice.svelte";
 	import TextInput from "@ku6epxboctuk/ui-kit/components/TextInput.svelte";
-	import FileDrop from "@ku6epxboctuk/ui-kit/components/FileDrop.svelte";
+	import { describeSize, uploadImage } from "$lib/upload";
 
 	interface Props {
 		value: string;
@@ -75,7 +75,8 @@
 		<Notice tone="danger" size="lg">{error}</Notice>
 	{:else if saved}
 		<Notice>
-			{saved.width}×{saved.height} · {describeSize(saved.bytes)}
+			{saved.width}×{saved.height}
+			· {describeSize(saved.bytes)}
 		</Notice>
 	{/if}
 </div>

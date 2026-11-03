@@ -23,9 +23,11 @@
 		<div class="article-header">
 			<span class="article-title">{article.title}</span>
 			<span class="article-date">
-				{article.date}{#if article.readingTime}
+				{article.date}
+				{#if article.readingTime}
 					· {article.readingTime}
-					{t.minRead}{/if}
+					{t.minRead}
+				{/if}
 			</span>
 		</div>
 		{#if article.teaser}
